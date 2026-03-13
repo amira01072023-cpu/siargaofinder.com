@@ -441,6 +441,29 @@ return (
 </div>
 </section>
 
+<section className="max-w-6xl mx-auto px-4 pb-14">
+<div className="flex items-end justify-between mb-5">
+<h2 className="text-2xl font-bold">Siargao Guides</h2>
+<span className="text-sm text-slate-500">SEO hubs for visitors and locals</span>
+</div>
+<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+{[
+{ href: "/guide/best-cafes-in-siargao", label: "Best Cafes in Siargao" },
+{ href: "/guide/best-restaurants-in-general-luna", label: "Best Restaurants in General Luna" },
+{ href: "/guide/siargao-surf-schools-guide", label: "Siargao Surf Schools Guide" },
+{ href: "/guide/siargao-island-hopping-guide", label: "Siargao Island Hopping Guide" },
+{ href: "/guide/siargao-transport-guide", label: "Siargao Transport Guide" },
+{ href: "/guide/siargao-coworking-guide", label: "Siargao Coworking Guide" },
+{ href: "/guide/where-to-find-services-in-siargao", label: "Where to Find Services in Siargao" },
+{ href: "/guide/top-local-businesses-in-siargao", label: "Top Local Businesses in Siargao" },
+].map((g) => (
+<Link key={g.href} href={g.href} className="bg-white border rounded-xl p-4 hover:shadow-md transition text-sm font-medium text-amber-800 hover:underline">
+{g.label}
+</Link>
+))}
+</div>
+</section>
+
 <SiteFooter />
 
 

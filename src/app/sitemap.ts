@@ -14,6 +14,16 @@ const staticRoutes: MetadataRoute.Sitemap = [
 { url: `${baseUrl}/eu-compliance`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.4 },
 { url: `${baseUrl}/report-illegal-content`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.4 },
 
+// Guide pages
+{ url: `${baseUrl}/guide/best-cafes-in-siargao`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+{ url: `${baseUrl}/guide/best-restaurants-in-general-luna`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+{ url: `${baseUrl}/guide/siargao-surf-schools-guide`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+{ url: `${baseUrl}/guide/siargao-island-hopping-guide`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+{ url: `${baseUrl}/guide/siargao-transport-guide`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+{ url: `${baseUrl}/guide/siargao-coworking-guide`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+{ url: `${baseUrl}/guide/where-to-find-services-in-siargao`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+{ url: `${baseUrl}/guide/top-local-businesses-in-siargao`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+
 { url: `${baseUrl}/list-your-business`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.6 },
 
 // Siargao area pages

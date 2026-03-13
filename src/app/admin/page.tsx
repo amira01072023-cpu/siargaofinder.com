@@ -10,11 +10,26 @@ type Submission = { id: number; business_name: string; status: string; created_a
 type Claim = { id: number; listing_id: number; claimant_name: string; status: string; created_at: string };
 type DataRequest = { id: number; full_name: string; request_type: string; status: string; created_at: string };
 
+type PanelErrors = {
+  submissions?: string;
+  claims?: string;
+  requests?: string;
+};
+
+function safeParse<T>(raw: string): T {
+  try {
+    return raw ? (JSON.parse(raw) as T) : ({} as T);
+  } catch {
+    return {} as T;
+  }
+}
+
 export default function AdminDashboardPage() {
   const supabase = createClient();
 
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState("");
+  const [panelErrors, setPanelErrors] = useState<PanelErrors>({});
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
   const [requests, setRequests] = useState<DataRequest[]>([]);
@@ -28,6 +43,7 @@ export default function AdminDashboardPage() {
     try {
       setLoading(true);
       setMsg("");
+      setPanelErrors({});
 
       const [sRes, cRes, dRes] = await Promise.all([
         fetch("/api/admin/submissions", { cache: "no-store" }),
@@ -37,18 +53,39 @@ export default function AdminDashboardPage() {
 
       const [sRaw, cRaw, dRaw] = await Promise.all([sRes.text(), cRes.text(), dRes.text()]);
 
-      const sData: { error?: string; items?: Submission[] } = sRaw ? JSON.parse(sRaw) : {};
-      const cData: { error?: string; items?: Claim[] } = cRaw ? JSON.parse(cRaw) : {};
-      const dData: { error?: string; details?: string; items?: DataRequest[] } = dRaw ? JSON.parse(dRaw) : {};
+      const sData = safeParse<{ error?: string; items?: Submission[] }>(sRaw);
+      const cData = safeParse<{ error?: string; items?: Claim[] }>(cRaw);
+      const dData = safeParse<{ error?: string; details?: string; items?: DataRequest[] }>(dRaw);
 
-      if (!sRes.ok || !cRes.ok || !dRes.ok) {
-        setMsg(sData.error || cData.error || dData.error || dData.details || "Failed to load admin data.");
-        return;
+      const nextErrors: PanelErrors = {};
+
+      if (sRes.ok) {
+        setSubmissions(sData.items || []);
+      } else {
+        setSubmissions([]);
+        nextErrors.submissions = sData.error || `Failed (${sRes.status})`;
       }
 
-      setSubmissions(sData.items || []);
-      setClaims(cData.items || []);
-      setRequests(dData.items || []);
+      if (cRes.ok) {
+        setClaims(cData.items || []);
+      } else {
+        setClaims([]);
+        nextErrors.claims = cData.error || `Failed (${cRes.status})`;
+      }
+
+      if (dRes.ok) {
+        setRequests(dData.items || []);
+      } else {
+        setRequests([]);
+        nextErrors.requests = dData.error || dData.details || `Failed (${dRes.status})`;
+      }
+
+      const hasAnyFailure = !sRes.ok || !cRes.ok || !dRes.ok;
+      if (hasAnyFailure) {
+        setMsg("Some admin panels could not be loaded. Available data is shown below.");
+      }
+
+      setPanelErrors(nextErrors);
     } catch (e: unknown) {
       setMsg(e instanceof Error ? e.message : "Failed to load dashboard");
     } finally {
@@ -154,7 +191,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {msg && <p className="mb-4 text-sm text-red-600">{msg}</p>}
+        {msg && <p className="mb-4 text-sm text-amber-700">{msg}</p>}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5">
           <div className="border rounded-lg p-4 bg-amber-50 border-amber-200">
@@ -223,6 +260,7 @@ export default function AdminDashboardPage() {
         <section className="grid md:grid-cols-3 gap-4">
           <div className="border rounded-lg p-4">
             <h3 className="font-semibold mb-2">Latest Submissions</h3>
+            {panelErrors.submissions && <p className="text-xs text-red-600 mb-2">{panelErrors.submissions}</p>}
             <ul className="text-sm space-y-1 text-slate-700">
               {submissions.slice(0, 5).map((s) => (
                 <li key={s.id}>#{s.id} · {s.business_name} · {s.status}</li>
@@ -233,6 +271,7 @@ export default function AdminDashboardPage() {
 
           <div className="border rounded-lg p-4">
             <h3 className="font-semibold mb-2">Latest Claims</h3>
+            {panelErrors.claims && <p className="text-xs text-red-600 mb-2">{panelErrors.claims}</p>}
             <ul className="text-sm space-y-1 text-slate-700">
               {claims.slice(0, 5).map((c) => (
                 <li key={c.id}>#{c.id} · Listing {c.listing_id} · {c.status}</li>
@@ -243,6 +282,7 @@ export default function AdminDashboardPage() {
 
           <div className="border rounded-lg p-4">
             <h3 className="font-semibold mb-2">Latest Data Requests</h3>
+            {panelErrors.requests && <p className="text-xs text-red-600 mb-2">{panelErrors.requests}</p>}
             <ul className="text-sm space-y-1 text-slate-700">
               {requests.slice(0, 5).map((r) => (
                 <li key={r.id}>#{r.id} · {r.full_name} · {r.status}</li>

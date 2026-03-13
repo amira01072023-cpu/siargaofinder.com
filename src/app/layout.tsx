@@ -28,9 +28,44 @@ children,
 }: {
 children: React.ReactNode;
 }) {
+const siteUrl = getSiteUrl();
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Siargao Finder",
+  url: siteUrl,
+  contactPoint: [
+    {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: "info@siargaofinder.com",
+    },
+  ],
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Siargao Finder",
+  url: siteUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${siteUrl}/?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
+
 return (
 <html lang="en">
 <body>
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+/>
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+/>
 {children}
 <CookieConsentBanner />
 </body>

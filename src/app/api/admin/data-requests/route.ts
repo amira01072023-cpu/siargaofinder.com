@@ -27,23 +27,14 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    // Graceful fallback when DSR table is not provisioned yet.
-    // Postgres undefined_table is SQLSTATE 42P01.
-    if ((error as { code?: string }).code === "42P01") {
-      return NextResponse.json({
-        items: [],
-        warning: "data_subject_requests table is not provisioned yet",
-      });
-    }
-
-    return NextResponse.json(
-      {
-        error:
-          "Unable to read data_subject_requests. Ensure the table exists in Supabase with expected columns.",
-        details: error.message,
-      },
-      { status: 500 }
-    );
+    // Graceful fallback so admin dashboard remains usable even when
+    // DSR storage is not ready/misconfigured.
+    return NextResponse.json({
+      items: [],
+      warning: "data_subject_requests unavailable",
+      details: error.message,
+      code: (error as { code?: string }).code || null,
+    });
   }
 
   return NextResponse.json({ items: data ?? [] });

@@ -1,0 +1,2 @@
+business_name,category,city_or_area,phone,whatsapp,email,website_url,services,short_description,source_name,source_url,status,last_verified_at,notes
+"Example Surf School","Surf Schools & Rentals","General Luna","+63XXXXXXXXXX","+63XXXXXXXXXX","hello@example.com","https://example.com","Beginner lessons;Board rental","Friendly surf school near Cloud 9","Google Maps","https://maps.google.com/...","pending_review","2026-03-11","Imported from source"

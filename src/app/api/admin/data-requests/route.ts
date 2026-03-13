@@ -1,15 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-admin";
-
-const ALLOWED_ADMIN_EMAIL = "amira.01072023@gmail.com";
-
-function normalize(v: string | null | undefined) {
-  return (v || "").trim().toLowerCase();
-}
-function isAdmin(email?: string | null) {
-  return normalize(email) === normalize(ALLOWED_ADMIN_EMAIL);
-}
+import { isAdminEmail } from "@/lib/admin-auth";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -17,7 +9,7 @@ async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!isAdmin(user?.email)) {
+  if (!isAdminEmail(user?.email)) {
     return { ok: false as const, response: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
 

@@ -41,15 +41,15 @@
 - [x] `/sitemap.xml` loads
 - [x] `/robots.txt` loads
 - [ ] Google verification file accessible
-- [ ] Search Console property verified
-- [ ] Sitemap submitted to Search Console
+- [x] Search Console property verified
+- [x] Sitemap submitted to Search Console
 
 ## 7) Security & Hygiene
 - [x] `.env.local` exists locally and is NOT committed
 - [x] `.gitignore` includes local secrets/logs/backups
 - [x] No debug placeholders/routes left
 - [x] Admin email restriction active
-- [ ] HTTPS/SSL enforced on production domain
+- [x] HTTPS/SSL enforced on production domain
 - [ ] Backups configured and restore test verified
 - [ ] Vulnerability scan completed (pre-launch + recurring)
 
@@ -62,9 +62,9 @@
 - [x] Contact process for DSAR requests documented
 
 ## 8) Deployment
-- [ ] `git add . && git commit` clean
-- [ ] `git push origin main`
-- [ ] Vercel deployment status = Ready
+- [x] `git add . && git commit` clean
+- [x] `git push origin main`
+- [x] Vercel deployment status = Ready
 - [x] Live smoke test passed:
 - [x] `/`
 - [x] `/listing/1`

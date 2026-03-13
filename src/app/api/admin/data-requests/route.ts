@@ -17,59 +17,74 @@ async function requireAdmin() {
 }
 
 export async function GET() {
-  const admin = await requireAdmin();
-  if (!admin.ok) return admin.response;
+  try {
+    const admin = await requireAdmin();
+    if (!admin.ok) return admin.response;
 
-  const adminDb = createAdminClient();
-  const { data, error } = await adminDb
-    .from("data_subject_requests")
-    .select("*")
-    .order("created_at", { ascending: false });
+    const adminDb = createAdminClient();
+    const { data, error } = await adminDb
+      .from("data_subject_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    // Graceful fallback so admin dashboard remains usable even when
-    // DSR storage is not ready/misconfigured.
+    if (error) {
+      // Graceful fallback so admin dashboard remains usable even when
+      // DSR storage is not ready/misconfigured.
+      return NextResponse.json({
+        items: [],
+        warning: "data_subject_requests unavailable",
+        details: error.message,
+        code: (error as { code?: string }).code || null,
+      });
+    }
+
+    return NextResponse.json({ items: data ?? [] });
+  } catch (e: unknown) {
     return NextResponse.json({
       items: [],
       warning: "data_subject_requests unavailable",
-      details: error.message,
-      code: (error as { code?: string }).code || null,
+      details: e instanceof Error ? e.message : "unknown error",
     });
   }
-
-  return NextResponse.json({ items: data ?? [] });
 }
 
 export async function POST(req: Request) {
-  const admin = await requireAdmin();
-  if (!admin.ok) return admin.response;
+  try {
+    const admin = await requireAdmin();
+    if (!admin.ok) return admin.response;
 
-  const body = await req.json();
-  const id = Number(body?.id);
-  const status = String(body?.status || "").trim();
-  const review_note = String(body?.review_note || "").trim();
+    const body = await req.json();
+    const id = Number(body?.id);
+    const status = String(body?.status || "").trim();
+    const review_note = String(body?.review_note || "").trim();
 
-  const allowed = ["pending", "in_progress", "completed", "rejected"];
-  if (!id || !allowed.includes(status)) {
-    return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
+    const allowed = ["pending", "in_progress", "completed", "rejected"];
+    if (!id || !allowed.includes(status)) {
+      return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
+    }
+
+    if (status === "rejected" && !review_note) {
+      return NextResponse.json({ error: "Review note is required when rejecting." }, { status: 400 });
+    }
+
+    const adminDb = createAdminClient();
+    const { error } = await adminDb
+      .from("data_subject_requests")
+      .update({
+        status,
+        review_note: review_note || null,
+      })
+      .eq("id", id);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, status });
+  } catch (e: unknown) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Failed to update data request" },
+      { status: 500 }
+    );
   }
-
-  if (status === "rejected" && !review_note) {
-    return NextResponse.json({ error: "Review note is required when rejecting." }, { status: 400 });
-  }
-
-  const adminDb = createAdminClient();
-  const { error } = await adminDb
-    .from("data_subject_requests")
-    .update({
-      status,
-      review_note: review_note || null,
-    })
-    .eq("id", id);
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  return NextResponse.json({ success: true, status });
 }

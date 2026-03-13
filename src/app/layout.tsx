@@ -18,6 +18,19 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  openGraph: {
+    type: "website",
+    url: "https://www.siargaofinder.com",
+    siteName: "Siargao Finder",
+    title: "Siargao Finder",
+    description: "Find local businesses, services, and contacts across Siargao.",
+    locale: "en_PH",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Siargao Finder",
+    description: "Find local businesses, services, and contacts across Siargao.",
+  },
   verification: {
     google: "3p_IASh8NiGqhPGB-H_65AobSiPJ6PjdKAhuyfeFq8U",
   },

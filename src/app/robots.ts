@@ -8,7 +8,7 @@ rules: [
 {
 userAgent: "*",
 allow: "/",
-disallow: ["/admin/", "/api/admin/", "/auth"],
+disallow: ["/admin/", "/api/admin/"],
 },
 ],
 sitemap: `${baseUrl}/sitemap.xml`,

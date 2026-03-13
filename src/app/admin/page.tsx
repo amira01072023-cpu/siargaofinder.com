@@ -197,7 +197,7 @@ export default function AdminDashboardPage() {
           </div>
         </section>
 
-        <div className="grid md:grid-cols-3 gap-3 mb-6">
+        <div className="grid md:grid-cols-4 gap-3 mb-6">
           <Link href="/admin/submissions" className="border rounded-lg p-4 hover:bg-slate-50">
             <h2 className="font-semibold">Business Submissions</h2>
             <p className="text-sm text-slate-600 mt-1">Review and approve/reject business listings.</p>
@@ -212,6 +212,11 @@ export default function AdminDashboardPage() {
             <h2 className="font-semibold">Data Rights Requests</h2>
             <p className="text-sm text-slate-600 mt-1">Handle privacy access/deletion/portability requests.</p>
             <p className="text-xs text-slate-500 mt-2">Total: {stats.totalRequests}</p>
+          </Link>
+          <Link href="/admin/command-center" className="border rounded-lg p-4 hover:bg-slate-50">
+            <h2 className="font-semibold">Command Center</h2>
+            <p className="text-sm text-slate-600 mt-1">Cross-site SEO and operations panel.</p>
+            <p className="text-xs text-slate-500 mt-2">Siargao + UAE</p>
           </Link>
         </div>
 

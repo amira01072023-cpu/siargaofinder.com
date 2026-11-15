@@ -35,6 +35,9 @@ const review_note = String(body?.review_note || "").trim();
 if (!id || !["approve", "reject"].includes(action)) {
 return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
 }
+if (review_note.length > 2000) {
+return NextResponse.json({ error: "Review note is too long" }, { status: 400 });
+}
 if (action === "reject" && !review_note) {
 return NextResponse.json({ error: "Rejection reason is required" }, { status: 400 });
 }
@@ -61,6 +64,14 @@ reviewed_at: new Date().toISOString(),
 .eq("id", id);
 
 if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 });
+
+const listingClaimStatus = status === "approved" ? "claimed" : "rejected";
+const { error: listingErr } = await supabase
+.from("business_listings")
+.update({ claim_status: listingClaimStatus })
+.eq("id", claim.listing_id);
+
+if (listingErr) return NextResponse.json({ error: listingErr.message }, { status: 500 });
 
 return NextResponse.json({ success: true, status });
 }

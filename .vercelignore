@@ -1,0 +1,13 @@
+# Local development state
+.dev-server.log
+.dev-server.pid
+
+# Local backups and transfer reports must never be uploaded with a deployment
+backups/
+*.zip
+*.tar.gz
+
+# Unused source/reference images kept at the repository root
+/ChatGPT Image Apr 22, 2026, 11_31_17 AM.png
+/Cover Page.png
+/site-logo.png

@@ -28,8 +28,7 @@ const db = createClient(url, key);
   const payload = rows.map((r) => ({
     business_name: r.business_name || null,
     category: r.category || null,
-    emirate: r.emirate || null,
-    city: r.city || null,
+    municipality: r.municipality || r.city || null,
     address: r.address || null,
     phone: r.phone || null,
     email: r.email || null,

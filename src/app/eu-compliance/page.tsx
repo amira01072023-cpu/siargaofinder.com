@@ -51,7 +51,7 @@ export default function EuCompliancePage() {
 
       <h2 className="mt-8 text-xl font-bold">6) Contact</h2>
       <p>
-        Compliance inquiries: <a className="text-amber-700 hover:underline" href="mailto:info@siargaofinder.com">info@siargaofinder.com</a>
+        Compliance inquiries: <a className="text-amber-700 hover:underline" href="/contact">use our contact and support page</a>
       </p>
     </LegalLayout>
   );

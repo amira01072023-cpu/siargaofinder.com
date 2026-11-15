@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-admin";
-import { getResendClient } from "@/lib/mailer";
+import { getMailerFrom, getResendClient } from "@/lib/mailer";
 
 const CONTACT_EMAIL = "info@siargaofinder.com";
 
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
     if (resend) {
       await resend.emails.send({
-      from: "Siargao Finder <onboarding@resend.dev>",
+      from: getMailerFrom(),
       to: CONTACT_EMAIL,
       replyTo: email,
       subject: `Data Subject Request: ${requestType.toUpperCase()} - ${fullName}`,

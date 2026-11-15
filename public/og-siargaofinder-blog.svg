@@ -1,0 +1,33 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#0F172A"/>
+  <defs>
+    <linearGradient id="sunset" x1="180" y1="120" x2="1020" y2="510" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FACC15"/>
+      <stop offset="0.5" stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#FB7185"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="968" cy="132" r="220" fill="url(#sunset)" opacity="0.18"/>
+  <circle cx="180" cy="520" r="260" fill="#22C55E" opacity="0.08"/>
+
+  <rect x="84" y="88" width="1032" height="454" rx="40" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+
+  <rect x="126" y="166" width="156" height="156" rx="34" fill="#111827"/>
+  <circle cx="204" cy="244" r="54" fill="#FACC15"/>
+  <path d="M176 252C176 237.641 187.641 226 202 226H258V242H202C196.477 242 192 246.477 192 252C192 257.523 196.477 262 202 262H218V278H202C187.641 278 176 266.359 176 252Z" fill="#111827"/>
+  <rect x="218" y="254" width="12" height="24" rx="6" fill="#111827"/>
+  <circle cx="224" cy="232" r="6" fill="#111827"/>
+
+  <text x="330" y="220" fill="#F8FAFC" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="0.18em">SIARGAOFINDER</text>
+  <text x="330" y="292" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="800">Siargao travel guides</text>
+  <text x="330" y="364" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="800">and local business finds</text>
+
+  <text x="132" y="434" fill="#CBD5E1" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="500">
+    Practical blog posts, local planning help, food guides, transport tips, and useful island info.
+  </text>
+
+  <rect x="132" y="468" width="284" height="18" rx="9" fill="#FACC15" opacity="0.9"/>
+  <rect x="132" y="510" width="500" height="18" rx="9" fill="#F8FAFC" opacity="0.18"/>
+  <rect x="132" y="542" width="422" height="18" rx="9" fill="#F8FAFC" opacity="0.12"/>
+</svg>

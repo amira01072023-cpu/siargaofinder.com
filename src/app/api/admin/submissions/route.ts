@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { getResendClient } from "@/lib/mailer";
+import { getMailerFrom, getResendClient } from "@/lib/mailer";
 import { isAdminEmail } from "@/lib/admin-auth";
+
+const REVIEW_ACTIONS = ["approve", "reject", "mark_duplicate", "request_info"] as const;
+
+type ReviewAction = (typeof REVIEW_ACTIONS)[number];
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 export async function GET() {
 const supabase = await createClient();
@@ -16,6 +29,7 @@ return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 const { data, error } = await supabase
 .from("business_submissions")
 .select("*")
+.neq("status", "email_unverified")
 .order("created_at", { ascending: false });
 
 if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -35,15 +49,19 @@ return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
 const body = await req.json();
 const id = Number(body?.id);
-const action = String(body?.action || "").trim();
+const action = String(body?.action || "").trim() as ReviewAction;
 const review_note = String(body?.review_note || "").trim();
 
-if (!id || !["approve", "reject"].includes(action)) {
+if (!id || !REVIEW_ACTIONS.includes(action)) {
 return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
 }
 
-if (action === "reject" && !review_note) {
-return NextResponse.json({ error: "Rejection reason is required" }, { status: 400 });
+if (review_note.length > 2000) {
+return NextResponse.json({ error: "Review note is too long" }, { status: 400 });
+}
+
+if (["reject", "mark_duplicate", "request_info"].includes(action) && !review_note) {
+return NextResponse.json({ error: "Review note is required for this action" }, { status: 400 });
 }
 
 const { data: submission, error: fetchErr } = await supabase
@@ -86,6 +104,7 @@ const parsedSocials = (() => {
 const { error: insErr } = await supabase.from("business_listings").insert({
 business_name: submission.business_name,
 category: submission.category,
+municipality: submission.city,
 city: submission.city,
 phone: submission.phone,
 email: submission.email,
@@ -101,7 +120,14 @@ last_verified_at: new Date().toISOString(),
 if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 });
 }
 
-const newStatus = action === "approve" ? "approved" : "rejected";
+const statusByAction: Record<ReviewAction, string> = {
+approve: "approved",
+reject: "rejected",
+mark_duplicate: "duplicate",
+request_info: "needs_info",
+};
+
+const newStatus = statusByAction[action];
 
 const { error: updErr } = await supabase
 .from("business_submissions")
@@ -118,26 +144,45 @@ if (updErr) return NextResponse.json({ error: updErr.message }, { status: 500 })
 const resend = getResendClient();
 
 if (resend && submission.email) {
-await resend.emails.send({
-from: "Siargao Finder <onboarding@resend.dev>",
-to: submission.email,
-subject:
-newStatus === "approved"
-? `Approved: ${submission.business_name}`
-: `Update on your listing: ${submission.business_name}`,
-html:
-newStatus === "approved"
-? `
+const safeBusinessName = escapeHtml(String(submission.business_name || ""));
+const safeReviewNote = escapeHtml(review_note);
+const subjectByStatus: Record<string, string> = {
+approved: `Approved: ${safeBusinessName}`,
+rejected: `Update on your listing: ${safeBusinessName}`,
+duplicate: `Duplicate listing notice: ${safeBusinessName}`,
+needs_info: `More info needed: ${safeBusinessName}`,
+};
+const htmlByStatus: Record<string, string> = {
+approved: `
 <p>Hello,</p>
-<p>Your listing <b>${submission.business_name}</b> has been <b>approved</b> and published on Siargao Finder.</p>
+<p>Your listing <b>${safeBusinessName}</b> has been <b>approved</b> and published on Siargao Finder.</p>
 <p>Thank you.</p>
-`
-: `
+`,
+rejected: `
 <p>Hello,</p>
-<p>Your listing <b>${submission.business_name}</b> was <b>not approved</b> at this time.</p>
-<p><b>Reason:</b> ${review_note}</p>
+<p>Your listing <b>${safeBusinessName}</b> was <b>not approved</b> at this time.</p>
+<p><b>Reason:</b> ${safeReviewNote}</p>
 <p>Please update details and submit again.</p>
 `,
+duplicate: `
+<p>Hello,</p>
+<p>Your listing <b>${safeBusinessName}</b> appears to duplicate an existing Siargao Finder listing.</p>
+<p><b>Note:</b> ${safeReviewNote}</p>
+<p>If this is a different business, please reply with the details that distinguish it.</p>
+`,
+needs_info: `
+<p>Hello,</p>
+<p>We need a little more information before reviewing <b>${safeBusinessName}</b>.</p>
+<p><b>Requested info:</b> ${safeReviewNote}</p>
+<p>Please reply with the missing details.</p>
+`,
+};
+
+await resend.emails.send({
+from: getMailerFrom(),
+to: submission.email,
+subject: subjectByStatus[newStatus],
+html: htmlByStatus[newStatus],
 });
 }
 
@@ -147,6 +192,6 @@ status: newStatus,
 message:
 newStatus === "approved"
 ? "Submission approved and published."
-: "Submission rejected with reason.",
+: "Submission review status updated.",
 });
 }

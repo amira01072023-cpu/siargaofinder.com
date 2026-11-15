@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import LegalLayout from "@/components/LegalLayout";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Siargao Finder",
+  title: { absolute: "Privacy Policy | Siargao Finder" },
   description: "Privacy Policy for Siargao Finder.",
+  alternates: {
+    canonical: "/privacy-policy",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function PrivacyPolicyPage() {
@@ -36,12 +40,14 @@ export default function PrivacyPolicyPage() {
         <li>Infrastructure and hosting providers (for secure site operations)</li>
         <li>Legal/regulatory authorities when required by law</li>
         <li>Service providers acting under our instructions and confidentiality obligations</li>
+        <li>Analytics providers when you accept optional analytics</li>
       </ul>
 
       <h2 className="mt-8 text-xl font-bold">4. Cookies and Consent</h2>
       <p>
         We use a cookie preference banner. Non-essential cookies are disabled unless you explicitly accept them.
-        Essential cookies required for security and core functionality may still be used.
+        Essential cookies required for security and core functionality may still be used. If you accept optional
+        analytics, our analytics provider may process technical and usage data under its own privacy practices.
       </p>
 
       <h2 className="mt-8 text-xl font-bold">5. Data Subject Rights</h2>
@@ -50,10 +56,6 @@ export default function PrivacyPolicyPage() {
         To submit a request, use our {" "}
         <a className="text-amber-700 hover:underline" href="/data-rights-request">
           Data Rights Request form
-        </a>
-        {" "}or email {" "}
-        <a className="text-amber-700 hover:underline" href="mailto:info@siargaofinder.com?subject=Data%20Subject%20Request">
-          info@siargaofinder.com
         </a>
         {" "}with your request type and identifying details.
       </p>
@@ -79,8 +81,8 @@ export default function PrivacyPolicyPage() {
       <h2 className="mt-8 text-xl font-bold">9. Contact</h2>
       <p>
         Privacy and data requests: {" "}
-        <a className="text-amber-700 hover:underline" href="mailto:info@siargaofinder.com">
-          info@siargaofinder.com
+        <a className="text-amber-700 hover:underline" href="/data-rights-request">
+          submit a Data Rights Request
         </a>
       </p>
     </LegalLayout>

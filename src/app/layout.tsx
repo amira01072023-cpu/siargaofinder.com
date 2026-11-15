@@ -1,18 +1,29 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
-import CookieConsentBanner from "@/components/CookieConsentBanner";
+import CookieConsentBanner, { COOKIE_CONSENT_STORAGE_KEY } from "@/components/CookieConsentBanner";
+import SiteChatWidget from "@/components/SiteChatWidget";
+import SiteFooter from "@/components/SiteFooter";
+import SiteVisitTracker from "@/components/SiteVisitTracker";
 import { getSiteUrl } from "@/lib/site-url";
 
+const siteUrl = getSiteUrl();
+
 export const metadata: Metadata = {
-  metadataBase: new URL(getSiteUrl()),
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "Siargao Finder",
+    default: "Siargao Finder | Local Businesses, Services & Contacts in Siargao",
     template: "%s | Siargao Finder",
   },
-  description: "Find local businesses, services, and contacts across Siargao.",
+  description: "Find local businesses, services, rentals, tours, restaurants, and contact details across Siargao.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
   alternates: {
-    canonical: "/",
+    canonical: siteUrl,
   },
   robots: {
     index: true,
@@ -20,16 +31,16 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: "https://www.siargaofinder.com",
+    url: siteUrl,
     siteName: "Siargao Finder",
-    title: "Siargao Finder",
-    description: "Find local businesses, services, and contacts across Siargao.",
+    title: "Siargao Finder | Local Businesses, Services & Contacts in Siargao",
+    description: "Find local businesses, services, rentals, tours, restaurants, and contact details across Siargao.",
     locale: "en_PH",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Siargao Finder",
-    description: "Find local businesses, services, and contacts across Siargao.",
+    title: "Siargao Finder | Local Businesses, Services & Contacts in Siargao",
+    description: "Find local businesses, services, rentals, tours, restaurants, and contact details across Siargao.",
   },
   verification: {
     google: "3p_IASh8NiGqhPGB-H_65AobSiPJ6PjdKAhuyfeFq8U",
@@ -51,7 +62,7 @@ const organizationJsonLd = {
     {
       "@type": "ContactPoint",
       contactType: "customer support",
-      email: "info@siargaofinder.com",
+      url: `${siteUrl}/contact`,
     },
   ],
 };
@@ -61,6 +72,7 @@ const websiteJsonLd = {
   "@type": "WebSite",
   name: "Siargao Finder",
   url: siteUrl,
+  description: "Local business directory for Siargao with listings for restaurants, services, rentals, tours, accommodations, and essential contacts.",
   potentialAction: {
     "@type": "SearchAction",
     target: `${siteUrl}/?q={search_term_string}`,
@@ -68,9 +80,43 @@ const websiteJsonLd = {
   },
 };
 
+const localBusinessDirectoryJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Siargao Business Directory",
+  url: siteUrl,
+  description: "Browse local businesses, services, restaurants, tours, accommodations, and essential contacts across Siargao municipalities.",
+  about: {
+    "@type": "Place",
+    name: "Siargao Island",
+    address: {
+      "@type": "PostalAddress",
+      addressRegion: "Surigao del Norte",
+      addressCountry: "PH",
+    },
+  },
+};
+
 return (
 <html lang="en">
 <body>
+<Script async src="https://www.googletagmanager.com/gtag/js?id=G-9HB4R9D2HX" strategy="afterInteractive" />
+<Script
+  id="ga4-google-tag"
+  strategy="afterInteractive"
+  dangerouslySetInnerHTML={{
+    __html: [
+      "window.dataLayer = window.dataLayer || [];",
+      "function gtag(){dataLayer.push(arguments);}",
+      "window.gtag = gtag;",
+      "gtag('js', new Date());",
+      `const savedConsent = window.localStorage.getItem(${JSON.stringify(COOKIE_CONSENT_STORAGE_KEY)});`,
+      "const analyticsGranted = savedConsent === 'accepted';",
+      "gtag('consent', 'default', { analytics_storage: analyticsGranted ? 'granted' : 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });",
+      "gtag('config', 'G-9HB4R9D2HX', { anonymize_ip: true });",
+    ].join(""),
+  }}
+/>
 <script
   type="application/ld+json"
   dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -79,7 +125,16 @@ return (
   type="application/ld+json"
   dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
 />
-{children}
+<script
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessDirectoryJsonLd) }}
+/>
+<SiteVisitTracker />
+<div className="min-h-screen flex flex-col">
+  <div className="flex-1">{children}</div>
+  <SiteFooter />
+</div>
+<SiteChatWidget />
 <CookieConsentBanner />
 </body>
 </html>

@@ -29,6 +29,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+.dev-server.log
+.dev-server.pid
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -40,3 +42,20 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+# local backups and generated data artifacts
+backups/
+*.zip
+*.tar.gz
+scripts/scraper/output/
+*.generated.csv
+
+# generated/import working datasets at repo root
+/siargao_business_dataset_expanded_pass10.csv
+/siargao_business_dataset_expanded_pass18_various.csv
+/Accredited-RESORT-IN-SIARGAO-shaped.csv
+
+# unused source/reference images kept at the repository root
+/ChatGPT Image Apr 22, 2026, 11_31_17 AM.png
+/Cover Page.png
+/site-logo.png

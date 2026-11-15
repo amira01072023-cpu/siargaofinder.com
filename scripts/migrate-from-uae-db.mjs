@@ -16,7 +16,7 @@ function parseEnv(path) {
 }
 
 const SOURCE_ENV = "/home/pgc/uae-directory-pro/.env.local";
-const TARGET_ENV = "/home/pgc/siargao-directory/.env.local";
+const TARGET_ENV = "/home/pgc/.openclaw/workspace/siargao-directory/.env.local";
 
 const srcEnv = parseEnv(SOURCE_ENV);
 const dstEnv = parseEnv(TARGET_ENV);

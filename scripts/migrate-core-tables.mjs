@@ -14,14 +14,13 @@ function parseEnv(path) {
 }
 
 const srcEnv = parseEnv('/home/pgc/uae-directory-pro/.env.local');
-const dstEnv = parseEnv('/home/pgc/siargao-directory/.env.local');
+const dstEnv = parseEnv('/home/pgc/.openclaw/workspace/siargao-directory/.env.local');
 
 const src = createClient(srcEnv.NEXT_PUBLIC_SUPABASE_URL, srcEnv.SUPABASE_SERVICE_ROLE_KEY);
 const dst = createClient(dstEnv.NEXT_PUBLIC_SUPABASE_URL, dstEnv.SUPABASE_SERVICE_ROLE_KEY);
 
 const TABLES = [
   'business_listings',
-  'vendors',
   'business_submissions',
   'listing_claim_requests',
   'data_subject_requests',

@@ -110,12 +110,6 @@ export default function AdminDataRequestsPage() {
           <h1 className="text-2xl font-bold">Admin - Data Rights Requests</h1>
           <div className="flex gap-2">
             <Link
-              href="/admin"
-              className="text-sm border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50"
-            >
-              Dashboard
-            </Link>
-            <Link
               href="/admin/submissions"
               className="text-sm border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50"
             >
@@ -164,7 +158,7 @@ export default function AdminDataRequestsPage() {
                     <span
                       className={`text-xs px-2 py-1 rounded-md font-medium ${
                         r.status === "pending"
-                          ? "bg-amber-100 text-amber-700"
+                          ? "bg-yellow-100 text-amber-700"
                           : r.status === "in_progress"
                           ? "bg-indigo-100 text-indigo-700"
                           : r.status === "completed"

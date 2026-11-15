@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SiargaoFinder
 
-## Getting Started
+SiargaoFinder is a Next.js directory website for discovering local businesses, services, tours, rentals, restaurants, and useful contacts across Siargao.
 
-First, run the development server:
+## Stack
+- Next.js 16
+- React 19
+- TypeScript
+- Supabase
+- Tailwind CSS v4
+- Vercel
+
+## Core Features
+- searchable business directory
+- category, city, and municipality browsing
+- listing detail pages
+- business submission flow
+- listing claim flow
+- admin review tools for submissions, claims, and data requests
+- legal/compliance pages
+- guide/content pages for SEO
+- site chat widget for lightweight directory discovery
+
+## Main Routes
+- `/`
+- `/listing/[id]`
+- `/city/[city]`
+- `/municipality/[municipality]`
+- `/category/[slug]`
+- `/auth`
+- `/list-your-business`
+- `/claim/[listingId]`
+- `/admin`
+
+See `ROUTES.md` for the fuller route map.
+
+## Development
+Start the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run lint:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx eslint .
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run production build:
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Environment
+This project expects Supabase environment variables in `.env.local`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Typical values include:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_SITE_URL`
+- `ADMIN_EMAIL` or `ADMIN_EMAIL_ALLOWLIST`
+- `RESEND_API_KEY` (optional)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+- `scripts/` contains import, migration, normalization, and scraping utilities
+- `sql/` contains database setup SQL
+- `public/googledc123a7f9d3a9fff.html` is used for Google verification
+- deployment is configured for Vercel

@@ -1,27 +1,19 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getPublicListingFacets } from "@/lib/public-listing-data";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function GET() {
-const { data, error } = await supabase
-.from("business_listings")
-.select("category")
-.not("category", "is", null);
+try {
+const { categoryBuckets } = await getPublicListingFacets();
 
-if (error) {
-return NextResponse.json({ error: error.message }, { status: 500 });
+return NextResponse.json({ categories: categoryBuckets }, {
+headers: {
+"Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800",
+},
+});
+} catch (e: unknown) {
+return NextResponse.json({ error: e instanceof Error ? e.message : "Failed to load categories" }, { status: 500 });
 }
-
-const counts = new Map<string, number>();
-for (const row of data ?? []) {
-const cat = (row.category || "").trim();
-if (!cat) continue;
-counts.set(cat, (counts.get(cat) || 0) + 1);
-}
-
-const categories = [...counts.entries()]
-.map(([name, count]) => ({ name, count }))
-.sort((a, b) => b.count - a.count)
-.slice(0, 8);
-
-return NextResponse.json({ categories });
 }

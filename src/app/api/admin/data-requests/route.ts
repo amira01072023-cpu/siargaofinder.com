@@ -63,6 +63,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
     }
 
+    if (review_note.length > 2000) {
+      return NextResponse.json({ error: "Review note is too long" }, { status: 400 });
+    }
+
     if (status === "rejected" && !review_note) {
       return NextResponse.json({ error: "Review note is required when rejecting." }, { status: 400 });
     }

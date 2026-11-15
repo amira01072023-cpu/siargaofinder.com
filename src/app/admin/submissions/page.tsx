@@ -66,11 +66,17 @@ setLoading(false);
 }
 };
 
-useEffect(() => {
-load();
-}, []);
+const reviewSubmission = async (
+id: number,
+action: "approve" | "reject" | "mark_duplicate" | "request_info",
+successMessage: string
+) => {
+const review_note = (notes[id] || "").trim();
+if (action !== "approve" && !review_note) {
+setMsg("Review note is required for this action.");
+return;
+}
 
-const approve = async (id: number) => {
 try {
 setActionLoadingId(id);
 setMsg("");
@@ -78,7 +84,7 @@ setMsg("");
 const res = await fetch("/api/admin/submissions", {
 method: "POST",
 headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ id, action: "approve" }),
+body: JSON.stringify({ id, action, review_note }),
 });
 
 const raw = await res.text();
@@ -90,56 +96,37 @@ data = {};
 }
 
 if (!res.ok) {
-setMsg(data?.error || `Approve failed (${res.status})`);
+setMsg(data?.error || `Action failed (${res.status})`);
 return;
 }
 
-setMsg("✅ Submission approved and published.");
+setMsg(successMessage);
 await load();
 } catch (e: unknown) {
-setMsg(e instanceof Error ? e.message : "Approve failed");
+setMsg(e instanceof Error ? e.message : "Action failed");
 } finally {
 setActionLoadingId(null);
 }
 };
 
+useEffect(() => {
+load();
+}, []);
+
+const approve = async (id: number) => {
+await reviewSubmission(id, "approve", "Submission approved and published.");
+};
+
 const reject = async (id: number) => {
-const review_note = (notes[id] || "").trim();
-if (!review_note) {
-setMsg("❌ Rejection reason is required.");
-return;
-}
+await reviewSubmission(id, "reject", "Submission rejected with reason.");
+};
 
-try {
-setActionLoadingId(id);
-setMsg("");
+const markDuplicate = async (id: number) => {
+await reviewSubmission(id, "mark_duplicate", "Submission marked as duplicate.");
+};
 
-const res = await fetch("/api/admin/submissions", {
-method: "POST",
-headers: { "Content-Type": "application/json" },
-body: JSON.stringify({ id, action: "reject", review_note }),
-});
-
-const raw = await res.text();
-let data: { error?: string; items?: Submission[] } = {};
-try {
-data = raw ? JSON.parse(raw) : {};
-} catch {
-data = {};
-}
-
-if (!res.ok) {
-setMsg(data?.error || `Reject failed (${res.status})`);
-return;
-}
-
-setMsg("✅ Submission rejected with reason.");
-await load();
-} catch (e: unknown) {
-setMsg(e instanceof Error ? e.message : "Reject failed");
-} finally {
-setActionLoadingId(null);
-}
+const requestInfo = async (id: number) => {
+await reviewSubmission(id, "request_info", "More information requested from submitter.");
 };
 
 return (
@@ -148,12 +135,6 @@ return (
 <div className="flex items-center justify-between mb-2">
 <h1 className="text-2xl font-bold">Admin Review - Business Submissions</h1>
 <div className="flex gap-2">
-<Link
-href="/admin"
-className="text-sm border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50"
->
-Dashboard
-</Link>
 <button
 onClick={signOut}
 className="text-sm border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50"
@@ -170,7 +151,7 @@ Data Requests
 </div>
 
 <p className="text-sm text-slate-500 mb-4">
-Review pending requests and approve/reject.
+Review pending requests, publish clean submissions, mark duplicates, or request more information.
 </p>
 
 {msg && (
@@ -197,7 +178,7 @@ Review pending requests and approve/reject.
 <span
 className={`text-xs px-2 py-1 rounded-md font-medium ${
 s.status === "pending"
-? "bg-amber-100 text-amber-700"
+? "bg-yellow-100 text-amber-700"
 : s.status === "approved"
 ? "bg-green-100 text-green-700"
 : "bg-red-100 text-red-700"
@@ -210,6 +191,7 @@ s.status === "pending"
 <div className="mt-3 grid md:grid-cols-2 gap-2 text-sm text-slate-700">
 <p><strong>Phone:</strong> {s.phone || "—"}</p>
 <p><strong>Email:</strong> {s.email || "—"}</p>
+<p><strong>Municipality on publish:</strong> {s.city || "—"}</p>
 <p className="md:col-span-2">
 <strong>Website:</strong>{" "}
 {s.website_url ? (
@@ -227,13 +209,13 @@ className="text-amber-700 hover:underline"
 </p>
 <p className="md:col-span-2"><strong>Address:</strong> {s.address || "—"}</p>
 <p className="md:col-span-2"><strong>Services:</strong> {s.services || "—"}</p>
-<p className="md:col-span-2"><strong>Profile completeness:</strong> {getDetailedListingCompleteness(s)}%</p>
+<p className="md:col-span-2"><strong>Profile completeness:</strong> {getDetailedListingCompleteness({ ...s, municipality: s.city })}%</p>
 </div>
 
 {s.status === "pending" && (
 <div className="mt-4 space-y-2">
 <textarea
-placeholder="Rejection reason (required if rejecting)"
+placeholder="Review note (required for reject, duplicate, or request info)"
 className="w-full border rounded-lg px-3 py-2 min-h-[80px]"
 value={notes[s.id] || ""}
 onChange={(e) =>
@@ -241,13 +223,29 @@ setNotes((prev) => ({ ...prev, [s.id]: e.target.value }))
 }
 />
 
-<div className="flex gap-2">
+<div className="flex flex-wrap gap-2">
 <button
 onClick={() => approve(s.id)}
 disabled={actionLoadingId === s.id}
 className="bg-green-600 text-black px-4 py-2 rounded-lg disabled:opacity-60"
 >
 {actionLoadingId === s.id ? "Processing..." : "Approve"}
+</button>
+
+<button
+onClick={() => requestInfo(s.id)}
+disabled={actionLoadingId === s.id}
+className="bg-amber-500 text-black px-4 py-2 rounded-lg disabled:opacity-60"
+>
+{actionLoadingId === s.id ? "Processing..." : "Request more info"}
+</button>
+
+<button
+onClick={() => markDuplicate(s.id)}
+disabled={actionLoadingId === s.id}
+className="bg-slate-700 text-white px-4 py-2 rounded-lg disabled:opacity-60"
+>
+{actionLoadingId === s.id ? "Processing..." : "Mark duplicate"}
 </button>
 
 <button

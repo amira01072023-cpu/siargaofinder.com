@@ -2,8 +2,8 @@
 set -e
 PORT="${1:-3001}"
 BASE="http://localhost:$PORT"
-LOG="/home/pgc/uae-directory-pro/.dev-server.log"
-cd /home/pgc/uae-directory-pro
+LOG="/home/pgc/.openclaw/workspace/siargao-directory/.dev-server.log"
+cd /home/pgc/.openclaw/workspace/siargao-directory
 pkill -f "next dev" >/dev/null 2>&1 || true
 nohup npm run dev -- -p "$PORT" > "$LOG" 2>&1 &
 for i in {1..30}; do

@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Home } from "lucide-react";
-import SiteFooter from "@/components/SiteFooter";
+import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
+
+type ClaimStatus = {
+  id: number;
+  status: string;
+  review_note: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+};
 
 export default function ClaimListingPage({
   params,
@@ -17,6 +24,7 @@ export default function ClaimListingPage({
   const [ready, setReady] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState("");
+  const [claimStatus, setClaimStatus] = useState<ClaimStatus | null>(null);
 
   const [form, setForm] = useState({
     claimant_name: "",
@@ -24,6 +32,7 @@ export default function ClaimListingPage({
     claimant_phone: "",
     relation_to_business: "",
     message: "",
+    proof: "",
     facebook: "",
     instagram: "",
     tiktok: "",
@@ -40,6 +49,12 @@ export default function ClaimListingPage({
         window.location.href = "/auth";
         return;
       }
+      setForm((prev) => ({ ...prev, claimant_email: data.user?.email || "" }));
+      const statusRes = await fetch(`/api/claims?listing_id=${Number(p.listingId)}`, { cache: "no-store" });
+      if (statusRes.ok) {
+        const statusData = await statusRes.json();
+        setClaimStatus(statusData?.item || null);
+      }
       setReady(true);
     })();
   }, [params, supabase]);
@@ -54,6 +69,7 @@ export default function ClaimListingPage({
     if (!listingId) return setMsg("Invalid listing.");
     if (
       !form.claimant_name.trim() ||
+      !form.claimant_email.trim() ||
       !form.claimant_phone.trim() ||
       !form.relation_to_business.trim()
     ) {
@@ -69,10 +85,11 @@ export default function ClaimListingPage({
           listing_id: listingId,
           claimant_name: form.claimant_name,
           claimant_email: form.claimant_email,
-          claimant_phone: form.claimant_phone,
-          relation_to_business: form.relation_to_business,
-          message: form.message,
-          socials: {
+            claimant_phone: form.claimant_phone,
+            relation_to_business: form.relation_to_business,
+            message: form.message,
+            proof: form.proof,
+            socials: {
             facebook: form.facebook,
             instagram: form.instagram,
             tiktok: form.tiktok,
@@ -88,10 +105,14 @@ export default function ClaimListingPage({
         return;
       }
 
-      setMsg("✅ Claim request submitted. Pending admin review.");
-      setTimeout(() => {
-        window.location.href = `/listing/${listingId}`;
-      }, 1200);
+      setClaimStatus({
+        id: data?.item?.id || Date.now(),
+        status: "pending",
+        review_note: null,
+        created_at: data?.item?.created_at || new Date().toISOString(),
+        reviewed_at: null,
+      });
+      setMsg("Claim request submitted. Pending admin review.");
     } catch {
       setMsg("Something went wrong. Please try again.");
     } finally {
@@ -99,94 +120,78 @@ export default function ClaimListingPage({
     }
   };
 
-  if (!ready) return <main className="p-8">Checking session...</main>;
+  if (!ready) return <main className="page-shell"><section className="page-section"><p className="status-message">Checking session...</p></section></main>;
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] text-slate-800 antialiased">
-      <header className="bg-black border-b border-yellow-500 sticky top-0 z-30 text-yellow-300 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Search className="text-yellow-300" size={20} />
-            <span className="font-bold text-lg tracking-tight">Siargao Finder</span>
+    <main className="page-shell">
+      <header className="site-header">
+        <div className="site-header-inner">
+          <div className="site-header-brand">
+            <Search size={19} />
+            <span>Siargao Finder</span>
           </div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 bg-yellow-400 text-black border border-yellow-500 text-sm px-4 py-2 rounded-lg hover:bg-yellow-300 transition font-semibold"
-          >
-            <Home size={16} />
-            Home
+          <Link href={listingId ? `/listing/${listingId}` : "/"} className="ui-btn ui-btn--soft">
+            Back
           </Link>
         </div>
       </header>
 
-      <section className="p-6">
-        <div className="max-w-2xl mx-auto bg-white border rounded-xl p-6 mt-8">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold">Claim This Listing</h1>
-            <Link
-              href={listingId ? `/listing/${listingId}` : "/"}
-              className="text-sm text-amber-700 hover:underline"
-            >
-              ← Back
-            </Link>
-          </div>
+      <section className="page-section page-hero form-shell">
+        <p className="page-kicker">Ownership Claim</p>
+        <h1 className="page-title">Claim This Listing</h1>
+        <p className="page-subtitle">Submit your details so the team can verify ownership and review your request.</p>
 
-          <form onSubmit={submit} className="space-y-3">
-            <input
-              className="w-full border rounded-lg px-3 py-2"
-              placeholder="Full Name *"
-              value={form.claimant_name}
-              onChange={(e) => setField("claimant_name", e.target.value)}
-              required
-            />
-            <input
-              type="email"
-              className="w-full border rounded-lg px-3 py-2"
-              placeholder="Business Email (optional)"
-              value={form.claimant_email}
-              onChange={(e) => setField("claimant_email", e.target.value)}
-            />
-            <input
-              className="w-full border rounded-lg px-3 py-2"
-              placeholder="Phone *"
-              value={form.claimant_phone}
-              onChange={(e) => setField("claimant_phone", e.target.value)}
-              required
-            />
-            <input
-              className="w-full border rounded-lg px-3 py-2"
-              placeholder="Your relation to this business *"
-              value={form.relation_to_business}
-              onChange={(e) => setField("relation_to_business", e.target.value)}
-              required
-            />
-            <textarea
-              className="w-full border rounded-lg px-3 py-2 min-h-[110px]"
-              placeholder="Additional message (optional)"
-              value={form.message}
-              onChange={(e) => setField("message", e.target.value)}
-            />
+        <div className="page-card mt-8 p-6 md:p-8">
+          {claimStatus && (
+            <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-slate-800">
+              <p><strong>Current claim status:</strong> {claimStatus.status.replace(/_/g, " ")}</p>
+              <p className="mt-1">Submitted: {new Date(claimStatus.created_at).toLocaleString()}</p>
+              {claimStatus.review_note && <p className="mt-1"><strong>Admin note:</strong> {claimStatus.review_note}</p>}
+            </div>
+          )}
+          <form onSubmit={submit} className="form-grid">
+            <label className="form-field">
+              <span className="form-label">Full Name</span>
+              <input className="form-input" placeholder="Full Name *" value={form.claimant_name} onChange={(e) => setField("claimant_name", e.target.value)} required />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Business Email</span>
+              <input type="email" className="form-input" placeholder="Business Email *" value={form.claimant_email} onChange={(e) => setField("claimant_email", e.target.value)} required />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Phone</span>
+              <input className="form-input" placeholder="Phone *" value={form.claimant_phone} onChange={(e) => setField("claimant_phone", e.target.value)} required />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Relation to Business</span>
+              <input className="form-input" placeholder="Your relation to this business *" value={form.relation_to_business} onChange={(e) => setField("relation_to_business", e.target.value)} required />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Additional Message</span>
+              <textarea className="form-textarea" placeholder="Additional message (optional)" value={form.message} onChange={(e) => setField("message", e.target.value)} />
+            </label>
+            <label className="form-field">
+              <span className="form-label">Proof</span>
+              <textarea className="form-textarea" placeholder="Proof, website admin email, social profile, registration detail, or other evidence (optional)" value={form.proof} onChange={(e) => setField("proof", e.target.value)} />
+            </label>
 
             <div className="grid md:grid-cols-2 gap-3">
-              <input className="w-full border rounded-lg px-3 py-2" placeholder="Facebook URL (optional)" value={form.facebook} onChange={(e) => setField("facebook", e.target.value)} />
-              <input className="w-full border rounded-lg px-3 py-2" placeholder="Instagram URL (optional)" value={form.instagram} onChange={(e) => setField("instagram", e.target.value)} />
-              <input className="w-full border rounded-lg px-3 py-2" placeholder="TikTok URL (optional)" value={form.tiktok} onChange={(e) => setField("tiktok", e.target.value)} />
-              <input className="w-full border rounded-lg px-3 py-2" placeholder="YouTube URL (optional)" value={form.youtube} onChange={(e) => setField("youtube", e.target.value)} />
+              <label className="form-field"><span className="form-label">Facebook</span><input className="form-input" placeholder="Facebook URL (optional)" value={form.facebook} onChange={(e) => setField("facebook", e.target.value)} /></label>
+              <label className="form-field"><span className="form-label">Instagram</span><input className="form-input" placeholder="Instagram URL (optional)" value={form.instagram} onChange={(e) => setField("instagram", e.target.value)} /></label>
+              <label className="form-field"><span className="form-label">TikTok</span><input className="form-input" placeholder="TikTok URL (optional)" value={form.tiktok} onChange={(e) => setField("tiktok", e.target.value)} /></label>
+              <label className="form-field"><span className="form-label">YouTube</span><input className="form-input" placeholder="YouTube URL (optional)" value={form.youtube} onChange={(e) => setField("youtube", e.target.value)} /></label>
             </div>
 
-            <button
-              disabled={submitting}
-              className="bg-yellow-400 text-black px-5 py-2 rounded-lg disabled:opacity-60 font-semibold"
-            >
-              {submitting ? "Submitting..." : "Submit Claim"}
-            </button>
+            <div className="pt-2">
+              <button disabled={submitting} className="ui-btn ui-btn--dark disabled:opacity-60">
+                {submitting ? "Submitting..." : "Submit Claim"}
+              </button>
+            </div>
           </form>
 
-          {msg && <p className="mt-4 text-sm">{msg}</p>}
+          {msg && <p className="status-message">{msg}</p>}
         </div>
       </section>
-
-      <SiteFooter />
     </main>
   );
 }

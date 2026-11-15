@@ -13,9 +13,15 @@ getAll() {
 return cookieStore.getAll();
 },
 setAll(cookiesToSet) {
-cookiesToSet.forEach(({ name, value, options }) =>
-cookieStore.set(name, value, options)
-);
+cookiesToSet.forEach(({ name, value, options }) => {
+try {
+cookieStore.set(name, value, options);
+} catch {
+// Next.js only allows cookie mutation in Server Actions or Route Handlers.
+// During Server Component rendering, Supabase may attempt a refresh write;
+// safely ignore it and let middleware/route actions handle persistence.
+}
+});
 },
 },
 }

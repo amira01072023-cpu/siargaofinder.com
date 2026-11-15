@@ -1,28 +1,49 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { createHash, randomBytes } from "crypto";
+import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getMailerFrom, getResendClient } from "@/lib/mailer";
+import { getSiteUrl } from "@/lib/site-url";
 
 function clean(v: unknown) {
   return String(v ?? "").trim();
 }
 
+function normalizeName(value: string) {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isTooLong(value: string, maxLength: number) {
+  return value.length > maxLength;
+}
+
+function hashToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export async function POST(req: Request) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = await req.json();
 
+    const nickname = clean(body?.nickname);
+    const startedAt = Number(body?.started_at);
     const business_name = clean(body?.business_name);
     const category = clean(body?.category);
     const city = clean(body?.city);
     const phone = clean(body?.phone);
-    const email = clean(body?.email).toLowerCase() || user.email || null;
+    const email = clean(body?.email).toLowerCase();
     const website_url = clean(body?.website_url) || null;
     const address = clean(body?.address);
     const services = clean(body?.services);
@@ -34,15 +55,110 @@ export async function POST(req: Request) {
       youtube: clean(body?.youtube),
     };
 
-    if (!business_name || !category || !city || !phone || !address || !services) {
+    if (nickname) {
+      return NextResponse.json({ success: true, status: "pending" });
+    }
+
+    const submissionElapsedMs = Date.now() - startedAt;
+
+    if (
+      !Number.isFinite(startedAt) ||
+      startedAt <= 0 ||
+      submissionElapsedMs < 2500 ||
+      submissionElapsedMs > 24 * 60 * 60 * 1000
+    ) {
+      return NextResponse.json(
+        { error: "Please wait a moment before submitting." },
+        { status: 400 }
+      );
+    }
+
+    if (!business_name || !category || !city || !phone || !email || !address || !services) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    if (!isValidEmail(email)) {
+      return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
+    }
+
+    if (
+      isTooLong(business_name, 160) ||
+      isTooLong(category, 120) ||
+      isTooLong(city, 80) ||
+      isTooLong(phone, 80) ||
+      isTooLong(email, 254) ||
+      isTooLong(address, 300) ||
+      isTooLong(services, 1200) ||
+      (website_url && isTooLong(website_url, 300)) ||
+      Object.values(socials).some((value) => isTooLong(value, 300))
+    ) {
+      return NextResponse.json({ error: "One or more fields are too long." }, { status: 400 });
+    }
+
+    const normalizedBusinessName = normalizeName(business_name);
+
+    const existingListing = await supabaseAdmin
+      .from("business_listings")
+      .select("id,business_name")
+      .ilike("business_name", business_name)
+      .limit(1);
+
+    if (existingListing.error) {
+      return NextResponse.json({ error: existingListing.error.message }, { status: 500 });
+    }
+
+    if (
+      existingListing.data?.some(
+        (listing) => normalizeName(String(listing.business_name ?? "")) === normalizedBusinessName
+      )
+    ) {
+      return NextResponse.json(
+        { error: "This business appears to already be listed. Please search the directory first." },
+        { status: 409 }
+      );
+    }
+
+    const pendingSubmission = await supabaseAdmin
+      .from("business_submissions")
+      .select("id,business_name")
+      .in("status", ["email_unverified", "pending"])
+      .ilike("business_name", business_name)
+      .limit(1);
+
+    if (pendingSubmission.error) {
+      return NextResponse.json({ error: pendingSubmission.error.message }, { status: 500 });
+    }
+
+    if (
+      pendingSubmission.data?.some(
+        (submission) =>
+          normalizeName(String(submission.business_name ?? "")) === normalizedBusinessName
+      )
+    ) {
+      return NextResponse.json(
+        { error: "A pending submission already exists for this business." },
+        { status: 409 }
+      );
     }
 
     const socialsPayload = Object.values(socials).some(Boolean)
       ? `\n[SOCIALS] ${JSON.stringify(socials)}`
       : "";
 
-    const { error } = await supabase.from("business_submissions").insert({
+    const resend = getResendClient();
+
+    if (!resend) {
+      return NextResponse.json(
+        { error: "Email verification is not available right now. Please try again later." },
+        { status: 503 }
+      );
+    }
+
+    const verificationToken = randomBytes(32).toString("hex");
+    const verificationHash = hashToken(verificationToken);
+    const verificationNote = `email_verification_sha256:${verificationHash}`;
+
+    const { data: insertedSubmission, error } = await supabaseAdmin.from("business_submissions").insert({
       business_name,
       category,
       city,
@@ -51,15 +167,51 @@ export async function POST(req: Request) {
       website_url,
       address,
       services: `${services}${socialsPayload}`,
-      status: "pending",
-      submitted_by: user.id,
-    });
+      status: "email_unverified",
+      review_note: verificationNote,
+    }).select("id").single();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, status: "pending" });
+    const verifyUrl = `${getSiteUrl()}/api/business-submissions/verify?token=${verificationToken}`;
+    const safeBusinessName = escapeHtml(business_name);
+
+    try {
+      await resend.emails.send({
+        from: getMailerFrom(),
+        to: email,
+        subject: `Verify your Siargao Finder listing: ${safeBusinessName}`,
+        html: `
+<p>Hello,</p>
+<p>Please verify your email to finish submitting <b>${safeBusinessName}</b> to Siargao Finder.</p>
+<p><a href="${verifyUrl}">Verify this business submission</a></p>
+<p>If you did not submit this listing, you can ignore this email.</p>
+`,
+      });
+    } catch (mailErr: unknown) {
+      if (insertedSubmission?.id) {
+        await supabaseAdmin
+          .from("business_submissions")
+          .update({
+            status: "verification_email_failed",
+            review_note: mailErr instanceof Error ? mailErr.message.slice(0, 2000) : "Verification email failed",
+          })
+          .eq("id", insertedSubmission.id);
+      }
+
+      return NextResponse.json(
+        { error: "Could not send verification email. Please try again later." },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      status: "email_unverified",
+      message: "Please check your email and click the verification link before admin review.",
+    });
   } catch (e: unknown) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Unexpected error while submitting listing." },

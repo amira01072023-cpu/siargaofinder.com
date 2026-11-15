@@ -1,4 +1,4 @@
-# LAUNCH_CHECKLIST.md — Siargao Biz Connect Production Checklist
+# LAUNCH_CHECKLIST.md — Siargao Finder Production Checklist
 
 ## 1) Core Site
 - [x] Homepage loads and search works

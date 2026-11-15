@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import LegalLayout from "@/components/LegalLayout";
 
 export const metadata: Metadata = {
-  title: "Terms of Use | Siargao Finder",
+  title: { absolute: "Terms of Use | Siargao Finder" },
   description: "Terms of Use for Siargao Finder.",
+  alternates: {
+    canonical: "/terms-of-use",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function TermsOfUsePage() {
@@ -70,8 +74,8 @@ export default function TermsOfUsePage() {
       <h2 className="mt-8 text-xl font-bold">11. Contact</h2>
       <p>
         For legal questions: {" "}
-        <a className="text-amber-700 hover:underline" href="mailto:info@siargaofinder.com">
-          info@siargaofinder.com
+        <a className="text-amber-700 hover:underline" href="/contact">
+          use our contact and support page
         </a>
       </p>
     </LegalLayout>

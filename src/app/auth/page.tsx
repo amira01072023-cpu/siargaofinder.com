@@ -3,26 +3,90 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, Home } from "lucide-react";
-import SiteFooter from "@/components/SiteFooter";
+import { Search } from "lucide-react";
 import { createClient } from "@/lib/supabase-browser";
+
+const DEFAULT_AUTH_ORIGIN = "https://www.siargaofinder.com";
 
 export default function AuthPage() {
 const supabase = createClient();
 
+function getSafeRedirect(fallback = "/") {
+const params = new URLSearchParams(window.location.search);
+const next = params.get("redirectedFrom");
+return next && next.startsWith("/") && !next.startsWith("//") ? next : fallback;
+}
+
+function getAuthOrigin() {
+const publicSiteUrl = (process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_AUTH_ORIGIN).replace(/\/$/, "");
+const browserOrigin = window.location.origin;
+const envIsLocalhost = publicSiteUrl ? /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(publicSiteUrl) : false;
+const browserIsLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(browserOrigin);
+
+if (publicSiteUrl && (!envIsLocalhost || browserIsLocalhost)) return publicSiteUrl;
+return browserOrigin;
+}
+
 const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
-const [isSignUp, setIsSignUp] = useState(true);
-const [msg, setMsg] = useState("");
+const [isSignUp, setIsSignUp] = useState(() => {
+if (typeof window === "undefined") return true;
+return !new URLSearchParams(window.location.search).get("redirectedFrom");
+});
+const [msg, setMsg] = useState(() => {
+if (typeof window === "undefined") return "";
+return new URLSearchParams(window.location.search).get("message") || "";
+});
+const [loading, setLoading] = useState(false);
+
+function clearSupabaseBrowserState() {
+try {
+Object.keys(window.localStorage).forEach((key) => {
+if (key.includes("supabase") || key.startsWith("sb-")) window.localStorage.removeItem(key);
+});
+} catch {}
+try {
+Object.keys(window.sessionStorage).forEach((key) => {
+if (key.includes("supabase") || key.startsWith("sb-")) window.sessionStorage.removeItem(key);
+});
+} catch {}
+}
+
+const sendPasswordReset = async () => {
+setMsg("");
+if (!email) return setMsg("Enter your email first, then request a password reset link.");
+
+setLoading(true);
+const next = getSafeRedirect("/");
+const authOrigin = getAuthOrigin();
+const { error } = await supabase.auth.resetPasswordForEmail(email, {
+  redirectTo: `${authOrigin}/auth/callback?redirectedFrom=${encodeURIComponent(`/auth/reset-password?redirectedFrom=${encodeURIComponent(next)}`)}`,
+});
+setLoading(false);
+
+if (error) return setMsg(error.message);
+return setMsg("Password reset email sent. Open the link in your email to set a new password.");
+};
 
 const submit = async () => {
 setMsg("");
 if (!email || !password) return setMsg("Email and password required.");
 
+setLoading(true);
+
 if (isSignUp) {
-const { error } = await supabase.auth.signUp({ email, password });
+const authOrigin = getAuthOrigin();
+const confirmationRedirect = `${authOrigin}/auth/callback`;
+const { error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: confirmationRedirect,
+  },
+});
 
 if (error) {
+setLoading(false);
 const m = (error.message || "").toLowerCase();
 
 if (
@@ -37,84 +101,81 @@ return setMsg("This email is already registered. Please sign in.");
 return setMsg(error.message);
 }
 
+setLoading(false);
+void fetch("/api/auth/signup-notification", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, redirectTo: confirmationRedirect }),
+}).catch(() => {});
 return setMsg("Account created. Check your email if confirmation is enabled.");
 }
 
+await supabase.auth.signOut();
+clearSupabaseBrowserState();
 const { error } = await supabase.auth.signInWithPassword({ email, password });
+setLoading(false);
 if (error) return setMsg(error.message);
 
-const normalized = email.trim().toLowerCase();
-if (normalized === "amira.01072023@gmail.com") {
-window.location.href = "/admin";
-return;
-}
-
-const params = new URLSearchParams(window.location.search);
-const next = params.get("redirectedFrom") || "/";
-window.location.href = next;
+window.location.href = getSafeRedirect("/");
 };
 
 return (
-<main className="min-h-screen bg-[#f8fafc] text-slate-800 antialiased">
-<header className="bg-black border-b border-yellow-500 sticky top-0 z-30 text-yellow-300 shadow-sm">
-<div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-<div className="flex items-center gap-2">
-<Search className="text-yellow-300" size={20} />
-<span className="font-bold text-lg tracking-tight">Siargao Finder</span>
+<main className="page-shell">
+<header className="site-header">
+<div className="site-header-inner">
+<div className="site-header-brand">
+<Search size={19} />
+<span>Siargao Finder</span>
 </div>
-<Link
-href="/"
-className="inline-flex items-center gap-2 bg-yellow-400 text-black border border-yellow-500 text-sm px-4 py-2 rounded-lg hover:bg-yellow-300 transition font-semibold"
->
-<Home size={16} />
-Home
-</Link>
+<Link href="/" className="ui-btn ui-btn--soft">Home</Link>
 </div>
 </header>
 
-<section className="p-6">
-<div className="max-w-md mx-auto mt-12 bg-white border rounded-xl p-6">
-<h1 className="text-2xl font-bold mb-2">Sign in / Sign up</h1>
-<p className="text-sm text-slate-500 mb-6">Use your email and password.</p>
+<section className="page-section page-hero form-shell max-w-md">
+<p className="page-kicker">Access</p>
+<h1 className="page-title">Sign in / Sign up</h1>
+<p className="page-subtitle">Use your email and password to access your SiargaoFinder account.</p>
 
-<input
-type="email"
-className="w-full border rounded-lg px-3 py-2 mb-3"
-placeholder="Email"
-value={email}
-onChange={(e) => setEmail(e.target.value)}
-/>
+<div className="page-card mt-8 p-6 md:p-8">
+<label className="form-field">
+  <span className="form-label">Email</span>
+  <input type="email" className="form-input" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+</label>
 
-<input
-type="password"
-className="w-full border rounded-lg px-3 py-2 mb-3"
-placeholder="Password"
-value={password}
-onChange={(e) => setPassword(e.target.value)}
-/>
+<label className="form-field mt-3">
+  <span className="form-label">Password</span>
+  <input type="password" className="form-input" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+</label>
 
-<button
-onClick={submit}
-className="w-full bg-yellow-400 text-black py-2 rounded-lg hover:bg-yellow-300"
->
-{isSignUp ? "Create account" : "Sign in"}
-</button>
+<div className="mt-5 flex flex-col gap-3">
+  <button onClick={submit} disabled={loading} className="ui-btn ui-btn--dark w-full justify-center disabled:opacity-60">
+    {loading ? "Please wait…" : isSignUp ? "Create account" : "Sign in"}
+  </button>
 
-<button
-onClick={() => {
-setIsSignUp(!isSignUp);
-setMsg("");
-}}
-className="w-full mt-3 text-sm text-yellow-300"
->
-{isSignUp ? "Already have account? Sign in" : "Need account? Sign up"}
-</button>
+  <button
+    onClick={() => {
+      setIsSignUp(!isSignUp);
+      setMsg("");
+    }}
+    className="text-sm text-slate-600 hover:text-slate-900 transition"
+  >
+    {isSignUp ? "Already have account? Sign in" : "Need account? Sign up"}
+  </button>
 
-{msg && <p className="mt-4 text-sm text-red-600">{msg}</p>}
+  {!isSignUp ? (
+    <button
+      onClick={sendPasswordReset}
+      disabled={loading}
+      className="text-sm font-medium text-slate-700 hover:text-slate-950 transition disabled:opacity-60"
+    >
+      Forgot password? Send reset link
+    </button>
+  ) : null}
+</div>
+
+{msg && <p className="status-message">{msg}</p>}
 </div>
 </section>
-
-<SiteFooter />
 </main>
 );
 }

@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import LegalLayout from "@/components/LegalLayout";
 
 export const metadata: Metadata = {
-  title: "Accessibility Statement | Siargao Finder",
+  title: { absolute: "Accessibility Statement | Siargao Finder" },
   description: "Accessibility commitment and conformance statement for Siargao Finder.",
+  alternates: {
+    canonical: "/accessibility-statement",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function AccessibilityStatementPage() {
@@ -28,9 +32,9 @@ export default function AccessibilityStatementPage() {
 
       <h2 className="mt-8 text-xl font-bold">Feedback and support</h2>
       <p>
-        If you face an accessibility barrier, contact us at{" "}
-        <a className="text-amber-700 hover:underline" href="mailto:info@siargaofinder.com">
-          info@siargaofinder.com
+        If you face an accessibility barrier, submit it through our{" "}
+        <a className="text-amber-700 hover:underline" href="/contact">
+          contact and support page
         </a>
         {" "}with the page URL and issue details.
       </p>

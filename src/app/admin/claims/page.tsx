@@ -146,12 +146,6 @@ return (
 <h1 className="text-2xl font-bold">Admin Review - Claim Requests</h1>
 <div className="flex gap-2">
 <Link
-href="/admin"
-className="text-sm border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50"
->
-Dashboard
-</Link>
-<Link
 href="/admin/submissions"
 className="text-sm border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50"
 >
@@ -202,7 +196,7 @@ Claim for Listing #{c.listing_id}
 <span
 className={`text-xs px-2 py-1 rounded-md font-medium ${
 c.status === "pending"
-? "bg-amber-100 text-amber-700"
+? "bg-yellow-100 text-amber-700"
 : c.status === "approved"
 ? "bg-green-100 text-green-700"
 : "bg-red-100 text-red-700"

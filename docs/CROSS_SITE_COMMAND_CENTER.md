@@ -6,7 +6,7 @@ Single operational hub for managing SEO and launch workflows across both website
 
 ## 1) Siargao Finder
 - Domain: `https://www.siargaofinder.com`
-- Repo path: `/home/pgc/siargao-directory`
+- Repo path: `/home/pgc/.openclaw/workspace/siargao-directory`
 - SEO command center: `docs/SEO_COMMAND_CENTER.md`
 - Key SEO docs:
   - `docs/SEO_CONTENT_PLAN.md`

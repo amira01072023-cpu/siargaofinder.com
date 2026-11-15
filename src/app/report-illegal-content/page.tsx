@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Search } from "lucide-react";
 
 export default function ReportIllegalContentPage() {
   const [form, setForm] = useState({
@@ -38,33 +39,41 @@ export default function ReportIllegalContentPage() {
       setMsg("✅ Report submitted. Our moderation team will review it.");
       setForm({ full_name: "", email: "", page_url: "", details: "" });
     } catch {
-      setMsg("Something went wrong. Please try again or email info@siargaofinder.com.");
+      setMsg("Something went wrong. Please try again or use the contact page.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] p-6 text-slate-800">
-      <div className="max-w-2xl mx-auto bg-white border rounded-xl p-6 mt-8">
-        <div className="flex items-center justify-between mb-3">
-          <h1 className="text-2xl font-bold">Report Illegal or Harmful Content</h1>
-          <Link href="/eu-compliance" className="text-sm text-amber-700 hover:underline">EU Compliance</Link>
+    <main className="page-shell">
+      <header className="site-header">
+        <div className="site-header-inner">
+          <div className="site-header-brand">
+            <Search size={19} />
+            <span>Siargao Finder</span>
+          </div>
+          <Link href="/eu-compliance" className="ui-btn ui-btn--soft">EU Compliance</Link>
         </div>
-        <p className="text-sm text-slate-600 mb-4">
-          Use this form to report potentially illegal, abusive, or harmful content on this platform.
-        </p>
+      </header>
 
-        <form onSubmit={onSubmit} className="space-y-3">
-          <input className="w-full border rounded-lg px-3 py-2" placeholder="Full name *" value={form.full_name} onChange={(e)=>setField("full_name", e.target.value)} required />
-          <input type="email" className="w-full border rounded-lg px-3 py-2" placeholder="Email *" value={form.email} onChange={(e)=>setField("email", e.target.value)} required />
-          <input type="url" className="w-full border rounded-lg px-3 py-2" placeholder="Page URL to report *" value={form.page_url} onChange={(e)=>setField("page_url", e.target.value)} required />
-          <textarea className="w-full border rounded-lg px-3 py-2 min-h-[120px]" placeholder="Explain the issue and why this content may be illegal or harmful *" value={form.details} onChange={(e)=>setField("details", e.target.value)} required />
-          <button disabled={submitting} className="bg-yellow-400 text-black px-5 py-2 rounded-lg disabled:opacity-60 font-semibold">{submitting ? "Submitting..." : "Submit Report"}</button>
-        </form>
+      <section className="page-section page-hero form-shell">
+        <p className="page-kicker">Moderation</p>
+        <h1 className="page-title">Report Illegal or Harmful Content</h1>
+        <p className="page-subtitle">Use this form to report potentially illegal, abusive, or harmful content on the platform.</p>
 
-        {msg && <p className="mt-4 text-sm">{msg}</p>}
-      </div>
+        <div className="page-card mt-8 p-6 md:p-8">
+          <form onSubmit={onSubmit} className="form-grid">
+            <label className="form-field"><span className="form-label">Full Name</span><input className="form-input" placeholder="Full name *" value={form.full_name} onChange={(e)=>setField("full_name", e.target.value)} required /></label>
+            <label className="form-field"><span className="form-label">Email</span><input type="email" className="form-input" placeholder="Email *" value={form.email} onChange={(e)=>setField("email", e.target.value)} required /></label>
+            <label className="form-field"><span className="form-label">Page URL</span><input type="url" className="form-input" placeholder="Page URL to report *" value={form.page_url} onChange={(e)=>setField("page_url", e.target.value)} required /></label>
+            <label className="form-field"><span className="form-label">Details</span><textarea className="form-textarea" placeholder="Explain the issue and why this content may be illegal or harmful *" value={form.details} onChange={(e)=>setField("details", e.target.value)} required /></label>
+            <div className="pt-2"><button disabled={submitting} className="ui-btn ui-btn--dark disabled:opacity-60">{submitting ? "Submitting..." : "Submit Report"}</button></div>
+          </form>
+
+          {msg && <p className="status-message">{msg}</p>}
+        </div>
+      </section>
     </main>
   );
 }

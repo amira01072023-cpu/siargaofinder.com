@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-PROJECT_DIR="/home/pgc/uae-directory-pro"
+PROJECT_DIR="/home/pgc/.openclaw/workspace/siargao-directory"
 PORT="${1:-3001}"
 cd "$PROJECT_DIR"
 pkill -f "next dev" >/dev/null 2>&1 || true

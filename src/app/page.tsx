@@ -51,7 +51,25 @@ const getHomeData = unstable_cache(async function getHomeData() {
   };
 }, ["home-listing-data"], { revalidate: 300 });
 
-export default async function Page() {
+function firstSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const initialData = await getHomeData();
-  return <HomePageClient initialData={initialData} />;
+  const params = await searchParams;
+  const parsedPage = Number(firstSearchParam(params.page));
+  const initialSearch = {
+    q: firstSearchParam(params.q).slice(0, 120),
+    categoryGroup: firstSearchParam(params.categoryGroup),
+    municipality: firstSearchParam(params.municipality),
+    hasPhone: firstSearchParam(params.hasPhone) === "1",
+    page: Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1,
+  };
+
+  return <HomePageClient initialData={initialData} initialSearch={initialSearch} />;
 }

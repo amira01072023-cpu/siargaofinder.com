@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Search, MapPin, Phone, Star, Building2, BedDouble, Utensils, Waves, Car, Briefcase, School, Landmark, ShoppingBag, Fuel, Cross, PawPrint, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import SaveListingButton from "@/components/SaveListingButton";
 import SavedListingsPanel from "@/components/SavedListingsPanel";
@@ -54,10 +55,26 @@ type InitialHomeData = {
   popularCategories: PopularCategory[];
 };
 
+type InitialSearch = {
+  q: string;
+  categoryGroup: string;
+  municipality: string;
+  hasPhone: boolean;
+  page: number;
+};
+
 type ViewMode = "gallery" | "list" | "table" | "detail";
 
 const CATEGORY_PAGE_SIZE = 8;
 const BLOG_PAGE_SIZE = 8;
+
+const HERO_QUICK_GROUPS = [
+  { id: "food-drinks", label: "Restaurants" },
+  { id: "hotels-stays", label: "Stays" },
+  { id: "tours-activities", label: "Tours" },
+  { id: "transport-rentals", label: "Transport" },
+  { id: "surf-beach", label: "Surf schools" },
+];
 
 const blogPosts = [
   { href: "/blog/best-things-to-do-in-siargao-beyond-surfing", label: "Best Things to Do in Siargao Beyond Surfing" },
@@ -146,21 +163,45 @@ function normalizeOption(value: string) {
 return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-export default function HomePageClient({ initialData }: { initialData: InitialHomeData }) {
+function buildSearchHref(params: {
+  q?: string;
+  categoryGroup?: string;
+  municipality?: string;
+  hasPhone?: boolean;
+  page?: number;
+}) {
+  const next = new URLSearchParams();
+  if (params.q) next.set("q", params.q);
+  if (params.categoryGroup) next.set("categoryGroup", params.categoryGroup);
+  if (params.municipality) next.set("municipality", params.municipality);
+  if (params.hasPhone) next.set("hasPhone", "1");
+  if ((params.page ?? 1) > 1) next.set("page", String(params.page));
+  return next.size ? `/?${next.toString()}` : "/";
+}
+
+export default function HomePageClient({
+  initialData,
+  initialSearch,
+}: {
+  initialData: InitialHomeData;
+  initialSearch: InitialSearch;
+}) {
+const router = useRouter();
 const [listings, setListings] = useState<Listing[]>([]);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState("");
 
-const [q, setQ] = useState("");
+const [q, setQ] = useState(initialSearch.q);
 const [category, setCategory] = useState("");
-const [categoryGroup, setCategoryGroup] = useState("");
-const [municipality, setMunicipality] = useState("");
-const [hasPhone, setHasPhone] = useState(false);
+const [categoryGroup, setCategoryGroup] = useState(initialSearch.categoryGroup);
+const [municipality, setMunicipality] = useState(initialSearch.municipality);
+const [hasPhone, setHasPhone] = useState(initialSearch.hasPhone);
+const [moreFiltersOpen, setMoreFiltersOpen] = useState(Boolean(initialSearch.categoryGroup || initialSearch.hasPhone));
 
 const municipalityOptions = uniqueOptions(initialData.municipalities ?? []);
 const popularCategories = initialData.popularCategories ?? [];
 
-const [page, setPage] = useState(initialData.page ?? 1);
+const [page, setPage] = useState(initialSearch.page || initialData.page || 1);
 const [totalPages, setTotalPages] = useState(initialData.totalPages ?? 1);
 const [total, setTotal] = useState(initialData.total ?? 0);
 const [viewMode, setViewMode] = useState<ViewMode>("gallery");
@@ -170,8 +211,9 @@ const [popularCategoryPage, setPopularCategoryPage] = useState(1);
 const [blogPage, setBlogPage] = useState(1);
 
 const liveSectionRef = useRef<HTMLElement | null>(null);
+const locallyLoadedUrlRef = useRef<string | null>(null);
 
-const loadListings = async (params?: { q?: string; category?: string; categoryGroup?: string; municipality?: string; hasPhone?: boolean; page?: number }) => {
+const loadListings = useCallback(async (params?: { q?: string; category?: string; categoryGroup?: string; municipality?: string; hasPhone?: boolean; page?: number }) => {
 try {
 setLoading(true);
 setError("");
@@ -204,12 +246,90 @@ setError(e instanceof Error ? e.message : "Something went wrong");
 } finally {
 setLoading(false);
 }
+}, []);
+
+useEffect(() => {
+  const incomingSearch = {
+    q: initialSearch.q,
+    categoryGroup: initialSearch.categoryGroup,
+    municipality: initialSearch.municipality,
+    hasPhone: initialSearch.hasPhone,
+    page: initialSearch.page,
+  };
+  const incomingHref = buildSearchHref(incomingSearch);
+  if (locallyLoadedUrlRef.current === incomingHref) {
+    locallyLoadedUrlRef.current = null;
+    return;
+  }
+  locallyLoadedUrlRef.current = null;
+
+  const hasInitialSearch = Boolean(
+    initialSearch.q ||
+    initialSearch.categoryGroup ||
+    initialSearch.municipality ||
+    initialSearch.hasPhone ||
+    initialSearch.page > 1,
+  );
+
+  const timer = window.setTimeout(() => {
+    setQ(initialSearch.q);
+    setCategory("");
+    setCategoryGroup(initialSearch.categoryGroup);
+    setMunicipality(initialSearch.municipality);
+    setHasPhone(initialSearch.hasPhone);
+    setMoreFiltersOpen(Boolean(initialSearch.categoryGroup || initialSearch.hasPhone));
+    setPage(initialSearch.page || 1);
+
+    if (hasInitialSearch) {
+      setHasSearched(true);
+      void loadListings(incomingSearch);
+      return;
+    }
+
+    setHasSearched(false);
+    setListings([]);
+    setTotal(initialData.total);
+    setTotalPages(initialData.totalPages);
+    setError("");
+  }, 0);
+
+  return () => window.clearTimeout(timer);
+}, [
+  initialData.total,
+  initialData.totalPages,
+  initialSearch.categoryGroup,
+  initialSearch.hasPhone,
+  initialSearch.municipality,
+  initialSearch.page,
+  initialSearch.q,
+  loadListings,
+]);
+
+const updateSearchUrl = (params: {
+  q?: string;
+  categoryGroup?: string;
+  municipality?: string;
+  hasPhone?: boolean;
+  page?: number;
+}) => {
+  const href = buildSearchHref(params);
+  locallyLoadedUrlRef.current = href;
+  router.push(href, { scroll: false });
 };
 
-const onSearch = async () => {
-setHasSearched(true);
-await loadListings({ q, category, categoryGroup, municipality, hasPhone, page: 1 });
-liveSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+const performSearch = async (
+  params: { q?: string; category?: string; categoryGroup?: string; municipality?: string; hasPhone?: boolean; page?: number },
+  shouldScroll = true,
+) => {
+  setHasSearched(true);
+  updateSearchUrl(params);
+  await loadListings(params);
+  if (shouldScroll) liveSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+const onSearch = async (event?: React.FormEvent<HTMLFormElement>) => {
+event?.preventDefault();
+await performSearch({ q: q.trim(), category, categoryGroup, municipality, hasPhone, page: 1 });
 };
 
 const clearAllFilters = () => {
@@ -224,24 +344,17 @@ const clearAllFilters = () => {
   setTotalPages(initialData.totalPages ?? 1);
   setTotal(initialData.total ?? 0);
   setError("");
+  locallyLoadedUrlRef.current = "/";
+  router.push("/", { scroll: false });
 };
 
-const onPrev = () => page > 1 && loadListings({ q, category, categoryGroup, municipality, hasPhone, page: page - 1 });
-const onNext = () => page < totalPages && loadListings({ q, category, categoryGroup, municipality, hasPhone, page: page + 1 });
-
-const onSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>) => {
-if (e.key === "Enter") {
-e.preventDefault();
-onSearch();
-}
-};
+const onPrev = () => page > 1 && void performSearch({ q, category, categoryGroup, municipality, hasPhone, page: page - 1 }, false);
+const onNext = () => page < totalPages && void performSearch({ q, category, categoryGroup, municipality, hasPhone, page: page + 1 }, false);
 
 const applyCategoryGroup = async (value: string) => {
   setCategory("");
   setCategoryGroup(value);
-  setHasSearched(true);
-  await loadListings({ q, categoryGroup: value, municipality, hasPhone, page: 1 });
-  liveSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  await performSearch({ q, categoryGroup: value, municipality, hasPhone, page: 1 });
 };
 
 const selectedListing = listings.find((l) => l.id === selectedListingId) || listings[0] || null;
@@ -273,104 +386,31 @@ return (
 
 <section className="hero-wrap hero-wrap--premium relative overflow-hidden text-black">
 <div className="hero-content relative max-w-6xl mx-auto px-4 py-8 md:py-10">
-<div className="hero-copy-shell max-w-4xl">
-  <div className="hero-eyebrow">Curated island directory</div>
+<div className="hero-copy-shell max-w-3xl">
+  <div className="hero-eyebrow">Siargao local directory</div>
   <h1 className="hero-title max-w-3xl">
-    Find trusted businesses, services, rentals, and local contacts across Siargao
+    Find local businesses and services across Siargao
   </h1>
   <p className="hero-description max-w-2xl">
-    Search hotels, tours, transport, restaurants, clinics, and everyday services across Siargao’s municipalities in one clean local directory.
+    Search places to stay, restaurants, tours, transport, surf schools, and essential services across all 9 municipalities.
   </p>
-
-  <div className="hero-rail-wrap hero-rail-wrap--aligned hidden md:block">
-    <div className="hero-chip-marquee hero-chip-marquee--slow hero-chip-marquee--editorial text-xs md:text-sm" aria-label="Directory highlights">
-      <div className="hero-chip-track hero-chip-track--minimal">
-        {[
-          `${total} listings and growing`,
-          '9 municipalities covered',
-          'Updated local business directory',
-          `${total} listings and growing`,
-          '9 municipalities covered',
-          'Updated local business directory',
-        ].map((label, index) => (
-          <span key={`${label}-${index}`} className="hero-stat-chip hero-stat-chip--minimal whitespace-nowrap shrink-0">
-            {label}
-          </span>
-        ))}
-      </div>
-    </div>
-
-    <div className="mt-3 hero-chip-marquee hero-chip-marquee--subtle hero-chip-marquee--editorial text-xs md:text-sm" aria-label="Popular categories overview">
-      <div className="hero-chip-track hero-chip-track--minimal hero-chip-track--alt">
-        {[
-          'Hotels & Stays',
-          'Tours & Island Hopping',
-          'Transport Rentals',
-          'Food & Restaurants',
-          'Surf Schools',
-          'Essentials & Services',
-          'Hotels & Stays',
-          'Tours & Island Hopping',
-          'Transport Rentals',
-          'Food & Restaurants',
-          'Surf Schools',
-          'Essentials & Services',
-        ].map((label, index) => (
-          <span key={`${label}-${index}`} className="hero-link-chip hero-link-chip--minimal whitespace-nowrap shrink-0" aria-hidden="true">
-            {label}
-          </span>
-        ))}
-      </div>
-    </div>
-  </div>
 </div>
 
-<div className="hero-search-panel hero-search-panel--classic mt-5">
-  <div className="hero-search-header">
-    <div>
-      <p className="hero-search-kicker">Start your search</p>
-      <h2 className="hero-search-title">Search the Siargao directory</h2>
-    </div>
-    <div className="hero-search-meta" aria-label="Directory status">
-      <span className="hero-search-meta-item">Status: <span className="hero-search-status-live">Live</span></span>
-    </div>
-  </div>
-
-  <div className="hero-search-grid">
+<form className="hero-search-panel hero-search-panel--classic mt-5" onSubmit={onSearch}>
+  <div className="hero-search-grid hero-search-grid--primary">
     <label className="hero-search-field hero-search-field--wide">
-      <span className="hero-search-label">What</span>
+      <span className="hero-search-label">What are you looking for?</span>
       <div className="hero-search-control">
         <Search size={17} className="hero-search-icon" />
         <input
+          type="search"
+          name="q"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          onKeyDown={onSearchKeyDown}
-          placeholder="What are you looking for?"
+          placeholder="Try “motorbike rental”, “clinic”, or “restaurant”"
+          autoComplete="off"
           className="hero-search-input"
         />
-      </div>
-    </label>
-
-    <label className="hero-search-field">
-      <span className="hero-search-label">Category</span>
-      <div className="hero-search-control">
-        <Building2 size={17} className="hero-search-icon" />
-        <select
-          value={categoryGroup}
-          onChange={(e) => {
-            setCategoryGroup(e.target.value);
-            setCategory("");
-          }}
-          onKeyDown={onSearchKeyDown}
-          className="hero-search-select"
-        >
-          <option value="">All Category Groups</option>
-          {LISTING_CATEGORY_GROUPS.map((group) => (
-            <option key={group.id} value={group.id}>
-              {group.label}
-            </option>
-          ))}
-        </select>
       </div>
     </label>
 
@@ -379,9 +419,9 @@ return (
       <div className="hero-search-control">
         <MapPin size={17} className="hero-search-icon" />
         <select
+          name="municipality"
           value={municipality}
           onChange={(e) => setMunicipality(e.target.value)}
-          onKeyDown={onSearchKeyDown}
           className="hero-search-select"
         >
           <option value="">All Municipalities</option>
@@ -397,43 +437,82 @@ return (
     <div className="hero-search-field hero-search-field--button">
       <span className="hero-search-label hero-search-label--ghost">Search</span>
       <button
-        onClick={onSearch}
+        type="submit"
+        disabled={loading}
         className="hero-search-button"
       >
-        Search Directory
+        {loading ? "Searching…" : "Find businesses"}
       </button>
     </div>
   </div>
 
-  <label className="hero-phone-filter mt-4">
-    <input
-      type="checkbox"
-      checked={hasPhone}
-      onChange={(e) => setHasPhone(e.target.checked)}
-      className="h-4 w-4 accent-slate-900"
-    />
-    <span className="inline-flex items-center gap-2">
-      <Phone size={15} />
-      Show only listings with phone numbers
-    </span>
-  </label>
-
-  <div className="hero-search-actions hero-search-actions--classic flex flex-wrap items-center justify-between gap-3">
-    <p className="hero-search-note">Search hotels, tours, rentals, local services, and everyday essentials across the island.</p>
-    <div className="flex flex-wrap items-center gap-2">
-      {hasActiveFilters && (
-        <button onClick={clearAllFilters} className="ui-btn bg-black text-white hover:bg-slate-800 shadow-sm">
-          Clear All
-        </button>
-      )}
-      <span className="text-sm text-slate-700 font-medium">
-        {hasSearched ? `${total} results` : "Search to view listings"}
-      </span>
-    </div>
+  <div className="hero-quick-searches" aria-label="Popular searches">
+    <span className="hero-quick-searches-label">Popular</span>
+    {HERO_QUICK_GROUPS.map((group) => (
+      <button
+        key={group.id}
+        type="button"
+        onClick={() => void applyCategoryGroup(group.id)}
+        className={`hero-quick-search-link ${categoryGroup === group.id ? "hero-quick-search-link--active" : ""}`}
+        aria-pressed={categoryGroup === group.id}
+      >
+        {group.label}
+      </button>
+    ))}
   </div>
 
+  <details
+    className="hero-more-filters"
+    open={moreFiltersOpen}
+    onToggle={(event) => setMoreFiltersOpen(event.currentTarget.open)}
+  >
+    <summary>More filters</summary>
+    <div className="hero-more-filters-grid">
+      <label className="hero-search-field">
+        <span className="hero-search-label">Category</span>
+        <div className="hero-search-control">
+          <Building2 size={17} className="hero-search-icon" />
+          <select
+            name="categoryGroup"
+            value={categoryGroup}
+            onChange={(e) => {
+              setCategoryGroup(e.target.value);
+              setCategory("");
+            }}
+            className="hero-search-select"
+          >
+            <option value="">All category groups</option>
+            {LISTING_CATEGORY_GROUPS.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </label>
+
+      <label className="hero-phone-filter">
+        <input
+          type="checkbox"
+          checked={hasPhone}
+          onChange={(e) => setHasPhone(e.target.checked)}
+        />
+        <span className="inline-flex items-center gap-2">
+          <Phone size={15} />
+          Only show listings with phone numbers
+        </span>
+      </label>
+
+      {hasActiveFilters && (
+        <button type="button" onClick={clearAllFilters} className="hero-clear-filters">
+          Clear filters
+        </button>
+      )}
+    </div>
+  </details>
+
   {hasActiveFilters && (
-    <div className="hero-active-filters mt-4 flex flex-wrap gap-2">
+    <div className="hero-active-filters" aria-label="Active search filters">
       {q && <span className="listing-card-pill">Search: {q}</span>}
       {selectedCategoryGroup && <span className="listing-card-pill">Category: {selectedCategoryGroup.label}</span>}
       {category && <span className="listing-card-pill">Quick category: {category}</span>}
@@ -441,7 +520,23 @@ return (
       {hasPhone && <span className="listing-card-pill">Phone numbers only</span>}
     </div>
   )}
-</div>
+
+  <div className="hero-trust-row">
+    <div className="hero-trust-facts" aria-label="Directory coverage">
+      <span><strong>{initialData.total.toLocaleString()}</strong> listings</span>
+      <span aria-hidden="true">•</span>
+      <span><strong>9</strong> municipalities</span>
+      <span aria-hidden="true">•</span>
+      <span>Updated regularly</span>
+    </div>
+    <div className="hero-trust-actions">
+      <span className="hero-search-result-status" role="status" aria-live="polite">
+        {loading ? "Searching…" : hasSearched ? `${total} result${total === 1 ? "" : "s"}` : "Ready to search"}
+      </span>
+      <Link href="/list-your-business" className="hero-owner-link">List your business <span aria-hidden="true">→</span></Link>
+    </div>
+  </div>
+</form>
 </div>
 </section>
 
@@ -459,8 +554,8 @@ return (
 </div>
 </div>
 
-{loading && <p className="text-slate-500">Loading listings...</p>}
-{error && <p className="text-red-600">Error: {error}</p>}
+{loading && <p className="text-slate-500" role="status">Loading listings...</p>}
+{error && <p className="text-red-600" role="alert">Error: {error}</p>}
 {!loading && !error && listings.length === 0 && (
   <div className="surface-panel p-6 text-slate-600">
     <p className="font-semibold text-slate-900">No listings found.</p>

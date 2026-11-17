@@ -2533,7 +2533,148 @@ color: rgba(15, 23, 42, 0.78);
 html {
 scroll-behavior: auto !important;
 }
+}
 
+/* Admin workspace v2: shared glass treatment for protected subpages. */
+.admin-glass-v2 .admin-subpage-content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: clamp(1rem, 2.5vw, 2rem);
+  color: rgb(226 232 240);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: 0 35px 100px -55px rgba(16, 185, 129, 0.65);
+  backdrop-filter: blur(24px);
+}
+
+.admin-glass-v2 .admin-subpage-stack {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.admin-glass-v2 .admin-subpage-stack > section,
+.admin-glass-v2 .bg-white,
+.admin-glass-v2 .bg-slate-50,
+.admin-glass-v2 .bg-slate-100,
+.admin-glass-v2 .bg-blue-50,
+.admin-glass-v2 .bg-amber-50,
+.admin-glass-v2 .bg-yellow-50,
+.admin-glass-v2 .bg-yellow-100,
+.admin-glass-v2 .bg-indigo-50,
+.admin-glass-v2 .bg-violet-50,
+.admin-glass-v2 .bg-emerald-50,
+.admin-glass-v2 .bg-green-100,
+.admin-glass-v2 .bg-red-100,
+.admin-glass-v2 .bg-blue-100,
+.admin-glass-v2 .bg-indigo-100 {
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none;
+  backdrop-filter: blur(18px);
+}
+
+.admin-glass-v2 .admin-subpage-stack > section {
+  color: rgb(226 232 240);
+}
+
+.admin-glass-v2 .border,
+.admin-glass-v2 [class*="border-slate"],
+.admin-glass-v2 [class*="border-blue"],
+.admin-glass-v2 [class*="border-amber"],
+.admin-glass-v2 [class*="border-yellow"],
+.admin-glass-v2 [class*="border-violet"],
+.admin-glass-v2 [class*="border-emerald"] {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.admin-glass-v2 .text-slate-900,
+.admin-glass-v2 .text-slate-800,
+.admin-glass-v2 .text-slate-700 {
+  color: rgb(241 245 249) !important;
+}
+
+.admin-glass-v2 .text-slate-600,
+.admin-glass-v2 .text-slate-500 {
+  color: rgb(148 163 184) !important;
+}
+
+.admin-glass-v2 .text-blue-700,
+.admin-glass-v2 .text-indigo-700 {
+  color: rgb(165 243 252) !important;
+}
+
+.admin-glass-v2 .text-amber-700,
+.admin-glass-v2 .text-amber-900,
+.admin-glass-v2 .text-yellow-900 {
+  color: rgb(253 230 138) !important;
+}
+
+.admin-glass-v2 .text-emerald-700,
+.admin-glass-v2 .text-green-700 {
+  color: rgb(167 243 208) !important;
+}
+
+.admin-glass-v2 .text-red-700 {
+  color: rgb(253 164 175) !important;
+}
+
+.admin-glass-v2 input:not([type="checkbox"]):not([type="radio"]),
+.admin-glass-v2 select,
+.admin-glass-v2 textarea {
+  color: rgb(241 245 249);
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(2, 12, 11, 0.55);
+  outline: none;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.admin-glass-v2 input::placeholder,
+.admin-glass-v2 textarea::placeholder {
+  color: rgb(100 116 139);
+}
+
+.admin-glass-v2 input:focus,
+.admin-glass-v2 select:focus,
+.admin-glass-v2 textarea:focus {
+  border-color: rgba(253, 230, 138, 0.45) !important;
+  background: rgba(2, 12, 11, 0.78);
+  box-shadow: 0 0 0 3px rgba(253, 230, 138, 0.08);
+}
+
+.admin-glass-v2 select option {
+  color: rgb(241 245 249);
+  background: rgb(10 25 23);
+}
+
+.admin-glass-v2 input[type="checkbox"],
+.admin-glass-v2 input[type="radio"] {
+  accent-color: rgb(252 211 77);
+}
+
+.admin-glass-v2 .bg-black {
+  color: rgb(23 32 29) !important;
+  background: rgb(253 230 138) !important;
+}
+
+.admin-glass-v2 .hover\:bg-slate-50:hover,
+.admin-glass-v2 .hover\:bg-white:hover,
+.admin-glass-v2 .hover\:bg-slate-100:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.admin-glass-v2 a:focus-visible,
+.admin-glass-v2 button:focus-visible,
+.admin-glass-v2 input:focus-visible,
+.admin-glass-v2 select:focus-visible,
+.admin-glass-v2 textarea:focus-visible {
+  outline: 2px solid rgba(253, 230, 138, 0.7);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
 *,
 *::before,
 *::after {

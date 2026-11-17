@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
+import AdminSubpageShell from "@/components/AdminSubpageShell";
 
 type OutreachStatus = "not_contacted" | "contacted" | "replied" | "follow_up_needed" | "closed";
 type BusinessType = "hotel" | "villa" | "surf_school" | "cafe" | "coworking" | "transport" | "tours" | "other";
@@ -193,8 +194,8 @@ export default function AdminOutreachPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] p-6 text-slate-800 antialiased">
-      <div className="max-w-6xl mx-auto bg-white border rounded-xl p-6 mt-8">
+    <AdminSubpageShell>
+      <div className="admin-subpage-content">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Admin</p>
@@ -407,6 +408,6 @@ export default function AdminOutreachPage() {
           )}
         </section>
       </div>
-    </main>
+    </AdminSubpageShell>
   );
 }

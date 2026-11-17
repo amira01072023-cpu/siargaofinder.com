@@ -1,11 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const STORAGE_KEY = "siargaofinder:last-visit-day";
 
 export default function SiteVisitTracker() {
+  const pathname = usePathname();
+
   useEffect(() => {
+    if (pathname.startsWith("/admin")) return;
+
     const today = new Date().toISOString().slice(0, 10);
     const last = window.localStorage.getItem(STORAGE_KEY);
     if (last === today) return;
@@ -30,7 +35,7 @@ export default function SiteVisitTracker() {
       .catch(() => {
         // ignore analytics failures
       });
-  }, []);
+  }, [pathname]);
 
   return null;
 }

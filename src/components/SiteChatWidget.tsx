@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MessageCircle, X, Sparkles } from "lucide-react";
 import { listingHref } from "@/lib/listing-slugs";
 
@@ -20,6 +21,7 @@ type PopularCategory = {
 };
 
 export default function SiteChatWidget() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [submitted, setSubmitted] = useState<string | null>(null);
@@ -55,6 +57,8 @@ export default function SiteChatWidget() {
   };
 
   useEffect(() => {
+    if (pathname.startsWith("/admin")) return;
+
     const loadPopularCategories = async () => {
       try {
         const res = await fetch("/api/listings/popular-categories");
@@ -67,7 +71,9 @@ export default function SiteChatWidget() {
     };
 
     loadPopularCategories();
-  }, []);
+  }, [pathname]);
+
+  if (pathname.startsWith("/admin")) return null;
 
   const send = () => ask(input);
   const handlePromptClick = (prompt: string) => {

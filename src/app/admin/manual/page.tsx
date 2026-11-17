@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
+import AdminSubpageShell from "@/components/AdminSubpageShell";
 
 type ModuleCardProps = {
   title: string;
@@ -40,8 +41,8 @@ export default function AdminManualPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] text-slate-800 antialiased p-6">
-      <div className="max-w-6xl mx-auto space-y-6 mt-8">
+    <AdminSubpageShell>
+      <div className="admin-subpage-stack space-y-6">
         <section className="bg-white border rounded-2xl p-6 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
@@ -334,6 +335,6 @@ export default function AdminManualPage() {
           </p>
         </section>
       </div>
-    </main>
+    </AdminSubpageShell>
   );
 }

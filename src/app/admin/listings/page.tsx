@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase-browser";
 import { getDetailedListingCompleteness } from "@/lib/listing-completeness";
 import { getListingQualityScore } from "@/lib/listing-quality-score";
+import AdminSubpageShell from "@/components/AdminSubpageShell";
 
 type ListingStatus = "draft" | "published" | "needs_review" | "verified";
 type ClaimStatus = "unclaimed" | "pending" | "claimed" | "rejected";
@@ -154,8 +155,8 @@ export default function AdminListingsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f8fafc] p-6 text-slate-800 antialiased">
-      <div className="max-w-6xl mx-auto bg-white border rounded-xl p-6 mt-8">
+    <AdminSubpageShell>
+      <div className="admin-subpage-content">
         <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <div>
             <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Admin</p>
@@ -394,6 +395,6 @@ export default function AdminListingsPage() {
           )}
         </section>
       </div>
-    </main>
+    </AdminSubpageShell>
   );
 }

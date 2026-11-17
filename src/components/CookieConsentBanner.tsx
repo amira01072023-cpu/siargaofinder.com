@@ -2,6 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 type Consent = "accepted" | "rejected";
 export const COOKIE_CONSENT_STORAGE_KEY = "ubc_cookie_consent_v1";
@@ -44,6 +45,7 @@ function getConsentVisibility() {
 }
 
 export default function CookieConsentBanner() {
+  const pathname = usePathname();
   const visible = useSyncExternalStore(subscribeToConsent, getConsentVisibility, () => false);
 
   useEffect(() => {
@@ -57,7 +59,7 @@ export default function CookieConsentBanner() {
     window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_EVENT, { detail: choice }));
   };
 
-  if (!visible) return null;
+  if (pathname.startsWith("/admin") || !visible) return null;
 
   return (
     <div className="cookie-consent-banner" role="dialog" aria-live="polite" aria-label="Cookie consent banner">

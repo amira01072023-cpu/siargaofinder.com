@@ -1,8 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Building2, ShieldCheck, MapPinned } from "lucide-react";
 
 export default function SiteFooter() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/admin")) return null;
+
   return (
     <footer className="footer-image-bg footer-shell relative overflow-hidden border-t border-white/10 text-slate-300">
       <div className="footer-overlay" />

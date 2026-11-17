@@ -185,7 +185,8 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    load();
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const stats = useMemo(() => {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMailerFrom, getResendClient } from "@/lib/mailer";
+import { rateLimitRequest, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 const CONTACT_EMAIL = "info@siargaofinder.com";
 
@@ -14,6 +15,13 @@ function escapeHtml(value: string) {
 
 export async function POST(req: Request) {
   try {
+    const rateLimit = rateLimitRequest(req, {
+      key: "content-reports",
+      limit: 5,
+      windowMs: 60 * 60 * 1000,
+    });
+    if (!rateLimit.allowed) return tooManyRequestsResponse(rateLimit);
+
     const body = await req.json();
     const fullName = String(body?.full_name || "").trim();
     const email = String(body?.email || "").trim().toLowerCase();

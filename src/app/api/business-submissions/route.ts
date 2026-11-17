@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createHash, randomBytes } from "crypto";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getMailerFrom, getResendClient } from "@/lib/mailer";
+import { rateLimitRequest, tooManyRequestsResponse } from "@/lib/rate-limit";
 import { getSiteUrl } from "@/lib/site-url";
 
 function clean(v: unknown) {
@@ -35,6 +36,13 @@ function escapeHtml(value: string) {
 
 export async function POST(req: Request) {
   try {
+    const rateLimit = rateLimitRequest(req, {
+      key: "business-submissions",
+      limit: 5,
+      windowMs: 60 * 60 * 1000,
+    });
+    if (!rateLimit.allowed) return tooManyRequestsResponse(rateLimit);
+
     const body = await req.json();
 
     const nickname = clean(body?.nickname);

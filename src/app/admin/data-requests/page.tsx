@@ -61,7 +61,8 @@ export default function AdminDataRequestsPage() {
   };
 
   useEffect(() => {
-    load();
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const updateStatus = async (id: number, status: "pending" | "in_progress" | "completed" | "rejected") => {

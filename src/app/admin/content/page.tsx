@@ -109,7 +109,8 @@ export default function AdminContentPage() {
   };
 
   useEffect(() => {
-    load();
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
   }, [statusFilter, priorityFilter]);
 
   const stats = useMemo(() => {

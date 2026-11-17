@@ -17,7 +17,7 @@ const SIARGAO_MUNICIPALITIES = [
 "Burgos",
 ];
 
-const [form, setForm] = useState({
+const [form, setForm] = useState(() => ({
 business_name: "",
 category: "",
 city: "",
@@ -32,7 +32,7 @@ tiktok: "",
 youtube: "",
 nickname: "",
 started_at: String(Date.now()),
-});
+}));
 
 const [msg, setMsg] = useState("");
 const [duplicateHint, setDuplicateHint] = useState("");

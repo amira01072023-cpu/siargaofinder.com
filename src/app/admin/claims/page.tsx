@@ -64,7 +64,8 @@ setLoading(false);
 };
 
 useEffect(() => {
-load();
+const timer = window.setTimeout(() => void load(), 0);
+return () => window.clearTimeout(timer);
 }, []);
 
 const approve = async (id: number) => {

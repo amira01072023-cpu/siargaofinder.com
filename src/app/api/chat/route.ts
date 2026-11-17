@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { rateLimitRequest, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 const MAX_MESSAGE_LENGTH = 120;
 
@@ -54,6 +55,13 @@ function getCategorySearchTerms(category: string, rawText: string) {
 
 export async function POST(req: NextRequest) {
   try {
+    const rateLimit = rateLimitRequest(req, {
+      key: "directory-chat",
+      limit: 30,
+      windowMs: 60 * 1000,
+    });
+    if (!rateLimit.allowed) return tooManyRequestsResponse(rateLimit);
+
     const { message } = await req.json();
     const rawText = String(message || "").trim();
     const text = normalizeMessage(rawText);

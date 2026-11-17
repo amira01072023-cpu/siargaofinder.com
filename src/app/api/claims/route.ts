@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { rateLimitRequest, tooManyRequestsResponse } from "@/lib/rate-limit";
 
 function isValidEmail(email: string) {
 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -46,6 +47,13 @@ return NextResponse.json(
 
 export async function POST(req: Request) {
 try {
+const rateLimit = rateLimitRequest(req, {
+key: "listing-claims",
+limit: 10,
+windowMs: 60 * 60 * 1000,
+});
+if (!rateLimit.allowed) return tooManyRequestsResponse(rateLimit);
+
 const supabase = await createClient();
 const {
 data: { user },

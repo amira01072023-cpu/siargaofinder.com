@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { Search, MapPin, Phone, Star, Building2, BedDouble, Utensils, Waves, Car, Briefcase, School, Landmark, ShoppingBag, Fuel, Cross, PawPrint, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import SaveListingButton from "@/components/SaveListingButton";
@@ -34,11 +34,6 @@ total: number;
 totalPages: number;
 };
 
-type FiltersResponse = {
-categories: string[];
-municipalities: string[];
-};
-
 type PopularCategory = {
 name: string;
 count: number;
@@ -52,12 +47,9 @@ note: string;
 };
 
 type InitialHomeData = {
-  items: Listing[];
   page: number;
-  limit: number;
   total: number;
   totalPages: number;
-  categories: string[];
   municipalities: string[];
   popularCategories: PopularCategory[];
 };
@@ -165,8 +157,8 @@ const [categoryGroup, setCategoryGroup] = useState("");
 const [municipality, setMunicipality] = useState("");
 const [hasPhone, setHasPhone] = useState(false);
 
-const [municipalityOptions, setMunicipalityOptions] = useState<string[]>(() => uniqueOptions(initialData.municipalities ?? []));
-const [popularCategories, setPopularCategories] = useState<PopularCategory[]>(initialData.popularCategories ?? []);
+const municipalityOptions = uniqueOptions(initialData.municipalities ?? []);
+const popularCategories = initialData.popularCategories ?? [];
 
 const [page, setPage] = useState(initialData.page ?? 1);
 const [totalPages, setTotalPages] = useState(initialData.totalPages ?? 1);
@@ -213,44 +205,6 @@ setError(e instanceof Error ? e.message : "Something went wrong");
 setLoading(false);
 }
 };
-
-const loadFilters = async () => {
-try {
-const res = await fetch("/api/listings/filters", { cache: "no-store" });
-const data: FiltersResponse | { error: string } = await res.json();
-if (!res.ok || "error" in data) {
-throw new Error("error" in data ? data.error : "Failed to load filters");
-}
-setMunicipalityOptions(uniqueOptions(data.municipalities ?? []));
-} catch {
-setMunicipalityOptions([]);
-}
-};
-
-const loadPopularCategories = async () => {
-try {
-const res = await fetch("/api/listings/popular-categories", { cache: "no-store" });
-const data = await res.json();
-if (res.ok) setPopularCategories(data.categories || []);
-} catch {
-setPopularCategories([]);
-}
-};
-
-useEffect(() => {
-  loadFilters();
-  loadPopularCategories();
-}, []);
-
-useEffect(() => {
-  const nextTotalPages = Math.max(Math.ceil(popularCategories.length / CATEGORY_PAGE_SIZE), 1);
-  setPopularCategoryPage((current) => Math.min(current, nextTotalPages));
-}, [popularCategories.length]);
-
-useEffect(() => {
-  const nextTotalPages = Math.max(Math.ceil(blogPosts.length / BLOG_PAGE_SIZE), 1);
-  setBlogPage((current) => Math.min(current, nextTotalPages));
-}, []);
 
 const onSearch = async () => {
 setHasSearched(true);

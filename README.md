@@ -53,6 +53,13 @@ Run production build:
 npm run build
 ```
 
+Run automated checks:
+
+```bash
+npm run typecheck
+npm test
+```
+
 ## Environment
 This project expects Supabase environment variables in `.env.local`.
 
@@ -69,3 +76,5 @@ Typical values include:
 - `sql/` contains database setup SQL
 - `public/googledc123a7f9d3a9fff.html` is used for Google verification
 - deployment is configured for Vercel
+- public write/email APIs use application-level request limiting; keep Vercel firewall/rate-limit rules enabled as the distributed production layer
+- GitHub Actions runs audit, lint, type-check, tests, and build for pushes and pull requests

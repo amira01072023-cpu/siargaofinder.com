@@ -12,10 +12,7 @@ const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: {
-    default: "Siargao Finder | Local Businesses, Services & Contacts in Siargao",
-    template: "%s | Siargao Finder",
-  },
+  title: "Siargao Finder | Local Businesses, Services & Contacts in Siargao",
   description: "Find local businesses, services, rentals, tours, restaurants, and contact details across Siargao.",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
@@ -100,6 +97,7 @@ const localBusinessDirectoryJsonLd = {
 return (
 <html lang="en">
 <body>
+<a className="skip-link" href="#main-content">Skip to main content</a>
 <Script async src="https://www.googletagmanager.com/gtag/js?id=G-9HB4R9D2HX" strategy="afterInteractive" />
 <Script
   id="ga4-google-tag"
@@ -131,7 +129,7 @@ return (
 />
 <SiteVisitTracker />
 <div className="min-h-screen flex flex-col">
-  <div className="flex-1">{children}</div>
+  <div id="main-content" className="flex-1" tabIndex={-1}>{children}</div>
   <SiteFooter />
 </div>
 <SiteChatWidget />

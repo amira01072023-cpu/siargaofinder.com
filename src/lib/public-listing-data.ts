@@ -113,6 +113,7 @@ export const getPublicListingFacets = unstable_cache(
     );
 
     return {
+      total: rows.length,
       categories: categoryBuckets.map((bucket) => bucket.name),
       municipalities: SIARGAO_MUNICIPALITIES,
       categoryBuckets,

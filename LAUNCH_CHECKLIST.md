@@ -51,7 +51,9 @@
 - [x] Admin email restriction active
 - [x] HTTPS/SSL enforced on production domain
 - [ ] Backups configured and restore test verified
-- [ ] Vulnerability scan completed (pre-launch + recurring)
+- [x] Vulnerability scan completed (production dependencies currently report 0 known vulnerabilities)
+- [x] Public write/email endpoints have application-level request limiting
+- [ ] Vercel firewall/distributed rate limits configured and verified
 
 ## 7.1) Compliance & Accessibility
 - [x] Privacy Policy reviewed and published
@@ -63,7 +65,7 @@
 
 ## 8) Deployment
 - [x] `git add . && git commit` clean
-- [x] `git push origin main`
+- [ ] `git push origin main` (blocked until GitHub credentials are reconnected; local `main` is ahead)
 - [x] Vercel deployment status = Ready
 - [x] Live smoke test passed:
 - [x] `/`

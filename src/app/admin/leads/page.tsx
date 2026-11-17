@@ -115,7 +115,8 @@ export default function AdminLeadsPage() {
   };
 
   useEffect(() => {
-    load();
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
   }, [statusFilter, sourceFilter]);
 
   const stats = useMemo(() => {

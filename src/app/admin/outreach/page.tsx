@@ -114,7 +114,8 @@ export default function AdminOutreachPage() {
   };
 
   useEffect(() => {
-    load();
+    const timer = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timer);
   }, [statusFilter, typeFilter, premiumFilter]);
 
   const stats = useMemo(() => {

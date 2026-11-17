@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isAdminEmail } from "@/lib/admin-auth";
+import { rateLimitRequest, tooManyRequestsResponse } from "@/lib/rate-limit";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createClient } from "@/lib/supabase-server";
 
 const MAX_PATH_LENGTH = 200;
 const MAX_VISITOR_KEY_LENGTH = 100;
@@ -28,6 +31,15 @@ function normalizeVisitorKey(input: unknown) {
 }
 
 export async function GET() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!isAdminEmail(user?.email)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { count, error } = await supabaseAdmin
     .from("site_visits")
     .select("*", { count: "exact", head: true });
@@ -41,6 +53,13 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const rateLimit = rateLimitRequest(req, {
+      key: "site-visits",
+      limit: 120,
+      windowMs: 60 * 1000,
+    });
+    if (!rateLimit.allowed) return tooManyRequestsResponse(rateLimit);
+
     const body = await req.json().catch(() => ({}));
     const path = normalizePath(body?.path);
     const visitorKey = normalizeVisitorKey(body?.visitorKey);

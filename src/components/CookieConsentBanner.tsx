@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 type Consent = "accepted" | "rejected";
-export const COOKIE_CONSENT_STORAGE_KEY = "ubc_cookie_consent_v1";
+export const COOKIE_CONSENT_STORAGE_KEY = "ubc_cookie_consent_v2";
 export const COOKIE_CONSENT_EVENT = "siargaofinder:consent";
 
 declare global {
@@ -66,7 +66,8 @@ export default function CookieConsentBanner() {
       <div className="cookie-consent-copy">
         <p className="cookie-consent-title">Your privacy, your call.</p>
         <p className="cookie-consent-text">
-          We use essential cookies to keep the site secure and working. Optional analytics stays off unless you accept it.
+          We use essential cookies to keep the site secure and working. Optional analytics and third-party advertising
+          stay off unless you accept them.
         </p>
         <p className="cookie-consent-subtext">
           Read more in our{" "}
@@ -81,7 +82,7 @@ export default function CookieConsentBanner() {
           Reject non-essential
         </button>
         <button onClick={() => handleChoice("accepted")} className="cookie-consent-btn cookie-consent-btn--primary">
-          Accept analytics
+          Accept analytics and ads
         </button>
       </div>
     </div>

@@ -41,13 +41,16 @@ export default function PrivacyPolicyPage() {
         <li>Legal/regulatory authorities when required by law</li>
         <li>Service providers acting under our instructions and confidentiality obligations</li>
         <li>Analytics providers when you accept optional analytics</li>
+        <li>Advertising providers and their delivery partners when you accept optional advertising</li>
       </ul>
 
       <h2 className="mt-8 text-xl font-bold">4. Cookies and Consent</h2>
       <p>
         We use a cookie preference banner. Non-essential cookies are disabled unless you explicitly accept them.
         Essential cookies required for security and core functionality may still be used. If you accept optional
-        analytics, our analytics provider may process technical and usage data under its own privacy practices.
+        analytics and advertising, our analytics provider and third-party advertising network may process technical,
+        device, usage, referrer, and interaction data under their own privacy practices. The advertising networks may set
+        cross-site cookies and deliver promotional content or open a separate advertising page after an interaction.
       </p>
 
       <h2 className="mt-8 text-xl font-bold">5. Data Subject Rights</h2>

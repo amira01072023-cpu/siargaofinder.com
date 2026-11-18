@@ -77,4 +77,5 @@ Typical values include:
 - `public/googledc123a7f9d3a9fff.html` is used for Google verification
 - deployment is configured for Vercel
 - public write/email APIs use application-level request limiting; keep Vercel firewall/rate-limit rules enabled as the distributed production layer
+- public third-party advertising scripts are consent-gated and excluded from all `/admin` routes
 - GitHub Actions runs audit, lint, type-check, tests, and build for pushes and pull requests

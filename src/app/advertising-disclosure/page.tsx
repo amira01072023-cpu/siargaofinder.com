@@ -20,8 +20,14 @@ export default function AdvertisingDisclosurePage() {
 
       <h2 className="mt-8 text-xl font-bold">Current Advertising Status</h2>
       <p>
-        Siargao Finder does not currently run third-party display ads, sponsored-link widgets, popunders, social bars,
-        or ad-network scripts. The cookie preference banner controls optional analytics only.
+        Siargao Finder uses third-party advertising networks on public pages. The advertising scripts are disabled until
+        a visitor accepts optional analytics and advertising through the cookie preference banner. It is not loaded in
+        the protected admin workspace.
+      </p>
+      <p className="mt-3">
+        Depending on the visitor, device, location, and interaction, the network may display or open promotional content,
+        including a pop-under or a separate advertising page after a click or touch. Advertising destinations are selected
+        and delivered by the third-party networks and may change over time.
       </p>
 
       <h2 className="mt-8 text-xl font-bold">Directory Listings</h2>
@@ -41,6 +47,13 @@ export default function AdvertisingDisclosurePage() {
         Directory cleanup, duplicate review, claim review, and listing quality improvements are handled separately from
         commercial decisions. Future advertising or sponsorship will not change whether a listing is accurate, claimed,
         verified, or appropriate for publication.
+      </p>
+
+      <h2 className="mt-8 text-xl font-bold">Advertising Privacy</h2>
+      <p>
+        The advertising providers and their delivery partners may use cookies, device or browser information, IP address,
+        referrer information, and interaction data under their own privacy practices after consent. Visitors can reject
+        non-essential processing in the cookie preference banner.
       </p>
     </LegalLayout>
   );

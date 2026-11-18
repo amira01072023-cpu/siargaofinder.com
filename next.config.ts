@@ -16,6 +16,13 @@ const connectSources = [
   "https://www.google-analytics.com",
   "https://*.google-analytics.com",
   "https://*.analytics.google.com",
+  "https://abscloud.org",
+  "https://bauval.org",
+  "https://araplhn.org",
+  "https://cdn.cloudpiko.com",
+  "https://static.nresystems.com",
+  "https://mamshirt.com",
+  "https://portalfluently.com",
   ...(supabaseOrigin ? [supabaseOrigin] : ["https://*.supabase.co"]),
 ];
 
@@ -25,13 +32,13 @@ const contentSecurityPolicyReportOnly = [
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self'",
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://abscloud.org https://bauval.org https://araplhn.org https://static.nresystems.com https://cdn.cloudpiko.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   `connect-src ${connectSources.join(" ")}`,
   "worker-src 'self' blob:",
-  "frame-src 'none'",
+  "frame-src https://abscloud.org https://bauval.org https://araplhn.org https://static.nresystems.com https://cdn.cloudpiko.com https://mamshirt.com https://portalfluently.com",
 ].join("; ");
 
 const securityHeaders = [

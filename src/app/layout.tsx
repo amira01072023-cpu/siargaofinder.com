@@ -6,6 +6,7 @@ import CookieConsentBanner, { COOKIE_CONSENT_STORAGE_KEY } from "@/components/Co
 import SiteChatWidget from "@/components/SiteChatWidget";
 import SiteFooter from "@/components/SiteFooter";
 import SiteVisitTracker from "@/components/SiteVisitTracker";
+import ConsentAdNetworkScript from "@/components/ConsentAdNetworkScript";
 import { getSiteUrl } from "@/lib/site-url";
 
 const siteUrl = getSiteUrl();
@@ -133,6 +134,7 @@ return (
   <SiteFooter />
 </div>
 <SiteChatWidget />
+<ConsentAdNetworkScript />
 <CookieConsentBanner />
 </body>
 </html>

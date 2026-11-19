@@ -71,7 +71,7 @@ export default function ReportIllegalContentPage() {
             <div className="pt-2"><button disabled={submitting} className="ui-btn ui-btn--dark disabled:opacity-60">{submitting ? "Submitting..." : "Submit Report"}</button></div>
           </form>
 
-          {msg && <p className="status-message">{msg}</p>}
+          {msg && <p className="status-message" role="status">{msg}</p>}
         </div>
       </section>
     </main>

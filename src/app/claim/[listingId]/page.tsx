@@ -189,7 +189,7 @@ export default function ClaimListingPage({
             </div>
           </form>
 
-          {msg && <p className="status-message">{msg}</p>}
+          {msg && <p className="status-message" role="status">{msg}</p>}
         </div>
       </section>
     </main>

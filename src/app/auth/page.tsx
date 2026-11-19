@@ -173,7 +173,7 @@ return (
   ) : null}
 </div>
 
-{msg && <p className="status-message">{msg}</p>}
+{msg && <p className="status-message" role="status">{msg}</p>}
 </div>
 </section>
 </main>

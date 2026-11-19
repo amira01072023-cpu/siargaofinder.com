@@ -157,7 +157,7 @@ Review pending requests, publish clean submissions, mark duplicates, or request 
 </p>
 
 {msg && (
-<div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
+<div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm" role="status">
 {msg}
 </div>
 )}

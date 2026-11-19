@@ -137,7 +137,7 @@ export default function AdminDataRequestsPage() {
         </p>
 
         {msg && (
-          <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm">{msg}</div>
+          <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm" role="status">{msg}</div>
         )}
 
         {loading ? (

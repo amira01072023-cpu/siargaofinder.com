@@ -3,11 +3,8 @@
 import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import {
-  COOKIE_CONSENT_EVENT,
-  COOKIE_CONSENT_STORAGE_KEY,
-} from "@/components/CookieConsentBanner";
 import { AD_NETWORK_SCRIPTS, shouldLoadAdNetwork } from "@/lib/ad-network";
+import { COOKIE_CONSENT_EVENT, COOKIE_CONSENT_STORAGE_KEY } from "@/lib/consent";
 
 function subscribeToConsent(callback: () => void) {
   window.addEventListener(COOKIE_CONSENT_EVENT, callback);
@@ -38,6 +35,7 @@ export default function ConsentAdNetworkScript() {
           data-cfasync="false"
           src={script.src}
           strategy="afterInteractive"
+          referrerPolicy="no-referrer"
         />
       ))}
     </>

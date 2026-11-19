@@ -3,10 +3,11 @@
 import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-type Consent = "accepted" | "rejected";
-export const COOKIE_CONSENT_STORAGE_KEY = "ubc_cookie_consent_v2";
-export const COOKIE_CONSENT_EVENT = "siargaofinder:consent";
+import {
+  COOKIE_CONSENT_EVENT,
+  COOKIE_CONSENT_STORAGE_KEY,
+  type ConsentChoice,
+} from "@/lib/consent";
 
 declare global {
   interface Window {
@@ -15,7 +16,7 @@ declare global {
   }
 }
 
-function applyAnalyticsConsent(choice: Consent) {
+function applyAnalyticsConsent(choice: ConsentChoice) {
   if (typeof window === "undefined") return;
 
   window.dataLayer = window.dataLayer || [];
@@ -49,11 +50,11 @@ export default function CookieConsentBanner() {
   const visible = useSyncExternalStore(subscribeToConsent, getConsentVisibility, () => false);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY) as Consent | null;
+    const saved = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY) as ConsentChoice | null;
     applyAnalyticsConsent(saved || "rejected");
   }, []);
 
-  const handleChoice = (choice: Consent) => {
+  const handleChoice = (choice: ConsentChoice) => {
     window.localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, choice);
     applyAnalyticsConsent(choice);
     window.dispatchEvent(new CustomEvent(COOKIE_CONSENT_EVENT, { detail: choice }));

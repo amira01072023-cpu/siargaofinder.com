@@ -1,12 +1,14 @@
 // src/app/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
-import CookieConsentBanner, { COOKIE_CONSENT_STORAGE_KEY } from "@/components/CookieConsentBanner";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
 import SiteChatWidget from "@/components/SiteChatWidget";
 import SiteFooter from "@/components/SiteFooter";
 import SiteVisitTracker from "@/components/SiteVisitTracker";
 import ConsentAdNetworkScript from "@/components/ConsentAdNetworkScript";
+import FormValidationA11y from "@/components/FormValidationA11y";
+import { COOKIE_CONSENT_STORAGE_KEY } from "@/lib/consent";
 import { getSiteUrl } from "@/lib/site-url";
 
 const siteUrl = getSiteUrl();
@@ -43,6 +45,11 @@ export const metadata: Metadata = {
   verification: {
     google: "3p_IASh8NiGqhPGB-H_65AobSiPJ6PjdKAhuyfeFq8U",
   },
+};
+
+export const viewport: Viewport = {
+  colorScheme: "only light",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -99,7 +106,12 @@ return (
 <html lang="en">
 <body>
 <a className="skip-link" href="#main-content">Skip to main content</a>
-<Script async src="https://www.googletagmanager.com/gtag/js?id=G-9HB4R9D2HX" strategy="afterInteractive" />
+<Script
+  async
+  src="https://www.googletagmanager.com/gtag/js?id=G-9HB4R9D2HX"
+  strategy="afterInteractive"
+  referrerPolicy="no-referrer"
+/>
 <Script
   id="ga4-google-tag"
   strategy="afterInteractive"
@@ -135,6 +147,7 @@ return (
 </div>
 <SiteChatWidget />
 <ConsentAdNetworkScript />
+<FormValidationA11y />
 <CookieConsentBanner />
 </body>
 </html>

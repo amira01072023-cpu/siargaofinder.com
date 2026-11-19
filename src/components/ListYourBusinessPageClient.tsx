@@ -171,7 +171,7 @@ return (
 <label className="form-field">
   <span className="form-label">Business Name</span>
   <input className="form-input" placeholder="Business Name *" value={form.business_name} onBlur={checkDuplicateListing} onChange={(e) => setField("business_name", e.target.value)} maxLength={160} required />
-  {duplicateHint && <span className="text-sm text-amber-700">{duplicateHint}</span>}
+  {duplicateHint && <span className="text-sm text-amber-700" role="status">{duplicateHint}</span>}
 </label>
 
 <label className="form-field">
@@ -240,7 +240,7 @@ return (
 </div>
 </form>
 
-{msg && <p className="status-message">{msg}</p>}
+{msg && <p className="status-message" role="status">{msg}</p>}
 </div>
 </section>
 </main>

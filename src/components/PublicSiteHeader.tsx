@@ -39,7 +39,7 @@ export default function PublicSiteHeader({
         {showListYourBusinessLink && (
           <Link
             href="/list-your-business"
-            className="ui-btn site-header-cta-pulse site-header-cta-premium"
+            className="ui-btn site-header-cta-premium"
           >
             <Sparkles size={14} />
             <span>List your business for free</span>

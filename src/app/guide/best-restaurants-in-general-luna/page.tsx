@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSiteUrl } from "@/lib/site-url";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 export const metadata: Metadata = {
-  title: "Best Restaurants in General Luna | Where to Eat in Siargao’s Main Hub",
+  title: "Best Restaurants in General Luna | Siargao Dining Guide",
   description:
     "A practical guide to the best restaurants in General Luna, including where to eat for casual meals, date nights, group dinners, and easy first-time visitor planning.",
   alternates: {
     canonical: "/guide/best-restaurants-in-general-luna",
   },
   openGraph: {
-    title: "Best Restaurants in General Luna | Where to Eat in Siargao’s Main Hub",
+    title: "Best Restaurants in General Luna | Siargao Dining Guide",
     description:
       "A practical guide to the best restaurants in General Luna, including where to eat for casual meals, date nights, group dinners, and easy first-time visitor planning.",
     url: "https://www.siargaofinder.com/guide/best-restaurants-in-general-luna",
     type: "article",
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
 };
 
@@ -28,6 +30,7 @@ export default function BestRestaurantsInGeneralLunaPage() {
       "A practical guide to the best restaurants in General Luna, including where to eat for casual meals, date nights, group dinners, and easy first-time visitor planning.",
     author: { "@type": "Organization", name: "Siargao Finder" },
     publisher: { "@type": "Organization", name: "Siargao Finder" },
+    image: `${siteUrl}${DEFAULT_SOCIAL_IMAGE.url}`,
     mainEntityOfPage: `${siteUrl}/guide/best-restaurants-in-general-luna`,
   };
 

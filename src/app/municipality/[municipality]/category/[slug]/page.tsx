@@ -1,14 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { ArrowRight, Building2, MapPin } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
 import ListingCardActions from "@/components/ListingCardActions";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
-import { categorySeoLabel, getCategorySearchTerms, slugToLabel } from "@/lib/listing-taxonomy";
+import {
+  categorySeoLabel,
+  categorySlugToCanonicalSlug,
+  getCategorySearchTerms,
+  slugToLabel,
+} from "@/lib/listing-taxonomy";
 import { getSiteUrl } from "@/lib/site-url";
 import { slugToMunicipality } from "@/lib/siargao-municipalities";
 import { getIndexableUniqueBusinessListings } from "@/lib/listing-completeness";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 type Listing = {
   id: number;
@@ -62,30 +69,33 @@ export async function generateMetadata({
   params: Promise<{ municipality: string; slug: string }>;
 }): Promise<Metadata> {
   const { municipality, slug } = await params;
+  const canonicalSlug = categorySlugToCanonicalSlug(slug);
   const municipalityName = slugToMunicipality(municipality);
-  const categoryName = categorySeoLabel(slug);
+  const categoryName = categorySeoLabel(canonicalSlug);
   const baseUrl = getSiteUrl();
-  const title = `${categoryName} in ${municipalityName}, Siargao | Local Listings and Contacts`;
+  const title = `${categoryName} in ${municipalityName}, Siargao`;
   const description = `Find ${categoryName.toLowerCase()} in ${municipalityName}, Siargao with local listings, contact details, addresses, and practical comparison help.`;
-  const listings = await getMunicipalityCategoryListings(municipality, slug);
+  const listings = await getMunicipalityCategoryListings(municipality, canonicalSlug);
   const hasEnoughListings = listings.length >= MIN_INDEXABLE_MUNICIPALITY_CATEGORY_LISTINGS;
 
   return {
     title,
     description,
     alternates: {
-      canonical: `/municipality/${municipality}/category/${slug}`,
+      canonical: `/municipality/${municipality}/category/${canonicalSlug}`,
     },
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/municipality/${municipality}/category/${slug}`,
+      url: `${baseUrl}/municipality/${municipality}/category/${canonicalSlug}`,
       type: "website",
+      images: [DEFAULT_SOCIAL_IMAGE],
     },
     twitter: {
       card: "summary",
       title,
       description,
+      images: [DEFAULT_SOCIAL_IMAGE.url],
     },
     robots: hasEnoughListings
       ? { index: true, follow: true }
@@ -99,12 +109,16 @@ export default async function MunicipalityCategoryPage({
   params: Promise<{ municipality: string; slug: string }>;
 }) {
   const { municipality, slug } = await params;
+  const canonicalSlug = categorySlugToCanonicalSlug(slug);
+  if (canonicalSlug !== slug) {
+    permanentRedirect(`/municipality/${municipality}/category/${canonicalSlug}`);
+  }
   const municipalityName = slugToMunicipality(municipality);
-  const categoryName = slugToLabel(slug);
-  const seoCategoryName = categorySeoLabel(slug);
-  const listings = await getMunicipalityCategoryListings(municipality, slug);
+  const categoryName = slugToLabel(canonicalSlug);
+  const seoCategoryName = categorySeoLabel(canonicalSlug);
+  const listings = await getMunicipalityCategoryListings(municipality, canonicalSlug);
   const siteUrl = getSiteUrl();
-  const pageUrl = `${siteUrl}/municipality/${municipality}/category/${slug}`;
+  const pageUrl = `${siteUrl}/municipality/${municipality}/category/${canonicalSlug}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",

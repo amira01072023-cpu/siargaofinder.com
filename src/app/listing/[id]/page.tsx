@@ -15,7 +15,12 @@ import {
   isIndexableBusinessListing,
 } from "@/lib/listing-completeness";
 import { getSiteUrl } from "@/lib/site-url";
-import { categoryToSlug } from "@/lib/listing-taxonomy";
+import {
+  buildListingSeoDescription,
+  buildListingSeoTitle,
+  DEFAULT_SOCIAL_IMAGE,
+} from "@/lib/seo-metadata";
+import { categoryToCanonicalSlug } from "@/lib/listing-taxonomy";
 import { businessNameToListingSlug, listingHref } from "@/lib/listing-slugs";
 
 export const revalidate = 1800;
@@ -236,12 +241,12 @@ description: "The requested business listing was not found.",
 };
 }
 
-const title = `${listing.business_name}${listing.municipality ? ` in ${listing.municipality}, Siargao` : " in Siargao"}${
-listing.category ? ` - ${listing.category}` : ""
-}`;
-const description = `${listing.business_name}${listing.category ? ` - ${listing.category}` : ""}${
-listing.municipality ? ` in ${listing.municipality}` : ""
-}. Contact details and listing information.`;
+const title = buildListingSeoTitle(listing.business_name, listing.municipality);
+const description = buildListingSeoDescription(
+  listing.business_name,
+  listing.municipality,
+  listing.category,
+);
 const baseUrl = getSiteUrl();
 const canonicalPath = listingHref(listing);
 const indexableSlugs = await getIndexableListingSlugs();
@@ -258,11 +263,13 @@ return {
       description,
       url: `${baseUrl}${canonicalPath}`,
       type: "website",
+      images: [DEFAULT_SOCIAL_IMAGE],
     },
     twitter: {
       card: "summary",
       title,
       description,
+      images: [DEFAULT_SOCIAL_IMAGE.url],
     },
     robots: shouldIndex
       ? { index: true, follow: true }
@@ -325,7 +332,7 @@ item: `${baseUrl}${canonicalPath}`,
 };
 
 const municipalitySlug = municipalityToSlug(listing.municipality);
-const categorySlug = listing.category ? categoryToSlug(listing.category) : "";
+const categorySlug = listing.category ? categoryToCanonicalSlug(listing.category) : "";
 const directionsUrl = listing.address || listing.municipality
   ? buildDirectionsUrl(listing.business_name, listing.address, listing.municipality)
   : null;

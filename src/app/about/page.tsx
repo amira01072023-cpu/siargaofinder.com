@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { getSiteUrl } from "@/lib/site-url";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 export const metadata: Metadata = {
   title: "About Siargao Finder",
   description:
-    "Learn what Siargao Finder is, why it exists, and how the directory works. Listings are free, we do not accept payments, and the goal is to help businesses and visitors discover reliable information.",
+    "Learn how Siargao Finder builds its independent local directory, reviews public listing information, and helps people discover Siargao businesses.",
   alternates: {
     canonical: "/about",
   },
   openGraph: {
     title: "About Siargao Finder",
     description:
-      "Learn what Siargao Finder is, why it exists, and how the directory works. Listings are free, we do not accept payments, and the goal is to help businesses and visitors discover reliable information.",
+      "Learn how Siargao Finder builds its independent local directory, reviews public listing information, and helps people discover Siargao businesses.",
     url: "https://www.siargaofinder.com/about",
     type: "website",
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
 };
 

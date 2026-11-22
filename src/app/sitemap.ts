@@ -4,8 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 import { getSiteUrl } from "@/lib/site-url";
 import { getIndexableUniqueBusinessListings } from "@/lib/listing-completeness";
 import { listingHref } from "@/lib/listing-slugs";
-import { getCategorySearchTerms } from "@/lib/listing-taxonomy";
-import { municipalityToSlug } from "@/lib/siargao-municipalities";
+import { CATEGORY_SLUG_ALIASES, getCategorySearchTerms } from "@/lib/listing-taxonomy";
+import { municipalityToSlug, SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
 
 const baseUrl = getSiteUrl();
 const listingSelect = "id,business_name,last_verified_at,category,municipality,phone,email,website_url,address,services";
@@ -157,5 +157,29 @@ const listingRoutes: MetadataRoute.Sitemap = indexableListings.map((row) => ({
     priority: 0.7,
 }));
 
-return [...filteredStaticRoutes, ...listingRoutes];
+const municipalityCategoryRoutes: MetadataRoute.Sitemap = [];
+
+for (const municipality of SIARGAO_MUNICIPALITIES) {
+  const municipalitySlug = municipalityToSlug(municipality);
+
+  for (const categorySlug of Object.keys(CATEGORY_SLUG_ALIASES)) {
+    const terms = getCategorySearchTerms(categorySlug).map((term) => term.toLowerCase());
+    const matchingRows = data.filter(
+      (listing) =>
+        municipalityToSlug(listing.municipality ?? "") === municipalitySlug &&
+        terms.some((term) => listing.category?.toLowerCase().includes(term)),
+    );
+    const count = getIndexableUniqueBusinessListings(matchingRows).length;
+
+    if (count >= 5) {
+      municipalityCategoryRoutes.push({
+        url: `${baseUrl}/municipality/${municipalitySlug}/category/${categorySlug}`,
+        changeFrequency: "weekly",
+        priority: 0.6,
+      });
+    }
+  }
+}
+
+return [...filteredStaticRoutes, ...municipalityCategoryRoutes, ...listingRoutes];
 }

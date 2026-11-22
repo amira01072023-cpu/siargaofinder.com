@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Phone, Star, Building2, BedDouble, Utensils, Waves, Car, Briefcase, School, Landmark, ShoppingBag, Fuel, Cross, PawPrint, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
@@ -385,6 +386,17 @@ return (
 <PublicSiteHeader showBlogLink showListYourBusinessLink homeLabel="Home" />
 
 <section className="hero-wrap hero-wrap--premium relative overflow-hidden text-black">
+<Image
+  src="/siargao-premium-directory-bg.webp"
+  alt=""
+  fill
+  preload
+  fetchPriority="high"
+  quality={72}
+  sizes="100vw"
+  className="hero-background-image"
+  aria-hidden="true"
+/>
 <div className="hero-content relative max-w-6xl mx-auto px-4 py-8 md:py-10">
 <div className="hero-copy-shell max-w-3xl">
   <div className="hero-eyebrow">Siargao local directory</div>

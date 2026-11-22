@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache";
 import HomePageClient from "@/components/HomePageClient";
 import { getPublicListingFacets } from "@/lib/public-listing-data";
 import { getSiteUrl } from "@/lib/site-url";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 type PopularCategory = {
   name: string;
@@ -15,24 +16,26 @@ export const revalidate = 300;
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Siargao Directory: Local Businesses, Hotels, Cafes, Tours & Services",
+  title: "Siargao Business Directory | Local Services & Contacts",
   description:
-    "Find local businesses in Siargao, including hotels, cafes, restaurants, surf schools, tours, transport rentals, and essential services across General Luna and nearby municipalities.",
+    "Find Siargao businesses, hotels, cafes, tours, rentals, surf schools, transport, and essential services across all nine municipalities.",
   alternates: {
     canonical: siteUrl,
   },
   openGraph: {
-    title: "Siargao Directory: Local Businesses, Hotels, Cafes, Tours & Services",
+    title: "Siargao Business Directory | Local Services & Contacts",
     description:
-      "Find local businesses in Siargao, including hotels, cafes, restaurants, surf schools, tours, transport rentals, and essential services across General Luna and nearby municipalities.",
+      "Find Siargao businesses, hotels, cafes, tours, rentals, surf schools, transport, and essential services across all nine municipalities.",
     url: siteUrl,
     type: "website",
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Siargao Directory: Local Businesses, Hotels, Cafes, Tours & Services",
+    title: "Siargao Business Directory | Local Services & Contacts",
     description:
-      "Find local businesses in Siargao, including hotels, cafes, restaurants, surf schools, tours, transport rentals, and essential services across General Luna and nearby municipalities.",
+      "Find Siargao businesses, hotels, cafes, tours, rentals, surf schools, transport, and essential services across all nine municipalities.",
+    images: [DEFAULT_SOCIAL_IMAGE.url],
   },
 };
 

@@ -125,6 +125,32 @@ export function categoryToSlug(name: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+function normalizeCategoryName(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+export function categoryToCanonicalSlug(name: string) {
+  const normalizedName = normalizeCategoryName(name);
+
+  for (const [canonicalSlug, aliases] of Object.entries(CATEGORY_SLUG_ALIASES)) {
+    const canonicalNames = [canonicalSlug, slugToLabel(canonicalSlug), ...aliases];
+    if (canonicalNames.some((candidate) => normalizeCategoryName(candidate) === normalizedName)) {
+      return canonicalSlug;
+    }
+  }
+
+  return categoryToSlug(name);
+}
+
+export function categorySlugToCanonicalSlug(slug: string) {
+  return categoryToCanonicalSlug(slugToLabel(slug));
+}
+
 export function slugToLabel(slug: string) {
   const prettyMap: Record<string, string> = {
     "hotels-and-stays": "Hotels & Stays",

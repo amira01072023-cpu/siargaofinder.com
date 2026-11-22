@@ -10,6 +10,7 @@ import ConsentAdNetworkScript from "@/components/ConsentAdNetworkScript";
 import FormValidationA11y from "@/components/FormValidationA11y";
 import { COOKIE_CONSENT_STORAGE_KEY } from "@/lib/consent";
 import { getSiteUrl } from "@/lib/site-url";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 const siteUrl = getSiteUrl();
 
@@ -36,11 +37,13 @@ export const metadata: Metadata = {
     title: "Siargao Finder | Local Businesses, Services & Contacts in Siargao",
     description: "Find local businesses, services, rentals, tours, restaurants, and contact details across Siargao.",
     locale: "en_PH",
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "Siargao Finder | Local Businesses, Services & Contacts in Siargao",
     description: "Find local businesses, services, rentals, tours, restaurants, and contact details across Siargao.",
+    images: [DEFAULT_SOCIAL_IMAGE.url],
   },
   verification: {
     google: "3p_IASh8NiGqhPGB-H_65AobSiPJ6PjdKAhuyfeFq8U",

@@ -4,10 +4,11 @@ import { cache } from "react";
 import { MapPin, Building2, ArrowRight } from "lucide-react";
 import { getSiteUrl } from "@/lib/site-url";
 import ListingCardActions from "@/components/ListingCardActions";
-import { categoryToSlug } from "@/lib/listing-taxonomy";
+import { categoryToCanonicalSlug } from "@/lib/listing-taxonomy";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { getIndexablePublicListings } from "@/lib/public-listing-data";
 import { municipalityToSlug } from "@/lib/siargao-municipalities";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 type Listing = {
   id: number;
@@ -47,21 +48,23 @@ export async function generateMetadata({
   const hasListings = listings.length > 0;
 
   return {
-    title: `${municipalityName}, Siargao | Hotels, Cafes, Services and Local Listings`,
+    title: `${municipalityName} Siargao Business Directory`,
     description: `Find businesses in ${municipalityName}, Siargao, including places to stay, cafes, restaurants, transport, and practical local services.`,
     alternates: {
       canonical: `/municipality/${municipality}`,
     },
     openGraph: {
-      title: `${municipalityName}, Siargao | Hotels, Cafes, Services and Local Listings`,
+      title: `${municipalityName} Siargao Business Directory`,
       description: `Browse local listings, services, and practical business discovery in ${municipalityName}, Siargao.`,
       url: `${baseUrl}/municipality/${municipality}`,
       type: "website",
+      images: [DEFAULT_SOCIAL_IMAGE],
     },
     twitter: {
       card: "summary",
-      title: `${municipalityName}, Siargao | Hotels, Cafes, Services and Local Listings`,
+      title: `${municipalityName} Siargao Business Directory`,
       description: `Browse local listings, services, and practical business discovery in ${municipalityName}, Siargao.`,
+      images: [DEFAULT_SOCIAL_IMAGE.url],
     },
     robots: hasListings
       ? { index: true, follow: true }
@@ -142,7 +145,7 @@ export default async function MunicipalityPage({
             <h2 className="section-title text-[1.15rem]">Common business categories in {municipalityName}</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {topCategories.map((category) => (
-                <Link key={category} href={`/municipality/${municipality}/category/${categoryToSlug(category)}`} className="listing-card-pill">
+                <Link key={category} href={`/municipality/${municipality}/category/${categoryToCanonicalSlug(category)}`} className="listing-card-pill">
                   {category}
                 </Link>
               ))}

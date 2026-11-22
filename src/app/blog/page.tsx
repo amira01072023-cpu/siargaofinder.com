@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Newspaper, ArrowRight, Search } from "lucide-react";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { getSiteUrl } from "@/lib/site-url";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 const blogPosts = [
   {
@@ -236,6 +237,7 @@ export const metadata: Metadata = {
       "Browse Siargao Finder blog posts and guides covering local businesses, transport, island hopping, cafes, surf, and practical island planning.",
     url: "https://www.siargaofinder.com/blog",
     type: "website",
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
 };
 

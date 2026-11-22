@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getSiteUrl } from "@/lib/site-url";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 export const metadata: Metadata = {
-  title: "Best Cafes in Siargao | Coffee, Brunch, Work-Friendly & Beachfront Spots",
+  title: "Best Cafes in Siargao | Coffee, Brunch & Work Spots",
   description:
     "A practical guide to the best cafes in Siargao, including coffee spots, brunch places, work-friendly cafes, and where to sit depending on your plans for the day.",
   alternates: {
     canonical: "/guide/best-cafes-in-siargao",
   },
   openGraph: {
-    title: "Best Cafes in Siargao | Coffee, Brunch, Work-Friendly & Beachfront Spots",
+    title: "Best Cafes in Siargao | Coffee, Brunch & Work Spots",
     description:
       "A practical guide to the best cafes in Siargao, including coffee spots, brunch places, work-friendly cafes, and where to sit depending on your plans for the day.",
     url: "https://www.siargaofinder.com/guide/best-cafes-in-siargao",
     type: "article",
+    images: [DEFAULT_SOCIAL_IMAGE],
   },
 };
 
@@ -28,6 +30,7 @@ export default function BestCafesInSiargaoPage() {
       "A practical guide to the best cafes in Siargao, including coffee spots, brunch places, work-friendly cafes, and where to sit depending on your plans for the day.",
     author: { "@type": "Organization", name: "Siargao Finder" },
     publisher: { "@type": "Organization", name: "Siargao Finder" },
+    image: `${siteUrl}${DEFAULT_SOCIAL_IMAGE.url}`,
     mainEntityOfPage: `${siteUrl}/guide/best-cafes-in-siargao`,
   };
 

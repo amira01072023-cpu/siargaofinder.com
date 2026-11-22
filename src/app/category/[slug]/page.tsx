@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { MapPin, Building2, ArrowRight } from "lucide-react";
 import { getSiteUrl } from "@/lib/site-url";
 import ListingCardActions from "@/components/ListingCardActions";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { getIndexablePublicListings } from "@/lib/public-listing-data";
-import { categorySeoLabel, getCategorySearchTerms, slugToLabel } from "@/lib/listing-taxonomy";
+import {
+  categorySeoLabel,
+  categorySlugToCanonicalSlug,
+  getCategorySearchTerms,
+  slugToLabel,
+} from "@/lib/listing-taxonomy";
 import { municipalityToSlug } from "@/lib/siargao-municipalities";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 type Listing = {
   id: number;
@@ -50,27 +56,32 @@ export async function generateMetadata({
     };
   }
 
-  const categoryName = categorySeoLabel(slug);
+  const canonicalSlug = categorySlugToCanonicalSlug(slug);
+  const categoryName = categorySeoLabel(canonicalSlug);
   const baseUrl = getSiteUrl();
-  const listings = await getCategoryListings(slug);
+  const listings = await getCategoryListings(canonicalSlug);
   const hasEnoughListings = listings.length >= MIN_INDEXABLE_CATEGORY_LISTINGS;
+  const title = `${categoryName} in Siargao | Business Directory`;
+  const description = `Find ${categoryName.toLowerCase()} in Siargao with contact details, locations, and practical help for comparing local options.`;
 
   return {
-    title: `${categoryName} in Siargao | Local Listings, Contacts and Planning Help`,
-    description: `Find ${categoryName.toLowerCase()} in Siargao with contact details, locations, and practical local discovery help for comparing your options.`,
+    title,
+    description,
     alternates: {
-      canonical: `/category/${slug}`,
+      canonical: `/category/${canonicalSlug}`,
     },
     openGraph: {
-      title: `${categoryName} in Siargao | Local Listings, Contacts and Planning Help`,
-      description: `Browse ${categoryName.toLowerCase()} in Siargao with local listings, location context, and practical planning support.`,
-      url: `${baseUrl}/category/${slug}`,
+      title,
+      description,
+      url: `${baseUrl}/category/${canonicalSlug}`,
       type: "website",
+      images: [DEFAULT_SOCIAL_IMAGE],
     },
     twitter: {
       card: "summary",
-      title: `${categoryName} in Siargao | Local Listings, Contacts and Planning Help`,
-      description: `Browse ${categoryName.toLowerCase()} in Siargao with local listings, location context, and practical planning support.`,
+      title,
+      description,
+      images: [DEFAULT_SOCIAL_IMAGE.url],
     },
     robots: hasEnoughListings
       ? { index: true, follow: true }
@@ -85,16 +96,18 @@ export default async function CategoryPage({
 }) {
   const { slug } = await params;
   if (DELETED_CATEGORY_SLUGS.has(slug)) notFound();
+  const canonicalSlug = categorySlugToCanonicalSlug(slug);
+  if (canonicalSlug !== slug) permanentRedirect(`/category/${canonicalSlug}`);
 
-  const categoryName = slugToLabel(slug);
-  const seoCategoryName = categorySeoLabel(slug);
-  const listings = await getCategoryListings(slug);
+  const categoryName = slugToLabel(canonicalSlug);
+  const seoCategoryName = categorySeoLabel(canonicalSlug);
+  const listings = await getCategoryListings(canonicalSlug);
   const siteUrl = getSiteUrl();
   const itemListJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: `${seoCategoryName} in Siargao`,
-    url: `${siteUrl}/category/${slug}`,
+    url: `${siteUrl}/category/${canonicalSlug}`,
     about: seoCategoryName,
     isPartOf: {
       "@type": "WebSite",
@@ -105,7 +118,7 @@ export default async function CategoryPage({
       "@type": "BreadcrumbList",
       itemListElement: [
         { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
-        { "@type": "ListItem", position: 2, name: seoCategoryName, item: `${siteUrl}/category/${slug}` },
+        { "@type": "ListItem", position: 2, name: seoCategoryName, item: `${siteUrl}/category/${canonicalSlug}` },
       ],
     },
   };
@@ -154,7 +167,7 @@ export default async function CategoryPage({
             <p className="category-page-helper-copy">Available across these areas:</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {topMunicipalities.map((municipality) => (
-                <Link key={municipality} href={`/municipality/${municipalityToSlug(municipality)}/category/${slug}`} className="listing-card-pill">
+                <Link key={municipality} href={`/municipality/${municipalityToSlug(municipality)}/category/${canonicalSlug}`} className="listing-card-pill">
                   {municipality}
                 </Link>
               ))}

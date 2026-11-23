@@ -66,7 +66,7 @@ type InitialSearch = {
 
 type ViewMode = "gallery" | "list" | "table" | "detail";
 
-const CATEGORY_PAGE_SIZE = 8;
+const CATEGORY_PAGE_SIZE = 10;
 const BLOG_PAGE_SIZE = 8;
 
 const HERO_QUICK_GROUPS = [
@@ -382,33 +382,32 @@ const visibleBlogPosts = blogPosts.slice((blogPage - 1) * BLOG_PAGE_SIZE, blogPa
 const hasActiveFilters = Boolean(q || category || categoryGroup || municipality || hasPhone);
 const selectedCategoryGroup = categoryGroup ? getListingCategoryGroup(categoryGroup) : null;
 return (
-<main className="page-shell antialiased">
+<main className="page-shell public-marketplace-shell antialiased">
 <PublicSiteHeader showBlogLink showListYourBusinessLink homeLabel="Home" />
 
-<section className="hero-wrap hero-wrap--premium relative overflow-hidden text-black">
+<section className="hero-wrap hero-wrap--premium classified-hero relative overflow-hidden text-black">
 <Image
   src="/siargao-premium-directory-bg.webp"
   alt=""
   fill
   preload
   fetchPriority="high"
-  quality={72}
+  quality={75}
   sizes="100vw"
   className="hero-background-image"
   aria-hidden="true"
 />
-<div className="hero-content relative max-w-6xl mx-auto px-4 py-8 md:py-10">
-<div className="hero-copy-shell max-w-3xl">
-  <div className="hero-eyebrow">Siargao local directory</div>
-  <h1 className="hero-title max-w-3xl">
-    Find local businesses and services across Siargao
+<div className="hero-content classified-hero-content relative max-w-6xl mx-auto px-4 py-8 md:py-10">
+<div className="hero-copy-shell max-w-6xl">
+  <h1 className="hero-title max-w-6xl">
+    Find local businesses &amp; services <span className="hero-title-accent">in one click</span>
   </h1>
-  <p className="hero-description max-w-2xl">
-    Search places to stay, restaurants, tours, transport, surf schools, and essential services across all 9 municipalities.
+  <p className="hero-description max-w-3xl">
+    Discover places to stay, restaurants, tours, transport, surf schools, and essential services across all nine Siargao municipalities.
   </p>
 </div>
 
-<form className="hero-search-panel hero-search-panel--classic mt-5" onSubmit={onSearch}>
+<form id="directory" className="hero-search-panel hero-search-panel--classic marketplace-search-panel mt-5" onSubmit={onSearch}>
   <div className="hero-search-grid hero-search-grid--primary">
     <label className="hero-search-field hero-search-field--wide">
       <span className="hero-search-label">What are you looking for?</span>
@@ -552,12 +551,12 @@ return (
 </div>
 </section>
 
-<section className="max-w-6xl mx-auto px-4 pt-5">
+<section className="marketplace-saved-section max-w-6xl mx-auto px-4 pt-5">
   <SavedListingsPanel />
 </section>
 
 {hasSearched && (
-<section ref={liveSectionRef} className="max-w-6xl mx-auto px-4 py-7">
+<section id="results" ref={liveSectionRef} className="marketplace-section max-w-6xl mx-auto px-4 py-10">
 <div className="section-heading mb-6">
 <div>
 <p className="section-kicker">Discover</p>
@@ -604,7 +603,7 @@ className={`view-toggle-chip ${viewMode === mode ? "view-toggle-chip--active" : 
 </div>
 
 {viewMode === "gallery" && (
-<div className="grid md:grid-cols-2 gap-3">
+<div className="marketplace-listing-grid grid md:grid-cols-2 gap-4">
 {listings.map((item) => {
 const social = detectSocial(item.website_url);
 const socialButtons = socialsToButtons(item.socials);
@@ -733,15 +732,12 @@ return (
 </section>
 )}
 
-<section className="max-w-6xl mx-auto px-4 pb-8">
-<div className="section-heading mb-6">
-<div>
-<p className="section-kicker">Explore</p>
-<h2 className="section-title">Popular Categories</h2>
-<p className="section-description mt-1">Jump into the busiest parts of the directory with faster visual scanning.</p>
-</div>
+<section id="categories" className="marketplace-section marketplace-section--categories max-w-6xl mx-auto px-4 py-12">
+<div className="category-showcase-heading">
+<h2 className="section-title">Search by Categories</h2>
+<p className="section-description">Discover what you need effortlessly. Browse Siargao&apos;s main categories to find exactly what you&apos;re looking for.</p>
 {popularCategoryTotalPages > 1 && (
-<div className="flex items-center gap-2">
+<div className="category-showcase-pagination">
 <button
 type="button"
 onClick={() => setPopularCategoryPage((current) => Math.max(current - 1, 1))}
@@ -767,21 +763,22 @@ aria-label="Next popular categories"
 )}
 </div>
 
-<div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3">
+<div className="category-showcase-grid">
 {visibleCategoryCards.map((cat) => {
 const visual = categoryVisual(cat.name);
 const Icon = visual.icon;
 return (
-<button key={cat.id} type="button" onClick={() => applyCategoryGroup(cat.id)} className="category-card group block text-left">
-<div className="category-card-accent" />
-<div className="category-card-header">
+<button
+  key={cat.id}
+  type="button"
+  onClick={() => applyCategoryGroup(cat.id)}
+  className="category-card group"
+  aria-label={`${cat.name}, ${cat.countLabel}`}
+>
   <div className={`category-card-icon ${visual.bg} ${visual.fg}`}>
-    <Icon size={20} />
+    <Icon size={38} strokeWidth={1.45} />
   </div>
   <h3 className="category-card-title">{cat.name}</h3>
-</div>
-<p className="category-card-count">{cat.countLabel}</p>
-<p className="category-card-note">{cat.note}</p>
 </button>
 );
 })}
@@ -791,7 +788,7 @@ return (
 )}
 </section>
 
-<section className="max-w-6xl mx-auto px-4 pb-10">
+<section id="journal" className="marketplace-section marketplace-section--journal max-w-6xl mx-auto px-4 py-12">
 <div className="section-heading mb-6">
 <div>
 <p className="section-kicker">Read</p>
@@ -829,8 +826,9 @@ aria-label="Next blog posts"
 <Link key={g.href} href={g.href} className="guide-card group">
 <div className="guide-card-accent" />
 <div className="pt-1">
+  <span className="guide-card-kicker">Siargao guide</span>
   <div className="guide-card-title">{g.label}</div>
-  <div className="guide-card-note">Read this blog post</div>
+  <div className="guide-card-note">Read this blog post <ChevronRight size={14} /></div>
 </div>
 </Link>
 ))}

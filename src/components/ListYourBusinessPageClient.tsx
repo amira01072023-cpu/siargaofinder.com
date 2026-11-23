@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Search } from "lucide-react";
+import PublicSiteHeader from "@/components/PublicSiteHeader";
 
 export default function ListYourBusinessPageClient() {
 const SIARGAO_MUNICIPALITIES = [
@@ -139,17 +138,7 @@ setSubmitting(false);
 
 return (
 <main className="page-shell">
-<header className="site-header">
-<div className="site-header-inner">
-<div className="site-header-brand">
-<Search size={19} />
-<span>Siargao Finder</span>
-</div>
-<div className="flex items-center gap-2 flex-wrap">
-<Link href="/" className="ui-btn ui-btn--soft">Home</Link>
-</div>
-</div>
-</header>
+<PublicSiteHeader showListYourBusinessLink={false} />
 
 <section className="page-section page-hero form-shell">
 <p className="page-kicker">Business Submission</p>

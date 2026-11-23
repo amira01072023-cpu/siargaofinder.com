@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { createClient } from "@/lib/supabase-browser";
 
 function getSafeRedirect(fallback = "/") {
@@ -65,15 +65,7 @@ export default function ResetPasswordPage() {
 
   return (
     <main className="page-shell">
-      <header className="site-header">
-        <div className="site-header-inner">
-          <div className="site-header-brand">
-            <Search size={19} />
-            <span>Siargao Finder</span>
-          </div>
-          <Link href="/" className="ui-btn ui-btn--soft">Home</Link>
-        </div>
-      </header>
+      <PublicSiteHeader />
 
       <section className="page-section page-hero form-shell max-w-md">
         <p className="page-kicker">Account Recovery</p>

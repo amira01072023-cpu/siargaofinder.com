@@ -8,6 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteVisitTracker from "@/components/SiteVisitTracker";
 import ConsentAdNetworkScript from "@/components/ConsentAdNetworkScript";
 import FormValidationA11y from "@/components/FormValidationA11y";
+import PublicMotion from "@/components/PublicMotion";
 import { COOKIE_CONSENT_STORAGE_KEY } from "@/lib/consent";
 import { getSiteUrl } from "@/lib/site-url";
 import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
@@ -144,6 +145,7 @@ return (
   dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessDirectoryJsonLd) }}
 />
 <SiteVisitTracker />
+<PublicMotion />
 <div className="min-h-screen flex flex-col">
   <div id="main-content" className="flex-1" tabIndex={-1}>{children}</div>
   <SiteFooter />

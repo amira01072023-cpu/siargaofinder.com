@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Building2, FileText, Flag, Search, ShieldCheck } from "lucide-react";
+import { ArrowRight, Building2, FileText, Flag, ShieldCheck } from "lucide-react";
+import PublicSiteHeader from "@/components/PublicSiteHeader";
 
 export const metadata: Metadata = {
   title: { absolute: "Contact SiargaoFinder | Support and Requests" },
@@ -38,15 +39,7 @@ const contactRoutes = [
 export default function ContactPage() {
   return (
     <main className="page-shell">
-      <header className="site-header">
-        <div className="site-header-inner">
-          <div className="site-header-brand">
-            <Search size={19} />
-            <span>Siargao Finder</span>
-          </div>
-          <Link href="/" className="ui-btn ui-btn--soft">Home</Link>
-        </div>
-      </header>
+      <PublicSiteHeader />
 
       <section className="page-section page-hero max-w-5xl">
         <p className="page-kicker">Contact & Support</p>

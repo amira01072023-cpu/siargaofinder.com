@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { Search } from "lucide-react";
+import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { createClient } from "@/lib/supabase-browser";
 
 type ClaimStatus = {
@@ -124,17 +123,7 @@ export default function ClaimListingPage({
 
   return (
     <main className="page-shell">
-      <header className="site-header">
-        <div className="site-header-inner">
-          <div className="site-header-brand">
-            <Search size={19} />
-            <span>Siargao Finder</span>
-          </div>
-          <Link href={listingId ? `/listing/${listingId}` : "/"} className="ui-btn ui-btn--soft">
-            Back
-          </Link>
-        </div>
-      </header>
+      <PublicSiteHeader />
 
       <section className="page-section page-hero form-shell">
         <p className="page-kicker">Ownership Claim</p>

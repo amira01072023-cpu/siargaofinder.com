@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Search } from "lucide-react";
+import PublicSiteHeader from "@/components/PublicSiteHeader";
 
 export default function DataRightsRequestPage() {
   const [form, setForm] = useState({
@@ -47,15 +46,7 @@ export default function DataRightsRequestPage() {
 
   return (
     <main className="page-shell">
-      <header className="site-header">
-        <div className="site-header-inner">
-          <div className="site-header-brand">
-            <Search size={19} />
-            <span>Siargao Finder</span>
-          </div>
-          <Link href="/privacy-policy" className="ui-btn ui-btn--soft">Privacy Policy</Link>
-        </div>
-      </header>
+      <PublicSiteHeader />
 
       <section className="page-section page-hero form-shell">
         <p className="page-kicker">Privacy</p>

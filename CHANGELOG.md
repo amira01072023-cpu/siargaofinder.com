@@ -55,3 +55,11 @@ All notable 2027 modernization work is recorded here.
 - Added a clearer free-listing CTA, brand tagline, discovery links, practical island guides, all nine municipality routes and trust/support navigation.
 - Consolidated legal links into a compact final row with mobile safe-area spacing.
 - Preserved admin isolation; protected admin pages do not render the public footer.
+
+### Strategy PDF gap closure
+
+- Added a cached "Recently Added Businesses" homepage section using real `created_at` ordering across the nine municipalities.
+- Added "Last checked" dates on listing cards and listing detail pages from the existing `last_verified_at` field; hidden when the field is empty.
+- Added a dedicated noindexed `/saved` page; header, mobile bottom navigation and footer now link to it.
+- Updated the hero trust line to "Free directory" per the 2027 strategy.
+- Listings API now returns `email` and `last_verified_at` so search-result cards show email actions and check dates.

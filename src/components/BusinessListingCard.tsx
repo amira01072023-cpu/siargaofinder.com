@@ -1,4 +1,4 @@
-import { BedDouble, Building2, Car, HeartPulse, MapPin, ShieldCheck, ShoppingBag, Utensils, Waves } from "lucide-react";
+import { BedDouble, Building2, CalendarCheck, Car, HeartPulse, MapPin, ShieldCheck, ShoppingBag, Utensils, Waves } from "lucide-react";
 import ListingCardActions from "@/components/ListingCardActions";
 import SaveListingButton from "@/components/SaveListingButton";
 
@@ -11,12 +11,20 @@ export type BusinessListingCardData = {
   email?: string | null;
   website_url?: string | null;
   address?: string | null;
+  last_verified_at?: string | null;
 };
 
 type Props = {
   listing: BusinessListingCardData;
   headingLevel?: "h2" | "h3";
 };
+
+export function formatLastChecked(value?: string | null) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+}
 
 function CategoryIcon({ category }: { category?: string | null }) {
   const value = category?.toLowerCase() || "";
@@ -32,6 +40,7 @@ function CategoryIcon({ category }: { category?: string | null }) {
 export default function BusinessListingCard({ listing, headingLevel = "h2" }: Props) {
   const Heading = headingLevel;
   const contactMethodCount = [listing.phone, listing.email, listing.website_url].filter(Boolean).length;
+  const lastChecked = formatLastChecked(listing.last_verified_at);
 
   return (
     <article className="listing-card business-listing-card group">
@@ -63,6 +72,7 @@ export default function BusinessListingCard({ listing, headingLevel = "h2" }: Pr
       <div className="business-listing-card__signals">
         <span><ShieldCheck size={14} aria-hidden="true" /> Public directory listing</span>
         {contactMethodCount > 0 ? <span>{contactMethodCount} contact {contactMethodCount === 1 ? "option" : "options"}</span> : null}
+        {lastChecked ? <span className="business-listing-card__checked"><CalendarCheck size={14} aria-hidden="true" /> Last checked {lastChecked}</span> : null}
       </div>
 
       <ListingCardActions

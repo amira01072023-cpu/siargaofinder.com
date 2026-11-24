@@ -40,7 +40,7 @@ const useBusinessNameSearch = Boolean(q && !inferredIntent.categoryGroup && !inf
 const buildQuery = (head = false) => {
 let query = supabase
   .from("business_listings")
-  .select("id, business_name, category, municipality, phone, website_url, socials, address, services", {
+  .select("id, business_name, category, municipality, phone, email, website_url, socials, address, services, last_verified_at", {
     count: "exact",
     head,
   })

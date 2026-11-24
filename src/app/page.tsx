@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 import HomePageClient from "@/components/HomePageClient";
-import { getPublicListingFacets } from "@/lib/public-listing-data";
+import { getPublicListingFacets, getRecentlyAddedListings } from "@/lib/public-listing-data";
 import { getSiteUrl } from "@/lib/site-url";
 import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
@@ -63,7 +63,7 @@ export default async function Page({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const initialData = await getHomeData();
+  const [initialData, recentListings] = await Promise.all([getHomeData(), getRecentlyAddedListings()]);
   const params = await searchParams;
   const parsedPage = Number(firstSearchParam(params.page));
   const initialSearch = {
@@ -74,5 +74,5 @@ export default async function Page({
     page: Number.isInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1,
   };
 
-  return <HomePageClient initialData={initialData} initialSearch={initialSearch} />;
+  return <HomePageClient initialData={{ ...initialData, recentListings }} initialSearch={initialSearch} />;
 }

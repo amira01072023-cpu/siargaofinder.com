@@ -5141,3 +5141,31 @@ scroll-behavior: auto !important;
     transition: none;
   }
 }
+
+/* Recently added businesses and last-checked signal. */
+.recently-added {
+  max-width: 78rem;
+}
+
+.recently-added-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.business-listing-card__signals .business-listing-card__checked {
+  background: rgba(8, 127, 140, 0.08);
+  color: #0b6670;
+}
+
+@media (max-width: 1024px) {
+  .recently-added-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .recently-added-grid {
+    grid-template-columns: 1fr;
+  }
+}

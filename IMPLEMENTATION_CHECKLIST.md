@@ -45,6 +45,8 @@ Last updated: 2026-11-24
 - [x] Add all-nine municipality discovery section.
 - [x] Add island essentials section.
 - [ ] Add recently verified section only when verification data is reliable.
+- [x] Add Recently added businesses section from real created_at data.
+- [x] Add a dedicated noindexed Saved listings page.
 - [ ] Add jobs preview only after genuine approved jobs exist.
 - [ ] Add map preview only after a real map route and verified coordinates exist.
 - [x] Rename blog presentation to The Siargao Journal without URL changes.
@@ -56,7 +58,7 @@ Last updated: 2026-11-24
 - [x] Hide unavailable contact actions and empty contact rows on updated public cards.
 - [x] Add category-specific icon placeholders without fabricated photos.
 - [x] Remove public completeness percentages while retaining internal SEO/admin quality scoring.
-- [ ] Add meaningful last-updated/verification labels only when supported by real fields.
+- [x] Add "Last checked" labels from the real last_verified_at field.
 - [x] Preserve grid/list controls with visible accessible names.
 - [x] Preserve the accessible mobile filter disclosure.
 - [x] Add loading skeletons and improved empty states.

@@ -66,7 +66,7 @@ export default function SiteFooter() {
               <li><Link href="/#directory">Business directory</Link></li>
               <li><Link href="/#categories">Browse categories</Link></li>
               <li><Link href="/#municipalities">Explore municipalities</Link></li>
-              <li><Link href="/#saved">Saved listings</Link></li>
+              <li><Link href="/saved">Saved listings</Link></li>
               <li><Link href="/blog">The Siargao Journal</Link></li>
               <li><Link href="/list-your-business">List your business</Link></li>
             </ul>

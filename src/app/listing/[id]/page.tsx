@@ -4,10 +4,10 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { MapPin, Phone, Mail, Globe, ShieldCheck, Building2 } from "lucide-react";
+import { MapPin, Phone, Mail, Globe, ShieldCheck, Building2, CalendarCheck } from "lucide-react";
 import ListingActionBar from "@/components/ListingActionBar";
 import SaveListingButton from "@/components/SaveListingButton";
-import BusinessListingCard from "@/components/BusinessListingCard";
+import BusinessListingCard, { formatLastChecked } from "@/components/BusinessListingCard";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import {
   getBusinessListingValueScore,
@@ -35,6 +35,7 @@ email: string | null;
 website_url: string | null;
 address: string | null;
 services: string | null;
+last_verified_at?: string | null;
 };
 
 function municipalityToSlug(municipality?: string | null) {
@@ -54,7 +55,7 @@ if (!supabaseUrl || !supabaseAnon) return null;
 return createClient(supabaseUrl, supabaseAnon);
 }
 
-const listingSelect = "id,business_name,category,municipality,phone,email,website_url,address,services";
+const listingSelect = "id,business_name,category,municipality,phone,email,website_url,address,services,last_verified_at";
 const LISTING_BATCH_SIZE = 1000;
 
 async function getAllListingRows(
@@ -387,6 +388,15 @@ return (
           <span>{contactMethodCount > 0 ? `${contactMethodCount} available` : "View profile"}</span>
         </div>
       </div>
+      {formatLastChecked(listing.last_verified_at) ? (
+        <div className="listing-detail-summary-card">
+          <span className="listing-detail-summary-label">Last checked</span>
+          <div className="listing-detail-summary-value">
+            <CalendarCheck size={15} />
+            <span>{formatLastChecked(listing.last_verified_at)}</span>
+          </div>
+        </div>
+      ) : null}
     </div>
   </div>
 </div>

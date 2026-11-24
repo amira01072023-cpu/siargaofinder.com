@@ -9,7 +9,7 @@ const primaryItems = [
   { label: "Home", href: "/", icon: Home },
   { label: "Explore", href: "/#categories", icon: Compass },
   { label: "Map", href: "/#municipalities", icon: Map },
-  { label: "Saved", href: "/#saved", icon: Bookmark },
+  { label: "Saved", href: "/saved", icon: Bookmark },
 ] as const;
 
 export default function MobileBottomNav() {
@@ -33,7 +33,11 @@ export default function MobileBottomNav() {
       <div className="mobile-bottom-nav__inner">
         {primaryItems.map(({ label, href, icon: Icon }) => {
           const itemHash = href.includes("#") ? `#${href.split("#")[1]}` : "";
-          const active = pathname === "/" && (itemHash ? hash === itemHash : !hash);
+          const active = itemHash
+            ? pathname === "/" && hash === itemHash
+            : href === "/"
+              ? pathname === "/" && !hash
+              : pathname.startsWith(href);
           return (
             <Link
               key={label}

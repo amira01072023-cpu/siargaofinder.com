@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Phone, Building2, BedDouble, Utensils, Waves, Car, Briefcase, School, Landmark, ShoppingBag, Fuel, Cross, PawPrint, ShoppingCart, ChevronLeft, ChevronRight, ArrowRight, HeartPulse, Route, Newspaper } from "lucide-react";
-import BusinessListingCard from "@/components/BusinessListingCard";
+import BusinessListingCard, { type BusinessListingCardData } from "@/components/BusinessListingCard";
 import SavedListingsPanel from "@/components/SavedListingsPanel";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { categoryMatchesGroup, getListingCategoryGroup, LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
@@ -56,6 +56,7 @@ type InitialHomeData = {
   totalPages: number;
   municipalities: string[];
   popularCategories: PopularCategory[];
+  recentListings?: BusinessListingCardData[];
 };
 
 type InitialSearch = {
@@ -632,7 +633,7 @@ return (
       <span aria-hidden="true">•</span>
       <span><strong>9</strong> municipalities</span>
       <span aria-hidden="true">•</span>
-      <span>Updated regularly</span>
+      <span>Free directory</span>
     </div>
     <div className="hero-trust-actions">
       <span className="hero-search-result-status" role="status" aria-live="polite">
@@ -843,6 +844,23 @@ return (
     ))}
   </div>
 </section>
+
+{(initialData.recentListings?.length ?? 0) > 0 && (
+<section id="recently-added" className="marketplace-section recently-added max-w-6xl mx-auto px-4 py-12">
+  <div className="section-heading mb-6">
+    <div>
+      <p className="section-kicker">New in the directory</p>
+      <h2 className="section-title">Recently Added Businesses</h2>
+      <p className="section-description">The latest businesses added to SiargaoFinder across the island.</p>
+    </div>
+  </div>
+  <div className="recently-added-grid">
+    {(initialData.recentListings ?? []).map((item) => (
+      <BusinessListingCard key={item.id} listing={item} headingLevel="h3" />
+    ))}
+  </div>
+</section>
+)}
 
 <section className="marketplace-section island-essentials max-w-6xl mx-auto px-4 py-12">
   <div className="section-heading mb-6">

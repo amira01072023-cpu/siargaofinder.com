@@ -183,3 +183,13 @@ LCP improved in this sample, but total transfer, load completion and long-task c
 - `/admin/login` did not render the public footer.
 - No browser runtime exceptions were recorded during responsive checks.
 - Mobile and desktop footer screenshots were visually reviewed.
+
+## Strategy PDF gap-closure verification
+
+- TypeScript passed; ESLint 0 errors (14 pre-existing warnings); Vitest 23/23 passed; production build passed with new static `/saved` route.
+- Homepage rendered 6 Recently Added cards, each showing a real "Last checked Nov 2026" date.
+- `/saved` returned 200 with `noindex` and one H1; it is not in the sitemap.
+- Listing detail rendered the "Last checked" summary card alongside existing Claim / Update and Report Listing actions.
+- Listings API returned `last_verified_at` and `email`.
+- No horizontal overflow at 360, 390, 768, 1024 and 1440px; Recently Added grid uses 1/2/3 columns responsively.
+- No database writes or migrations were performed.

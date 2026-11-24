@@ -21,6 +21,7 @@ export type PublicListingRow = {
   website_url: string | null;
   address: string | null;
   services: string | null;
+  last_verified_at?: string | null;
 };
 
 export type ListingBucket = {
@@ -85,7 +86,7 @@ async function fetchPublicListingRows(): Promise<PublicListingRow[]> {
   for (let from = 0; ; from += SUPABASE_PAGE_SIZE) {
     const { data, error } = await supabase
       .from("business_listings")
-      .select("id,business_name,category,municipality,phone,email,website_url,address,services")
+      .select("id,business_name,category,municipality,phone,email,website_url,address,services,last_verified_at")
       .order("id", { ascending: false })
       .range(from, from + SUPABASE_PAGE_SIZE - 1);
 
@@ -121,5 +122,38 @@ export const getPublicListingFacets = unstable_cache(
     };
   },
   ["public-listing-facets-v2"],
+  { revalidate: CACHE_REVALIDATE_SECONDS },
+);
+
+export type RecentListingRow = {
+  id: number;
+  business_name: string;
+  category: string | null;
+  municipality: string | null;
+  phone: string | null;
+  email: string | null;
+  website_url: string | null;
+  address: string | null;
+  last_verified_at: string | null;
+};
+
+export const getRecentlyAddedListings = unstable_cache(
+  async (): Promise<RecentListingRow[]> => {
+    const supabase = getPublicSupabaseClient();
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+      .from("business_listings")
+      .select("id,business_name,category,municipality,phone,email,website_url,address,last_verified_at")
+      .in("municipality", SIARGAO_MUNICIPALITIES)
+      .not("created_at", "is", null)
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(6);
+
+    if (error) return [];
+    return (data ?? []) as RecentListingRow[];
+  },
+  ["recently-added-listings-v1"],
   { revalidate: CACHE_REVALIDATE_SECONDS },
 );

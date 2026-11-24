@@ -59,7 +59,7 @@ export default function PublicSiteHeader({
           <Link href="/#directory" className={activeClass("/#directory")}>Business Directory</Link>
           <Link href="/#municipalities" className={activeClass("/#municipalities")}>Map</Link>
           {showBlogLink && <Link href="/blog" className={activeClass("/blog")}>Travel Guides</Link>}
-          <Link href="/#saved" className={activeClass("/#saved")}>Saved</Link>
+          <Link href="/saved" className={activeClass("/saved")}>Saved</Link>
         </nav>
 
         <div className="site-header-actions">
@@ -82,7 +82,7 @@ export default function PublicSiteHeader({
               <Link href="/#directory" className={activeClass("/#directory")}>Business Directory</Link>
               <Link href="/#municipalities" className={activeClass("/#municipalities")}>Map</Link>
               {showBlogLink && <Link href="/blog" className={activeClass("/blog")}>Travel Guides</Link>}
-              <Link href="/#saved" className={activeClass("/#saved")}>Saved</Link>
+              <Link href="/saved" className={activeClass("/saved")}>Saved</Link>
               <Link href="/about">About</Link>
               <Link href="/contact">Contact</Link>
               {showListYourBusinessLink && <Link href="/list-your-business">List your business</Link>}

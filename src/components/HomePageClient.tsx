@@ -10,7 +10,7 @@ import SavedListingsPanel from "@/components/SavedListingsPanel";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { categoryMatchesGroup, getListingCategoryGroup, LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
 import { listingHref } from "@/lib/listing-slugs";
-import { municipalityToSlug, SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
+import { SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
 
 type Listing = {
 id: number;
@@ -409,6 +409,15 @@ const applyCategoryGroup = async (value: string) => {
   await performSearch({ q, categoryGroup: value, municipality, hasPhone, page: 1 });
 };
 
+const applyMunicipality = async (value: string) => {
+  setQ("");
+  setCategory("");
+  setCategoryGroup("");
+  setMunicipality(value);
+  setHasPhone(false);
+  await performSearch({ municipality: value, page: 1 });
+};
+
 const applySuggestion = async (suggestion: SearchSuggestion) => {
   setSuggestionsOpen(false);
   if (suggestion.type === "municipality") {
@@ -627,21 +636,6 @@ return (
     </div>
   )}
 
-  <div className="hero-trust-row">
-    <div className="hero-trust-facts" aria-label="Directory coverage">
-      <span><strong>{initialData.total.toLocaleString()}</strong> listings</span>
-      <span aria-hidden="true">•</span>
-      <span><strong>9</strong> municipalities</span>
-      <span aria-hidden="true">•</span>
-      <span>Free directory</span>
-    </div>
-    <div className="hero-trust-actions">
-      <span className="hero-search-result-status" role="status" aria-live="polite">
-        {loading ? "Searching…" : hasSearched ? `${total} result${total === 1 ? "" : "s"}` : "Ready to search"}
-      </span>
-      <Link href="/list-your-business" className="hero-owner-link">List your business <span aria-hidden="true">→</span></Link>
-    </div>
-  </div>
 </form>
 </div>
 </section>
@@ -798,7 +792,7 @@ return (
   key={cat.id}
   type="button"
   onClick={() => applyCategoryGroup(cat.id)}
-  className={`category-card group${["food-drinks", "hotels-stays", "tours-activities"].includes(cat.id) ? " category-card--featured" : ""}`}
+  className="category-card group"
   aria-label={`${cat.name}, ${cat.countLabel}`}
 >
   <div className={`category-card-icon ${visual.bg} ${visual.fg}`}>
@@ -833,14 +827,19 @@ return (
   </div>
   <div className="municipality-discovery-grid">
     {SIARGAO_MUNICIPALITIES.map((name, index) => (
-      <Link key={name} href={`/municipality/${municipalityToSlug(name)}`} className={`municipality-discovery-card${index < 3 ? " municipality-discovery-card--featured" : ""}`}>
+      <button
+        key={name}
+        type="button"
+        onClick={() => void applyMunicipality(name)}
+        className={`municipality-discovery-card${index < 3 ? " municipality-discovery-card--featured" : ""}`}
+      >
         <MapPin size={20} aria-hidden="true" />
         <span>
           <strong>{name}</strong>
           <small>{MUNICIPALITY_DESCRIPTIONS[name]}</small>
         </span>
         <ArrowRight size={18} aria-hidden="true" />
-      </Link>
+      </button>
     ))}
   </div>
 </section>

@@ -3,6 +3,13 @@
 Last updated: 2026-11-24
 Branch: `feat/2027-ui-modernization`
 
+## Public discovery refinement verification
+
+- General Luna filter returned 1,723 matching listings through the existing public API and homepage result state.
+- Header logo asset returned HTTP 200 and was visually checked at a 390px mobile viewport.
+- TypeScript passed; Vitest 23/23 passed; ESLint reported 0 errors and 14 existing warnings outside the modified public UI.
+- No database writes, migrations, URL removals or admin changes were performed.
+
 ## Baseline tests
 
 ### Live route health

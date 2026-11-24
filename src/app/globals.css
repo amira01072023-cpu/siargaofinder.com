@@ -3924,6 +3924,9 @@ scroll-behavior: auto !important;
 .site-header-logo {
   border-color: rgba(8, 127, 140, 0.42);
   box-shadow: 0 0 0 4px rgba(8, 127, 140, 0.08);
+  border-radius: 9999px;
+  object-fit: cover;
+  mix-blend-mode: normal;
 }
 
 .site-header-nav a {
@@ -4153,22 +4156,14 @@ scroll-behavior: auto !important;
 }
 
 .category-showcase-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .category-showcase-grid .category-card {
-  min-height: 11rem;
+  min-height: 10rem;
   border-radius: 1rem;
   gap: 0.8rem;
   box-shadow: 0 9px 26px rgba(19, 78, 74, 0.07);
-}
-
-.category-showcase-grid .category-card--featured {
-  grid-column: span 2;
-  align-items: flex-start;
-  padding: 1.6rem;
-  background: linear-gradient(135deg, #eef8f7, #ffffff 72%);
-  text-align: left;
 }
 
 .category-showcase-grid .category-card::before {
@@ -4223,6 +4218,13 @@ scroll-behavior: auto !important;
   background: rgba(255, 255, 255, 0.86);
   color: #1e293b;
   transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+button.municipality-discovery-card {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .municipality-discovery-card--featured {
@@ -4296,13 +4298,6 @@ scroll-behavior: auto !important;
 
   .category-showcase-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .category-showcase-grid .category-card--featured {
-    grid-column: span 1;
-    align-items: center;
-    padding: 1.1rem 0.7rem;
-    text-align: center;
   }
 
   .municipality-discovery-grid,
@@ -4501,7 +4496,7 @@ scroll-behavior: auto !important;
 }
 
 .business-listing-card__meta {
-  margin-top: 1rem;
+  margin-top: 0.8rem;
   display: grid;
   gap: 0.4rem;
   color: #556573;
@@ -4515,24 +4510,24 @@ scroll-behavior: auto !important;
 }
 
 .business-listing-card__address {
-  padding-left: 1.45rem;
+  padding-left: 0;
   line-height: 1.45;
 }
 
 .business-listing-card__signals {
-  margin-top: 0.9rem;
+  margin-top: 0.55rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
 }
 
 .business-listing-card__signals span {
-  padding: 0.34rem 0.55rem;
-  border-radius: 9999px;
+  padding: 0;
+  border-radius: 0;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  background: rgba(16, 185, 129, 0.08);
+  background: transparent;
   color: #166b56;
   font-size: 0.71rem;
   font-weight: 700;
@@ -4540,7 +4535,30 @@ scroll-behavior: auto !important;
 
 .business-listing-card .listing-card-actions {
   margin-top: auto;
-  padding-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(19, 78, 74, 0.12);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.1rem, 1fr));
+  gap: 0.55rem;
+}
+
+.business-listing-card .listing-card-actions .listing-card-btn {
+  min-height: 3.8rem;
+  padding: 0.55rem;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-color: rgba(19, 78, 74, 0.1);
+  color: #134e4a;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.business-listing-card .listing-card-actions .listing-card-btn:hover,
+.business-listing-card .listing-card-actions .listing-card-btn:focus-visible {
+  background: rgba(8, 127, 140, 0.07);
+  border-color: rgba(8, 127, 140, 0.34);
+  color: #087f8c;
+  transform: translateY(-1px);
 }
 
 .listing-skeleton-grid {

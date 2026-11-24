@@ -51,7 +51,10 @@ export default function BusinessListingCard({ listing, headingLevel = "h2" }: Pr
         </div>
         <div className="min-w-0">
           <Heading className="listing-card-title">{listing.business_name}</Heading>
-          <p className="listing-card-subtitle">{listing.category || "General Services"}</p>
+          <p className="listing-card-subtitle">
+            {listing.category || "General Services"}
+            {listing.municipality ? <><span aria-hidden="true"> · </span>{listing.municipality}</> : null}
+          </p>
         </div>
         <SaveListingButton
           item={{
@@ -64,16 +67,18 @@ export default function BusinessListingCard({ listing, headingLevel = "h2" }: Pr
         />
       </div>
 
-      <div className="business-listing-card__meta">
-        <p><MapPin size={15} aria-hidden="true" /> {listing.municipality || "Siargao"}</p>
-        {listing.address ? <p className="business-listing-card__address">{listing.address}</p> : null}
-      </div>
+      {listing.address ? (
+        <div className="business-listing-card__meta">
+          <p className="business-listing-card__address"><MapPin size={15} aria-hidden="true" /> {listing.address}</p>
+        </div>
+      ) : null}
 
-      <div className="business-listing-card__signals">
-        <span><ShieldCheck size={14} aria-hidden="true" /> Public directory listing</span>
-        {contactMethodCount > 0 ? <span>{contactMethodCount} contact {contactMethodCount === 1 ? "option" : "options"}</span> : null}
-        {lastChecked ? <span className="business-listing-card__checked"><CalendarCheck size={14} aria-hidden="true" /> Last checked {lastChecked}</span> : null}
-      </div>
+      {(contactMethodCount > 0 || lastChecked) && (
+        <div className="business-listing-card__signals">
+          {contactMethodCount > 0 ? <span><ShieldCheck size={14} aria-hidden="true" /> Contact details available</span> : null}
+          {lastChecked ? <span className="business-listing-card__checked"><CalendarCheck size={14} aria-hidden="true" /> Last checked: {lastChecked}</span> : null}
+        </div>
+      )}
 
       <ListingCardActions
         listingId={listing.id}

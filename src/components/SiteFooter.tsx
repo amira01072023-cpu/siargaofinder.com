@@ -44,13 +44,13 @@ export default function SiteFooter() {
           <div className="footer-2027-brand">
             <Link href="/" className="footer-2027-brand__mark" aria-label="Siargao Finder home">
               <Image
-                src="/siargaofinder-hero-logo.jpg"
+                src="/siargaofinder-logo.png"
                 alt=""
                 width={52}
                 height={52}
                 className="footer-2027-logo"
               />
-              <span>SiargaoFinder<span aria-hidden="true">.</span></span>
+              <span>SiargaoFinder</span>
             </Link>
             <p className="footer-2027-tagline">Discover. Connect. Explore.</p>
             <p className="footer-2027-copy">Your practical guide to local businesses, services, places and island life across Siargao.</p>

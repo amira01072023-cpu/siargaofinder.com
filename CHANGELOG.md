@@ -4,6 +4,14 @@ All notable 2027 modernization work is recorded here.
 
 ## Unreleased — `feat/2027-ui-modernization`
 
+### Public discovery refinement
+
+- Balanced the homepage category grid into equal-size responsive cards while retaining hover motion.
+- Removed the hero trust/status strip to simplify the search area.
+- Updated municipality cards to fetch and show matching homepage listings directly.
+- Refined reusable listing cards with compact contact, address, last-checked and equal-action layouts.
+- Added the supplied SiargaoFinder logo to the header and footer, with circular presentation and a corrected footer wordmark.
+
 ### Planning
 
 - Added the phased 2027 redesign plan.

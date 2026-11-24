@@ -43,7 +43,7 @@ export default function PublicSiteHeader({
       <div className={`site-header-inner ${className}`.trim()}>
         <Link href="/" className="site-header-brand" aria-label={homeLabel}>
           <Image
-            src="/siargaofinder-hero-logo.jpg"
+            src="/siargaofinder-logo.png"
             alt=""
             width={44}
             height={44}

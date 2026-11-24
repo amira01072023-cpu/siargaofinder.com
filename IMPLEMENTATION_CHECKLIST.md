@@ -32,6 +32,7 @@ Last updated: 2026-11-24
 - [x] Add accessible fixed mobile bottom navigation.
 - [x] Add safe-area and footer spacing for the bottom navigation.
 - [x] Add path and hash-aware active navigation states.
+- [x] Redesign the comprehensive public footer to match the 2027 design system.
 - [x] Preserve admin UI isolation.
 
 ## Phase 1B — Homepage discovery

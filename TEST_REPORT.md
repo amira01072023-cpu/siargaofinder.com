@@ -169,3 +169,17 @@ LCP improved in this sample, but total transfer, load completion and long-task c
 - Each sampled page retained exactly one H1.
 - Visual review completed for the mobile submission wizard and desktop municipality cards.
 - Local sitemap crawl after the increment: 98/98 URLs returned HTTP 200.
+
+## Public footer verification
+
+- TypeScript: passed.
+- Vitest: 5 files, 23 tests passed.
+- ESLint: 0 errors; 14 pre-existing warnings in admin/auth/claim flows.
+- Next.js production build: passed; 115 static pages generated.
+- Footer checked at 360, 390, 768, 1024, 1440 and 1920px with no horizontal overflow.
+- Layout adapts from one column on small phones to three columns on tablet/small desktop and five columns on wide desktop.
+- Primary footer CTA retained a 52px touch target at every tested width.
+- All 33 unique internal footer destinations returned a valid local response.
+- `/admin/login` did not render the public footer.
+- No browser runtime exceptions were recorded during responsive checks.
+- Mobile and desktop footer screenshots were visually reviewed.

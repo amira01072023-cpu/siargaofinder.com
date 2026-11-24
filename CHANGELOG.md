@@ -48,3 +48,10 @@ All notable 2027 modernization work is recorded here.
 - Preserved the existing submission endpoint, email verification, honeypot, admin review and Supabase data model.
 - Added path and hash-aware active states to desktop and mobile public navigation.
 - Replaced the submission success redirect with Next.js router navigation, reducing lint warnings from 15 to 14.
+
+### Public footer refresh
+
+- Replaced the previous black/yellow marketplace footer with the Ocean Teal, Deep Ocean and Island Sand design system.
+- Added a clearer free-listing CTA, brand tagline, discovery links, practical island guides, all nine municipality routes and trust/support navigation.
+- Consolidated legal links into a compact final row with mobile safe-area spacing.
+- Preserved admin isolation; protected admin pages do not render the public footer.

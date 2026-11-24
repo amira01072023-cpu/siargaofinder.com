@@ -186,7 +186,7 @@ export default async function CategoryPage({
                 <p className="listing-card-subtitle mt-1">{item.category || "General Services"}</p>
                 <div className="listing-card-meta mt-4 space-y-2 text-sm">
                   <p className="flex items-center gap-2"><MapPin size={15} /> {item.municipality || "Siargao"}</p>
-                  <p>{item.phone || "Phone not listed"}</p>
+                  {item.phone ? <p>{item.phone}</p> : null}
                 </div>
 
                 <ListingCardActions

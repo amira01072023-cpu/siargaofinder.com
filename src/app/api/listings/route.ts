@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getListingCategoryGroup } from "@/lib/listing-category-groups";
+import { inferListingSearchIntent } from "@/lib/listing-search-intent";
+import { SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
 import { supabase } from "@/lib/supabase";
-
-const SIARGAO_MUNICIPALITIES = [
-  "General Luna",
-  "Dapa",
-  "Del Carmen",
-  "Pilar",
-  "San Benito",
-  "San Isidro",
-  "Santa Monica",
-  "Socorro",
-  "Burgos",
-];
 
 const RANDOM_LISTINGS_POOL_SIZE = 50;
 
@@ -41,6 +31,10 @@ const page = Math.max(Number(searchParams.get("page") || 1), 1);
 const limit = Math.min(Math.max(Number(searchParams.get("limit") || 10), 1), 50);
 const from = (page - 1) * limit;
 const to = from + limit - 1;
+const inferredIntent = inferListingSearchIntent(q);
+const effectiveCategoryGroup = categoryGroup || inferredIntent.categoryGroup;
+const effectiveMunicipality = municipality || inferredIntent.municipality;
+const useBusinessNameSearch = Boolean(q && !inferredIntent.categoryGroup && !inferredIntent.municipality);
 
 const buildQuery = (head = false) => {
 let query = supabase
@@ -51,15 +45,15 @@ let query = supabase
   })
   .in("municipality", SIARGAO_MUNICIPALITIES);
 
-if (q) query = query.ilike("business_name", `%${q}%`);
+if (useBusinessNameSearch) query = query.ilike("business_name", `%${q}%`);
 if (category) query = query.ilike("category", `%${category}%`);
-if (categoryGroup) {
-  const group = getListingCategoryGroup(categoryGroup);
+if (effectiveCategoryGroup) {
+  const group = getListingCategoryGroup(effectiveCategoryGroup);
   if (group) {
     query = query.or(group.terms.map((term) => `category.ilike.%${term}%`).join(","));
   }
 }
-if (municipality) query = query.ilike("municipality", `%${municipality}%`);
+if (effectiveMunicipality) query = query.ilike("municipality", `%${effectiveMunicipality}%`);
 if (hasPhone) query = query.not("phone", "is", null).neq("phone", "");
 
 return query;

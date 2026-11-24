@@ -33,11 +33,11 @@ export default function PublicSiteHeader({
 
         <nav className="site-header-nav" aria-label="Primary navigation">
           <Link href="/">Home</Link>
-          <Link href="/#directory">Directory</Link>
-          <Link href="/#categories">Categories</Link>
-          <Link href="/about">About</Link>
-          {showBlogLink && <Link href="/blog">Blog</Link>}
-          <Link href="/contact">Contact</Link>
+          <Link href="/#categories">Explore</Link>
+          <Link href="/#directory">Business Directory</Link>
+          <Link href="/#municipalities">Map</Link>
+          {showBlogLink && <Link href="/blog">Travel Guides</Link>}
+          <Link href="/#saved">Saved</Link>
         </nav>
 
         <div className="site-header-actions">
@@ -56,10 +56,12 @@ export default function PublicSiteHeader({
             <summary aria-label="Open navigation menu"><Menu size={22} /></summary>
             <nav aria-label="Mobile navigation">
               <Link href="/">Home</Link>
-              <Link href="/#directory">Directory</Link>
-              <Link href="/#categories">Categories</Link>
+              <Link href="/#categories">Explore</Link>
+              <Link href="/#directory">Business Directory</Link>
+              <Link href="/#municipalities">Map</Link>
+              {showBlogLink && <Link href="/blog">Travel Guides</Link>}
+              <Link href="/#saved">Saved</Link>
               <Link href="/about">About</Link>
-              {showBlogLink && <Link href="/blog">Blog</Link>}
               <Link href="/contact">Contact</Link>
               {showListYourBusinessLink && <Link href="/list-your-business">List your business</Link>}
             </nav>

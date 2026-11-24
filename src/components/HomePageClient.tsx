@@ -4,13 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, MapPin, Phone, Star, Building2, BedDouble, Utensils, Waves, Car, Briefcase, School, Landmark, ShoppingBag, Fuel, Cross, PawPrint, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, MapPin, Phone, Star, Building2, BedDouble, Utensils, Waves, Car, Briefcase, School, Landmark, ShoppingBag, Fuel, Cross, PawPrint, ShoppingCart, ChevronLeft, ChevronRight, ArrowRight, HeartPulse, Route, Newspaper } from "lucide-react";
 import SaveListingButton from "@/components/SaveListingButton";
 import SavedListingsPanel from "@/components/SavedListingsPanel";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
-import { getBasicListingCompleteness } from "@/lib/listing-completeness";
 import { categoryMatchesGroup, getListingCategoryGroup, LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
 import { listingHref } from "@/lib/listing-slugs";
+import { municipalityToSlug, SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
 
 type Listing = {
 id: number;
@@ -66,8 +66,47 @@ type InitialSearch = {
 
 type ViewMode = "gallery" | "list" | "table" | "detail";
 
-const CATEGORY_PAGE_SIZE = 10;
+type SearchSuggestion = {
+  type: "business" | "category" | "municipality";
+  label: string;
+  value: string;
+  detail?: string;
+};
+
 const BLOG_PAGE_SIZE = 8;
+
+const MUNICIPALITY_DESCRIPTIONS: Record<string, string> = {
+  "General Luna": "Surf, dining & island life",
+  Dapa: "Town center & port",
+  "Del Carmen": "Lagoon & mangroves",
+  "San Isidro": "Pacifico & surf",
+  Burgos: "Coastal discovery",
+  "Santa Monica": "Beaches & services",
+  Pilar: "Rock pools & attractions",
+  "San Benito": "Island coast & services",
+  Socorro: "Bucas Grande & Sohoton",
+};
+
+const ISLAND_ESSENTIALS = [
+  {
+    href: "/blog/medical-options-siargao",
+    label: "Health & emergency",
+    description: "Find clinics and practical medical information.",
+    icon: HeartPulse,
+  },
+  {
+    href: "/guide/siargao-transport-guide",
+    label: "Getting around",
+    description: "Understand island transport and local travel options.",
+    icon: Route,
+  },
+  {
+    href: "/blog",
+    label: "Local guides",
+    description: "Plan your stay with practical Siargao articles.",
+    icon: Newspaper,
+  },
+] as const;
 
 const HERO_QUICK_GROUPS = [
   { id: "food-drinks", label: "Restaurants" },
@@ -198,6 +237,8 @@ const [categoryGroup, setCategoryGroup] = useState(initialSearch.categoryGroup);
 const [municipality, setMunicipality] = useState(initialSearch.municipality);
 const [hasPhone, setHasPhone] = useState(initialSearch.hasPhone);
 const [moreFiltersOpen, setMoreFiltersOpen] = useState(Boolean(initialSearch.categoryGroup || initialSearch.hasPhone));
+const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+const [suggestionsOpen, setSuggestionsOpen] = useState(false);
 
 const municipalityOptions = uniqueOptions(initialData.municipalities ?? []);
 const popularCategories = initialData.popularCategories ?? [];
@@ -208,11 +249,40 @@ const [total, setTotal] = useState(initialData.total ?? 0);
 const [viewMode, setViewMode] = useState<ViewMode>("gallery");
 const [selectedListingId, setSelectedListingId] = useState<number | null>(null);
 const [hasSearched, setHasSearched] = useState(false);
-const [popularCategoryPage, setPopularCategoryPage] = useState(1);
+const [showAllCategories, setShowAllCategories] = useState(false);
 const [blogPage, setBlogPage] = useState(1);
 
 const liveSectionRef = useRef<HTMLElement | null>(null);
 const locallyLoadedUrlRef = useRef<string | null>(null);
+
+useEffect(() => {
+  const query = q.trim();
+  if (query.length < 2) {
+    return;
+  }
+
+  const controller = new AbortController();
+  const timer = window.setTimeout(async () => {
+    try {
+      const response = await fetch(`/api/listings/suggestions?q=${encodeURIComponent(query)}`, {
+        signal: controller.signal,
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      setSuggestions(Array.isArray(data.suggestions) ? data.suggestions : []);
+      setSuggestionsOpen(true);
+    } catch (suggestionError) {
+      if (!(suggestionError instanceof DOMException && suggestionError.name === "AbortError")) {
+        setSuggestions([]);
+      }
+    }
+  }, 250);
+
+  return () => {
+    controller.abort();
+    window.clearTimeout(timer);
+  };
+}, [q]);
 
 const loadListings = useCallback(async (params?: { q?: string; category?: string; categoryGroup?: string; municipality?: string; hasPhone?: boolean; page?: number }) => {
 try {
@@ -358,6 +428,25 @@ const applyCategoryGroup = async (value: string) => {
   await performSearch({ q, categoryGroup: value, municipality, hasPhone, page: 1 });
 };
 
+const applySuggestion = async (suggestion: SearchSuggestion) => {
+  setSuggestionsOpen(false);
+  if (suggestion.type === "municipality") {
+    setQ("");
+    setMunicipality(suggestion.value);
+    await performSearch({ categoryGroup, municipality: suggestion.value, hasPhone, page: 1 });
+    return;
+  }
+  if (suggestion.type === "category") {
+    setQ("");
+    setCategory("");
+    setCategoryGroup(suggestion.value);
+    await performSearch({ categoryGroup: suggestion.value, municipality, hasPhone, page: 1 });
+    return;
+  }
+  setQ(suggestion.value);
+  await performSearch({ q: suggestion.value, categoryGroup, municipality, hasPhone, page: 1 });
+};
+
 const selectedListing = listings.find((l) => l.id === selectedListingId) || listings[0] || null;
 const groupCards: DirectoryCategoryCard[] = LISTING_CATEGORY_GROUPS.map((group) => {
   const count = popularCategories
@@ -370,13 +459,7 @@ const groupCards: DirectoryCategoryCard[] = LISTING_CATEGORY_GROUPS.map((group) 
     note: "Search this category group",
   };
 });
-const totalCategoryCards = groupCards.length;
-const popularCategoryTotalPages = Math.max(Math.ceil(totalCategoryCards / CATEGORY_PAGE_SIZE), 1);
-const categoryPageStart = Math.max((popularCategoryPage - 1) * CATEGORY_PAGE_SIZE, 0);
-const visibleCategoryCards = groupCards.slice(
-  categoryPageStart,
-  categoryPageStart + CATEGORY_PAGE_SIZE,
-);
+const visibleCategoryCards = showAllCategories ? groupCards : groupCards.slice(0, 8);
 const blogTotalPages = Math.max(Math.ceil(blogPosts.length / BLOG_PAGE_SIZE), 1);
 const visibleBlogPosts = blogPosts.slice((blogPage - 1) * BLOG_PAGE_SIZE, blogPage * BLOG_PAGE_SIZE);
 const hasActiveFilters = Boolean(q || category || categoryGroup || municipality || hasPhone);
@@ -400,10 +483,10 @@ return (
 <div className="hero-content classified-hero-content relative max-w-6xl mx-auto px-4 py-8 md:py-10">
 <div className="hero-copy-shell max-w-6xl">
   <h1 className="hero-title max-w-6xl">
-    Find local businesses &amp; services <span className="hero-title-accent">in one click</span>
+    Discover the Best <span className="hero-title-accent">of Siargao.</span>
   </h1>
   <p className="hero-description max-w-3xl">
-    Discover places to stay, restaurants, tours, transport, surf schools, and essential services across all nine Siargao municipalities.
+    Find local businesses, places to stay, restaurants, jobs, services, and unforgettable island experiences.
   </p>
 </div>
 
@@ -411,17 +494,48 @@ return (
   <div className="hero-search-grid hero-search-grid--primary">
     <label className="hero-search-field hero-search-field--wide">
       <span className="hero-search-label">What are you looking for?</span>
-      <div className="hero-search-control">
+      <div className="hero-search-control hero-search-control--suggestions">
         <Search size={17} className="hero-search-icon" />
         <input
           type="search"
           name="q"
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => {
+            const nextQuery = e.target.value;
+            setQ(nextQuery);
+            if (nextQuery.trim().length < 2) {
+              setSuggestions([]);
+              setSuggestionsOpen(false);
+            }
+          }}
+          onFocus={() => suggestions.length > 0 && setSuggestionsOpen(true)}
+          onBlur={() => window.setTimeout(() => setSuggestionsOpen(false), 120)}
           placeholder="Try “motorbike rental”, “clinic”, or “restaurant”"
           autoComplete="off"
           className="hero-search-input"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={suggestionsOpen && suggestions.length > 0}
+          aria-controls="hero-search-suggestions"
         />
+        {suggestionsOpen && suggestions.length > 0 && (
+          <div id="hero-search-suggestions" className="hero-search-suggestions" role="listbox" aria-label="Search suggestions">
+            {suggestions.map((suggestion) => (
+              <button
+                key={`${suggestion.type}-${suggestion.value}`}
+                type="button"
+                role="option"
+                aria-selected="false"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => void applySuggestion(suggestion)}
+                className="hero-search-suggestion"
+              >
+                <span>{suggestion.label}</span>
+                <small>{suggestion.detail || suggestion.type}</small>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </label>
 
@@ -551,10 +665,6 @@ return (
 </div>
 </section>
 
-<section className="marketplace-saved-section max-w-6xl mx-auto px-4 pt-5">
-  <SavedListingsPanel />
-</section>
-
 {hasSearched && (
 <section id="results" ref={liveSectionRef} className="marketplace-section max-w-6xl mx-auto px-4 py-10">
 <div className="section-heading mb-6">
@@ -609,7 +719,6 @@ const social = detectSocial(item.website_url);
 const socialButtons = socialsToButtons(item.socials);
 const visual = categoryVisual(item.category || "");
 const Icon = visual.icon;
-const completeness = getBasicListingCompleteness(item);
 return (
 <article key={item.id} className="listing-card group">
 <div className="listing-card-accent" />
@@ -630,13 +739,13 @@ return (
     </div>
   </div>
   <div className="listing-card-score text-right">
-    <p className="listing-card-score-label">Listing quality</p>
-    <p className="listing-card-score-value">{completeness}%</p>
+    <p className="listing-card-score-label">Contact</p>
+    <p className="listing-card-score-value listing-card-score-value--status">{item.phone || item.website_url ? "Available" : "Profile"}</p>
   </div>
 </div>
 <div className="listing-card-meta mt-4 space-y-2 text-sm text-slate-600">
 <p className="flex items-center gap-2"><MapPin size={15} /> {item.municipality || "Siargao"}</p>
-<p className="flex items-center gap-2"><Phone size={15} /> {item.phone || "Phone not listed"}</p>
+{item.phone ? <p className="flex items-center gap-2"><Phone size={15} /> {item.phone}</p> : null}
 <div className="flex flex-wrap gap-2 pt-1">
   <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
     <Star size={13} className="text-green-600 fill-green-600" />
@@ -692,7 +801,7 @@ return (
 <td className="p-3 font-medium text-slate-900">{item.business_name}</td>
 <td className="p-3">{item.category || "General"}</td>
 <td className="p-3">{item.municipality || "Siargao"}</td>
-<td className="p-3">{item.phone || "N/A"}</td>
+<td className="p-3">{item.phone || <span className="text-slate-400">Not listed</span>}</td>
 <td className="p-3"><Link href={listingHref(item)} className="text-slate-900 hover:underline">Open</Link></td>
 </tr>
 ))}
@@ -712,7 +821,7 @@ return (
 </div>
 <h3 className="text-xl font-bold text-slate-900">{selectedListing.business_name}</h3>
 <p className="text-sm text-slate-600 mt-1">{selectedListing.category || "General Services"} • {selectedListing.municipality || "Siargao"}</p>
-<p className="text-sm mt-2 text-slate-700">Phone: {selectedListing.phone || "N/A"}</p>
+{selectedListing.phone ? <p className="text-sm mt-2 text-slate-700">Phone: {selectedListing.phone}</p> : null}
 <div className="mt-4"><Link href={listingHref(selectedListing)} className="ui-btn ui-btn--dark">Open Full Details</Link></div>
 </div>
 )}
@@ -736,31 +845,6 @@ return (
 <div className="category-showcase-heading">
 <h2 className="section-title">Search by Categories</h2>
 <p className="section-description">Discover what you need effortlessly. Browse Siargao&apos;s main categories to find exactly what you&apos;re looking for.</p>
-{popularCategoryTotalPages > 1 && (
-<div className="category-showcase-pagination">
-<button
-type="button"
-onClick={() => setPopularCategoryPage((current) => Math.max(current - 1, 1))}
-disabled={popularCategoryPage <= 1}
-className="ui-btn ui-btn--soft disabled:opacity-50 disabled:cursor-not-allowed"
-aria-label="Previous popular categories"
->
-<ChevronLeft size={16} />
-</button>
-<span className="text-sm font-medium text-slate-600">
-Page {popularCategoryPage} of {popularCategoryTotalPages}
-</span>
-<button
-type="button"
-onClick={() => setPopularCategoryPage((current) => Math.min(current + 1, popularCategoryTotalPages))}
-disabled={popularCategoryPage >= popularCategoryTotalPages}
-className="ui-btn ui-btn--soft disabled:opacity-50 disabled:cursor-not-allowed"
-aria-label="Next popular categories"
->
-<ChevronRight size={16} />
-</button>
-</div>
-)}
 </div>
 
 <div className="category-showcase-grid">
@@ -772,13 +856,14 @@ return (
   key={cat.id}
   type="button"
   onClick={() => applyCategoryGroup(cat.id)}
-  className="category-card group"
+  className={`category-card group${["food-drinks", "hotels-stays", "tours-activities"].includes(cat.id) ? " category-card--featured" : ""}`}
   aria-label={`${cat.name}, ${cat.countLabel}`}
 >
   <div className={`category-card-icon ${visual.bg} ${visual.fg}`}>
     <Icon size={38} strokeWidth={1.45} />
   </div>
   <h3 className="category-card-title">{cat.name}</h3>
+  <p className="category-card-count">{cat.countLabel}</p>
 </button>
 );
 })}
@@ -786,14 +871,66 @@ return (
 {visibleCategoryCards.length === 0 && (
 <div className="surface-panel p-5 text-sm text-slate-600">Categories will appear here once listings are available.</div>
 )}
+{groupCards.length > 8 && (
+  <div className="category-showcase-expand">
+    <button type="button" className="ui-btn ui-btn--soft" onClick={() => setShowAllCategories((value) => !value)} aria-expanded={showAllCategories}>
+      {showAllCategories ? "Show fewer categories" : "View all categories"}
+      <ArrowRight size={16} aria-hidden="true" />
+    </button>
+  </div>
+)}
+</section>
+
+<section id="municipalities" className="marketplace-section municipality-discovery max-w-6xl mx-auto px-4 py-12">
+  <div className="section-heading mb-6">
+    <div>
+      <p className="section-kicker">Explore the island</p>
+      <h2 className="section-title">Discover by Municipality</h2>
+      <p className="section-description">Browse businesses and services across all nine Siargao-area municipalities.</p>
+    </div>
+  </div>
+  <div className="municipality-discovery-grid">
+    {SIARGAO_MUNICIPALITIES.map((name, index) => (
+      <Link key={name} href={`/municipality/${municipalityToSlug(name)}`} className={`municipality-discovery-card${index < 3 ? " municipality-discovery-card--featured" : ""}`}>
+        <MapPin size={20} aria-hidden="true" />
+        <span>
+          <strong>{name}</strong>
+          <small>{MUNICIPALITY_DESCRIPTIONS[name]}</small>
+        </span>
+        <ArrowRight size={18} aria-hidden="true" />
+      </Link>
+    ))}
+  </div>
+</section>
+
+<section className="marketplace-section island-essentials max-w-6xl mx-auto px-4 py-12">
+  <div className="section-heading mb-6">
+    <div>
+      <p className="section-kicker">Useful on the island</p>
+      <h2 className="section-title">Island Essentials</h2>
+    </div>
+  </div>
+  <div className="island-essentials-grid">
+    {ISLAND_ESSENTIALS.map(({ href, label, description, icon: Icon }) => (
+      <Link key={href} href={href} className="island-essential-card">
+        <Icon size={22} aria-hidden="true" />
+        <span><strong>{label}</strong><small>{description}</small></span>
+        <ArrowRight size={18} aria-hidden="true" />
+      </Link>
+    ))}
+  </div>
+</section>
+
+<section id="saved" className="marketplace-saved-section max-w-6xl mx-auto px-4 py-8 scroll-mt-24">
+  <SavedListingsPanel />
 </section>
 
 <section id="journal" className="marketplace-section marketplace-section--journal max-w-6xl mx-auto px-4 py-12">
 <div className="section-heading mb-6">
 <div>
-<p className="section-kicker">Read</p>
-<h2 className="section-title">Blog Posts</h2>
-<p className="section-description">Fresh Siargao blog posts on travel planning, routes, timing, and practical local context</p>
+<p className="section-kicker">The Siargao Journal</p>
+<h2 className="section-title">Stories, Places &amp; Island Life</h2>
+<p className="section-description">Practical travel guides, local discoveries, and useful context for life around Siargao.</p>
 </div>
 {blogTotalPages > 1 && (
 <div className="flex items-center gap-2">

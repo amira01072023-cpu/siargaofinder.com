@@ -1,5 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
@@ -9,11 +10,24 @@ import SiteVisitTracker from "@/components/SiteVisitTracker";
 import ConsentAdNetworkScript from "@/components/ConsentAdNetworkScript";
 import FormValidationA11y from "@/components/FormValidationA11y";
 import PublicMotion from "@/components/PublicMotion";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import { COOKIE_CONSENT_STORAGE_KEY } from "@/lib/consent";
 import { getSiteUrl } from "@/lib/site-url";
 import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 const siteUrl = getSiteUrl();
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -53,7 +67,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: "only light",
-  themeColor: "#ffffff",
+  themeColor: "#087F8C",
 };
 
 export default function RootLayout({
@@ -108,7 +122,7 @@ const localBusinessDirectoryJsonLd = {
 
 return (
 <html lang="en">
-<body>
+<body className={`${inter.variable} ${plusJakartaSans.variable}`}>
 <a className="skip-link" href="#main-content">Skip to main content</a>
 <Script
   async
@@ -150,6 +164,7 @@ return (
   <div id="main-content" className="flex-1" tabIndex={-1}>{children}</div>
   <SiteFooter />
 </div>
+<MobileBottomNav />
 <SiteChatWidget />
 <ConsentAdNetworkScript />
 <FormValidationA11y />

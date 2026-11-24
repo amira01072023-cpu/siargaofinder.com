@@ -4,13 +4,12 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { MapPin, Phone, Mail, Globe, ShieldCheck, Sparkles, Building2 } from "lucide-react";
+import { MapPin, Phone, Mail, Globe, ShieldCheck, Building2 } from "lucide-react";
 import ListingActionBar from "@/components/ListingActionBar";
 import SaveListingButton from "@/components/SaveListingButton";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import {
   getBusinessListingValueScore,
-  getDetailedListingCompleteness,
   getIndexableUniqueBusinessListings,
   isIndexableBusinessListing,
 } from "@/lib/listing-completeness";
@@ -293,7 +292,7 @@ if (id !== businessNameToListingSlug(listing.business_name)) {
 }
 
 const related = await getRelatedListings(listing);
-const completeness = getDetailedListingCompleteness(listing);
+const contactMethodCount = [listing.phone, listing.email, listing.website_url].filter(Boolean).length;
 
 const baseUrl = getSiteUrl();
 
@@ -358,9 +357,11 @@ return (
         <ShieldCheck size={14} />
         Public directory listing
       </span>
-      <span className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full">
-        {completeness}% complete
-      </span>
+      {contactMethodCount > 0 && (
+        <span className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full">
+          {contactMethodCount} contact {contactMethodCount === 1 ? "option" : "options"}
+        </span>
+      )}
     </div>
 
     <div className="listing-detail-summary mt-5">
@@ -379,10 +380,10 @@ return (
         </div>
       </div>
       <div className="listing-detail-summary-card">
-        <span className="listing-detail-summary-label">Profile quality</span>
+        <span className="listing-detail-summary-label">Contact options</span>
         <div className="listing-detail-summary-value">
-          <Sparkles size={15} />
-          <span>{completeness}% complete</span>
+          <Phone size={15} />
+          <span>{contactMethodCount > 0 ? `${contactMethodCount} available` : "View profile"}</span>
         </div>
       </div>
     </div>
@@ -396,14 +397,6 @@ return (
 <p className="detail-row"><Globe size={16} className="text-slate-400 mt-0.5" /><span><strong>Website:</strong> {listing.website_url ? <a href={listing.website_url} target="_blank" rel="noreferrer" className="link-inline break-all">{listing.website_url}</a> : "No website listed yet"}</span></p>
 <p className="detail-row detail-row--full"><span><strong>Address:</strong> {listing.address || "No address listed yet"}</span></p>
 <p className="detail-row detail-row--full"><span><strong>Services:</strong> {listing.services || "No service details listed yet"}</span></p>
-</div>
-
-<div className="mt-5 listing-detail-progress-card">
-<p className="text-sm text-slate-700"><strong>Profile completeness:</strong> {completeness}%</p>
-<div className="progress-rail">
-<div className="progress-fill" style={{ width: `${completeness}%` }} />
-</div>
-<p className="mt-2 text-xs text-slate-500">Visible trust signals help visitors judge listing quality faster and improve confidence before they contact a business.</p>
 </div>
 
 <div className="mt-6 flex flex-wrap items-start justify-start gap-2">
@@ -468,8 +461,8 @@ View more {listing.category} listings
 </div>
 <div className="listing-card-meta text-sm mt-4 space-y-2 text-slate-600">
   <p className="flex items-center gap-2"><MapPin size={15} /> {r.municipality || "Siargao"}</p>
-  <p className="flex items-center gap-2"><Phone size={15} /> {r.phone || "Phone not listed"}</p>
-  <p className="text-xs text-slate-500">{r.address || "Address not listed yet"}</p>
+  {r.phone ? <p className="flex items-center gap-2"><Phone size={15} /> {r.phone}</p> : null}
+  {r.address ? <p className="text-xs text-slate-500">{r.address}</p> : null}
 </div>
 <div className="mt-4 flex gap-2 flex-wrap">
 <Link href={listingHref(r)} className="listing-card-btn listing-card-btn--soft">View Details</Link>

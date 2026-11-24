@@ -164,7 +164,7 @@ export default async function MunicipalityPage({
                 <p className="listing-card-subtitle mt-1">{item.category || "General Services"}</p>
                 <div className="listing-card-meta mt-4 space-y-2 text-sm">
                   <p>{item.municipality || "Siargao"}</p>
-                  <p>{item.phone || "N/A"}</p>
+                  {item.phone ? <p>{item.phone}</p> : null}
                 </div>
 
                 <ListingCardActions

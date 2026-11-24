@@ -7,6 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 import { MapPin, Phone, Mail, Globe, ShieldCheck, Building2 } from "lucide-react";
 import ListingActionBar from "@/components/ListingActionBar";
 import SaveListingButton from "@/components/SaveListingButton";
+import BusinessListingCard from "@/components/BusinessListingCard";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import {
   getBusinessListingValueScore,
@@ -391,12 +392,12 @@ return (
 </div>
 
 <div className="detail-grid mt-6">
-<p className="detail-row"><MapPin size={16} className="text-slate-400 mt-0.5" /><span><strong>Municipality:</strong> {listing.municipality || "Not listed yet"}</span></p>
-<p className="detail-row"><Phone size={16} className="text-slate-400 mt-0.5" /><span><strong>Phone:</strong> {listing.phone || "No phone listed yet"}</span></p>
-<p className="detail-row"><Mail size={16} className="text-slate-400 mt-0.5" /><span><strong>Email:</strong> {listing.email || "No email listed yet"}</span></p>
-<p className="detail-row"><Globe size={16} className="text-slate-400 mt-0.5" /><span><strong>Website:</strong> {listing.website_url ? <a href={listing.website_url} target="_blank" rel="noreferrer" className="link-inline break-all">{listing.website_url}</a> : "No website listed yet"}</span></p>
-<p className="detail-row detail-row--full"><span><strong>Address:</strong> {listing.address || "No address listed yet"}</span></p>
-<p className="detail-row detail-row--full"><span><strong>Services:</strong> {listing.services || "No service details listed yet"}</span></p>
+<p className="detail-row"><MapPin size={16} className="text-slate-400 mt-0.5" /><span><strong>Municipality:</strong> {listing.municipality || "Siargao"}</span></p>
+{listing.phone ? <p className="detail-row"><Phone size={16} className="text-slate-400 mt-0.5" /><span><strong>Phone:</strong> {listing.phone}</span></p> : null}
+{listing.email ? <p className="detail-row"><Mail size={16} className="text-slate-400 mt-0.5" /><span><strong>Email:</strong> {listing.email}</span></p> : null}
+{listing.website_url ? <p className="detail-row"><Globe size={16} className="text-slate-400 mt-0.5" /><span><strong>Website:</strong> <a href={listing.website_url} target="_blank" rel="noreferrer" className="link-inline break-all">{listing.website_url}</a></span></p> : null}
+{listing.address ? <p className="detail-row detail-row--full"><span><strong>Address:</strong> {listing.address}</span></p> : null}
+{listing.services ? <p className="detail-row detail-row--full"><span><strong>Services:</strong> {listing.services}</span></p> : null}
 </div>
 
 <div className="mt-6 flex flex-wrap items-start justify-start gap-2">
@@ -451,24 +452,7 @@ View more {listing.category} listings
 </div>
 <div className="grid md:grid-cols-2 gap-4">
 {related.map((r) => (
-<article key={r.id} className="listing-card group">
-<div className="flex items-start justify-between gap-3">
-  <div className="min-w-0">
-    <h3 className="listing-card-title">{r.business_name}</h3>
-    <p className="listing-card-subtitle mt-1">Similar business you may want to compare</p>
-  </div>
-  <span className="listing-card-pill">{r.category || "General Services"}</span>
-</div>
-<div className="listing-card-meta text-sm mt-4 space-y-2 text-slate-600">
-  <p className="flex items-center gap-2"><MapPin size={15} /> {r.municipality || "Siargao"}</p>
-  {r.phone ? <p className="flex items-center gap-2"><Phone size={15} /> {r.phone}</p> : null}
-  {r.address ? <p className="text-xs text-slate-500">{r.address}</p> : null}
-</div>
-<div className="mt-4 flex gap-2 flex-wrap">
-<Link href={listingHref(r)} className="listing-card-btn listing-card-btn--soft">View Details</Link>
-{r.website_url ? <a href={r.website_url} target="_blank" rel="noreferrer" className="listing-card-btn listing-card-btn--dark">Website</a> : null}
-</div>
-</article>
+<BusinessListingCard key={r.id} listing={r} headingLevel="h3" />
 ))}
 </div>
 </section>

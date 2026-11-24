@@ -4,7 +4,7 @@ import { permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { ArrowRight, Building2, MapPin } from "lucide-react";
 import { createClient } from "@supabase/supabase-js";
-import ListingCardActions from "@/components/ListingCardActions";
+import BusinessListingCard from "@/components/BusinessListingCard";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import {
   categorySeoLabel,
@@ -181,23 +181,7 @@ export default async function MunicipalityCategoryPage({
         ) : (
           <div className="mt-5 grid md:grid-cols-2 gap-3">
             {listings.map((item) => (
-              <article key={item.id} className="listing-card group">
-                <div className="listing-card-accent" />
-                <h2 className="listing-card-title">{item.business_name}</h2>
-                <p className="listing-card-subtitle mt-1">{item.category || "General Services"}</p>
-                <div className="listing-card-meta mt-4 space-y-2 text-sm">
-                  <p className="flex items-center gap-2"><MapPin size={15} /> {item.municipality || municipalityName}</p>
-                  {item.phone ? <p>{item.phone}</p> : null}
-                </div>
-
-                <ListingCardActions
-                  listingId={item.id}
-                  businessName={item.business_name}
-                  phone={item.phone}
-                  websiteUrl={item.website_url}
-                  address={item.address}
-                />
-              </article>
+              <BusinessListingCard key={item.id} listing={item} headingLevel="h2" />
             ))}
           </div>
         )}

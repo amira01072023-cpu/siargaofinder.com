@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Bookmark, Compass, Home, Map, Menu } from "lucide-react";
 
 const primaryItems = [
@@ -13,6 +14,17 @@ const primaryItems = [
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
+  const [hash, setHash] = useState("");
+
+  useEffect(() => {
+    const updateHash = () => setHash(window.location.hash);
+    const frame = window.requestAnimationFrame(updateHash);
+    window.addEventListener("hashchange", updateHash);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("hashchange", updateHash);
+    };
+  }, []);
 
   if (pathname.startsWith("/admin")) return null;
 
@@ -20,8 +32,8 @@ export default function MobileBottomNav() {
     <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
       <div className="mobile-bottom-nav__inner">
         {primaryItems.map(({ label, href, icon: Icon }) => {
-          const isHome = label === "Home";
-          const active = isHome ? pathname === "/" : false;
+          const itemHash = href.includes("#") ? `#${href.split("#")[1]}` : "";
+          const active = pathname === "/" && (itemHash ? hash === itemHash : !hash);
           return (
             <Link
               key={label}

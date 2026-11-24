@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Phone, Globe, Navigation, Copy, Check } from "lucide-react";
+import { Phone, Globe, Navigation, Copy, Check, Mail } from "lucide-react";
 import { listingHref } from "@/lib/listing-slugs";
 
 type Props = {
   listingId: number;
   businessName: string;
   phone?: string | null;
+  email?: string | null;
   websiteUrl?: string | null;
   address?: string | null;
 };
@@ -22,7 +23,7 @@ function buildDirectionsUrl(businessName: string, address?: string | null) {
   return `https://www.google.com/maps/search/?api=1&query=${q}`;
 }
 
-export default function ListingCardActions({ businessName, phone, websiteUrl, address }: Props) {
+export default function ListingCardActions({ businessName, phone, email, websiteUrl, address }: Props) {
   const [copied, setCopied] = useState(false);
 
   const onCopyPhone = async () => {
@@ -53,6 +54,12 @@ export default function ListingCardActions({ businessName, phone, websiteUrl, ad
           <span>Call</span>
         </a>
       ) : null}
+      {email ? (
+        <a href={`mailto:${email}`} className="listing-card-btn listing-card-btn--soft">
+          <Mail size={15} />
+          <span>Email</span>
+        </a>
+      ) : null}
       {(address || businessName) && (
         <a href={buildDirectionsUrl(businessName, address)} target="_blank" rel="noreferrer" className="listing-card-btn listing-card-btn--soft">
           <Navigation size={15} />
@@ -64,9 +71,6 @@ export default function ListingCardActions({ businessName, phone, websiteUrl, ad
           {copied ? <Check size={15} /> : <Copy size={15} />}
           <span>{copied ? "Copied" : "Copy Phone"}</span>
         </button>
-      ) : null}
-      {!websiteUrl && !phone ? (
-        <button className="listing-card-btn listing-card-btn--disabled">No direct contact</button>
       ) : null}
     </div>
   );

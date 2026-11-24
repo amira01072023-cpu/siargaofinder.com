@@ -33,7 +33,18 @@ All notable 2027 modernization work is recorded here.
 
 ### Still pending in Phase 1
 
-- Reusable extracted listing-card component and listing-detail hierarchy refresh.
-- Mobile filter bottom sheet and loading skeletons.
 - PostgreSQL FTS/`pg_trgm` migration proposal, policy export and rollback test.
-- Multi-step business submission experience.
+- Reliable last-updated/verification fields before displaying freshness claims.
+
+### Phase 1 discovery and submission
+
+- Added one reusable, category-aware business listing card across homepage results, category pages, municipality pages, municipality/category pages and related listings.
+- Added real contact-method indicators, save actions, call/email/website/directions actions and category-specific icon placeholders.
+- Removed disabled or empty contact actions instead of showing unavailable values.
+- Added listing-result skeletons with reduced-motion support.
+- Simplified listing details so unavailable fields are hidden and available contact actions have mobile sticky access above the bottom navigation.
+- Converted free business submission into an accessible six-step workflow with progress, per-step validation, review and focus management.
+- Strengthened duplicate checks with a dedicated exact business-name query that is independent of natural-language search intent.
+- Preserved the existing submission endpoint, email verification, honeypot, admin review and Supabase data model.
+- Added path and hash-aware active states to desktop and mobile public navigation.
+- Replaced the submission success redirect with Next.js router navigation, reducing lint warnings from 15 to 14.

@@ -31,7 +31,7 @@ Last updated: 2026-11-24
 - [x] Refactor desktop public navigation.
 - [x] Add accessible fixed mobile bottom navigation.
 - [x] Add safe-area and footer spacing for the bottom navigation.
-- [ ] Add active navigation states.
+- [x] Add path and hash-aware active navigation states.
 - [x] Preserve admin UI isolation.
 
 ## Phase 1B — Homepage discovery
@@ -51,25 +51,25 @@ Last updated: 2026-11-24
 
 ## Phase 1C — Listings and search results
 
-- [ ] Extract reusable business listing card.
+- [x] Extract reusable business listing card and adopt it across public discovery pages.
 - [x] Hide unavailable contact actions and empty contact rows on updated public cards.
-- [ ] Add category-specific placeholders without fabricated photos.
+- [x] Add category-specific icon placeholders without fabricated photos.
 - [x] Remove public completeness percentages while retaining internal SEO/admin quality scoring.
 - [ ] Add meaningful last-updated/verification labels only when supported by real fields.
 - [x] Preserve grid/list controls with visible accessible names.
-- [ ] Add mobile filter disclosure or bottom sheet.
-- [ ] Add loading skeletons and improved empty states.
+- [x] Preserve the accessible mobile filter disclosure.
+- [x] Add loading skeletons and improved empty states.
 - [x] Add debounced autocomplete.
 - [ ] Draft FTS/`pg_trgm` migration and rollback documentation.
 
 ## Phase 1D — Detail and submission flows
 
-- [ ] Modernize listing detail hierarchy.
-- [ ] Add mobile sticky contact actions without covering consent or ads.
-- [ ] Preserve LocalBusiness and breadcrumb structured data.
-- [ ] Add related businesses from verified listing data.
-- [ ] Convert business submission to an accessible multi-step flow.
-- [ ] Preserve duplicate detection and admin approval.
+- [x] Modernize listing detail hierarchy.
+- [x] Add mobile sticky contact actions above the bottom navigation.
+- [x] Preserve LocalBusiness and breadcrumb structured data.
+- [x] Add related businesses from existing listing data.
+- [x] Convert business submission to an accessible multi-step flow.
+- [x] Preserve and strengthen duplicate detection and admin approval.
 - [ ] Verify claim and report flows.
 
 ## Later phases

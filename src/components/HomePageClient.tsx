@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, MapPin, Phone, Star, Building2, BedDouble, Utensils, Waves, Car, Briefcase, School, Landmark, ShoppingBag, Fuel, Cross, PawPrint, ShoppingCart, ChevronLeft, ChevronRight, ArrowRight, HeartPulse, Route, Newspaper } from "lucide-react";
-import SaveListingButton from "@/components/SaveListingButton";
+import { Search, MapPin, Phone, Building2, BedDouble, Utensils, Waves, Car, Briefcase, School, Landmark, ShoppingBag, Fuel, Cross, PawPrint, ShoppingCart, ChevronLeft, ChevronRight, ArrowRight, HeartPulse, Route, Newspaper } from "lucide-react";
+import BusinessListingCard from "@/components/BusinessListingCard";
 import SavedListingsPanel from "@/components/SavedListingsPanel";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { categoryMatchesGroup, getListingCategoryGroup, LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
@@ -18,7 +18,9 @@ business_name: string;
 category: string | null;
 municipality: string | null;
 phone: string | null;
+email?: string | null;
 website_url: string | null;
+address?: string | null;
 socials?: {
 facebook?: string;
 instagram?: string;
@@ -164,28 +166,6 @@ function categoryVisual(name: string) {
   if (label.includes('veterinary')) return { icon: PawPrint, ...shared };
   if (label.includes('grocery') || label.includes('supermarket')) return { icon: ShoppingCart, ...shared };
   return { icon: Building2, ...shared };
-}
-
-function detectSocial(url?: string | null) {
-if (!url) return null;
-const u = url.toLowerCase();
-if (u.includes("facebook.com")) return { label: "Facebook", href: url };
-if (u.includes("instagram.com")) return { label: "Instagram", href: url };
-if (u.includes("tiktok.com")) return { label: "TikTok", href: url };
-if (u.includes("x.com") || u.includes("twitter.com")) return { label: "X", href: url };
-if (u.includes("youtube.com") || u.includes("youtu.be")) return { label: "YouTube", href: url };
-return null;
-}
-
-function socialsToButtons(socials?: Listing["socials"] | null) {
-if (!socials) return [] as { label: string; href: string }[];
-const entries: { label: string; href: string }[] = [];
-if (socials.facebook) entries.push({ label: "Facebook", href: socials.facebook });
-if (socials.instagram) entries.push({ label: "Instagram", href: socials.instagram });
-if (socials.tiktok) entries.push({ label: "TikTok", href: socials.tiktok });
-if (socials.youtube) entries.push({ label: "YouTube", href: socials.youtube });
-if (socials.x) entries.push({ label: "X", href: socials.x });
-return entries;
 }
 
 function uniqueOptions(options: string[]) {
@@ -666,7 +646,7 @@ return (
 </section>
 
 {hasSearched && (
-<section id="results" ref={liveSectionRef} className="marketplace-section max-w-6xl mx-auto px-4 py-10">
+<section id="results" ref={liveSectionRef} className="marketplace-section max-w-6xl mx-auto px-4 py-10" aria-busy={loading}>
 <div className="section-heading mb-6">
 <div>
 <p className="section-kicker">Discover</p>
@@ -675,7 +655,19 @@ return (
 </div>
 </div>
 
-{loading && <p className="text-slate-500" role="status">Loading listings...</p>}
+{loading && (
+  <div className="listing-skeleton-grid" role="status" aria-label="Loading listings">
+    {[0, 1, 2, 3].map((item) => (
+      <div key={item} className="listing-skeleton" aria-hidden="true">
+        <span className="listing-skeleton__icon" />
+        <span className="listing-skeleton__line listing-skeleton__line--title" />
+        <span className="listing-skeleton__line" />
+        <span className="listing-skeleton__line listing-skeleton__line--short" />
+      </div>
+    ))}
+    <span className="sr-only">Loading listings…</span>
+  </div>
+)}
 {error && <p className="text-red-600" role="alert">Error: {error}</p>}
 {!loading && !error && listings.length === 0 && (
   <div className="surface-panel p-6 text-slate-600">
@@ -714,58 +706,7 @@ className={`view-toggle-chip ${viewMode === mode ? "view-toggle-chip--active" : 
 
 {viewMode === "gallery" && (
 <div className="marketplace-listing-grid grid md:grid-cols-2 gap-4">
-{listings.map((item) => {
-const social = detectSocial(item.website_url);
-const socialButtons = socialsToButtons(item.socials);
-const visual = categoryVisual(item.category || "");
-const Icon = visual.icon;
-return (
-<article key={item.id} className="listing-card group">
-<div className="listing-card-accent" />
-<div className="flex items-start justify-between gap-3">
-  <div className="min-w-0">
-    <div className="flex items-center gap-3 mb-3">
-      <div className={`listing-card-icon ${visual.bg} ${visual.fg}`}>
-        <Icon size={18} />
-      </div>
-      <div className="min-w-0">
-        <h3 className="listing-card-title truncate">{item.business_name}</h3>
-        <p className="listing-card-subtitle">Local business profile</p>
-      </div>
-    </div>
-    <div className="flex flex-wrap gap-2">
-      <p className="listing-card-pill listing-card-pill--warm">{item.category || "General Services"}</p>
-      <p className="listing-card-pill">{item.municipality || "Siargao"}</p>
-    </div>
-  </div>
-  <div className="listing-card-score text-right">
-    <p className="listing-card-score-label">Contact</p>
-    <p className="listing-card-score-value listing-card-score-value--status">{item.phone || item.website_url ? "Available" : "Profile"}</p>
-  </div>
-</div>
-<div className="listing-card-meta mt-4 space-y-2 text-sm text-slate-600">
-<p className="flex items-center gap-2"><MapPin size={15} /> {item.municipality || "Siargao"}</p>
-{item.phone ? <p className="flex items-center gap-2"><Phone size={15} /> {item.phone}</p> : null}
-<div className="flex flex-wrap gap-2 pt-1">
-  <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700">
-    <Star size={13} className="text-green-600 fill-green-600" />
-    Public directory listing
-  </span>
-</div>
-</div>
-<div className="listing-card-actions listing-card-actions--stacked mt-5">
-<div className="listing-card-actions-primary">
-  <Link href={listingHref(item)} className="listing-card-btn listing-card-btn--soft listing-card-btn--primary">View Details</Link>
-  {item.website_url ? <a href={item.website_url} target="_blank" rel="noreferrer" className="listing-card-btn listing-card-btn--dark listing-card-btn--primary">{social ? "Visit Profile" : "Visit Website"}</a> : null}
-</div>
-<div className="listing-card-actions-secondary">
-  <SaveListingButton item={{ id: item.id, business_name: item.business_name, category: item.category, municipality: item.municipality }} />
-  {socialButtons.length > 0 ? socialButtons.slice(0, 2).map((s) => <a key={`${item.id}-${s.label}`} href={s.href} target="_blank" rel="noreferrer" className="listing-card-btn listing-card-btn--soft">{s.label}</a>) : social ? <a href={social.href} target="_blank" rel="noreferrer" className="listing-card-btn listing-card-btn--soft">{social.label}</a> : null}
-</div>
-</div>
-</article>
-);
-})}
+{listings.map((item) => <BusinessListingCard key={item.id} listing={item} headingLevel="h3" />)}
 </div>
 )}
 

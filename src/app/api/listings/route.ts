@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
 const { searchParams } = new URL(req.url);
 
 const q = (searchParams.get("q") || "").trim();
+const businessName = (searchParams.get("businessName") || "").trim().slice(0, 160);
 const category = (searchParams.get("category") || "").trim();
 const categoryGroup = (searchParams.get("categoryGroup") || "").trim();
 const municipality = (searchParams.get("municipality") || searchParams.get("city") || "").trim();
@@ -45,7 +46,8 @@ let query = supabase
   })
   .in("municipality", SIARGAO_MUNICIPALITIES);
 
-if (useBusinessNameSearch) query = query.ilike("business_name", `%${q}%`);
+if (businessName) query = query.ilike("business_name", businessName);
+else if (useBusinessNameSearch) query = query.ilike("business_name", `%${q}%`);
 if (category) query = query.ilike("category", `%${category}%`);
 if (effectiveCategoryGroup) {
   const group = getListingCategoryGroup(effectiveCategoryGroup);
@@ -59,7 +61,7 @@ if (hasPhone) query = query.not("phone", "is", null).neq("phone", "");
 return query;
 };
 
-if (random && !q && !category && !categoryGroup && !municipality && !hasPhone && page === 1) {
+if (random && !q && !businessName && !category && !categoryGroup && !municipality && !hasPhone && page === 1) {
 const countResult = await buildQuery(true);
 if (countResult.error) return NextResponse.json({ error: countResult.error.message }, { status: 500 });
 
@@ -110,7 +112,7 @@ total: result.count ?? 0,
 totalPages: Math.max(Math.ceil((result.count ?? 0) / limit), 1),
 }, {
 headers: {
-"Cache-Control": q
+"Cache-Control": q || businessName
 ? "public, s-maxage=60, stale-while-revalidate=300"
 : "public, s-maxage=180, stale-while-revalidate=900",
 },

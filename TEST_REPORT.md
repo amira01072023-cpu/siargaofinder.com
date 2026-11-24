@@ -143,3 +143,29 @@ LCP improved in this sample, but total transfer, load completion and long-task c
 - Field Core Web Vitals require production traffic after an approved deployment.
 - Safari verification requires an available Safari/WebKit environment.
 - Full RLS policy verification requires a schema/policy export before any database migration.
+
+## Phase 1 discovery and submission verification
+
+### Automated checks
+
+- TypeScript: passed.
+- Vitest: 5 files, 23 tests passed.
+- ESLint: 0 errors; 14 pre-existing warnings in admin/auth/claim flows.
+- Next.js production build: passed; 115 static pages generated.
+
+### Submission workflow
+
+- Empty first step remained on step 1 and announced `Enter the business name to continue.`
+- Existing `Bombom Motorbike Rentals` was found by the exact-name endpoint and blocked as a duplicate.
+- Keyboard-style CDP input completed all six steps with category, municipality, phone, email, address and services preserved in the review summary.
+- The final `Submit for review` control was present, but was intentionally not activated; no test record or database write was created.
+- No runtime exceptions were recorded during the flow.
+
+### Public discovery cards and detail page
+
+- General Luna rendered 10 reusable cards at 390, 768, 1024 and 1440px.
+- No horizontal overflow was detected on the submission, listing detail or General Luna pages at sampled widths.
+- Mobile listing-detail primary actions computed as `position: sticky` above the bottom navigation.
+- Each sampled page retained exactly one H1.
+- Visual review completed for the mobile submission wizard and desktop municipality cards.
+- Local sitemap crawl after the increment: 98/98 URLs returned HTTP 200.

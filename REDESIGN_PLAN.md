@@ -31,7 +31,7 @@ Brand direction: **Discover. Connect. Explore.**
 2. Build reusable public components and tokens; keep admin styling isolated.
 3. Use real database values only. Never fabricate ratings, reviews, verification, hours, photos or jobs.
 4. Prefer PostgreSQL FTS and `pg_trgm` before paid search or AI services.
-5. Keep maps, jobs, uploads and schema changes behind separate reviewed increments.
+5. Exclude map search and jobs from the public product scope; keep municipality discovery and directory services focused on verified listing data.
 6. Keep mobile interaction targets at least 44px and support reduced motion.
 7. Reserve ad space without activating new monetization or obscuring primary actions.
 8. Measure before and after; do not promise Lighthouse or field CWV scores.
@@ -43,8 +43,7 @@ Brand direction: **Discover. Connect. Explore.**
 - Introduce Tropical Minimalism design tokens.
 - Use Inter for body text and Plus Jakarta Sans for headings through `next/font`.
 - Refactor public header navigation around Explore, Directory, Guides, Saved and business submission.
-- Add an accessible mobile bottom navigation: Home, Explore, Map, Saved, More.
-- Provide honest disabled/coming-soon behavior for Map until a dedicated route exists.
+- Add an accessible mobile bottom navigation: Home, Explore, Island, Saved, More.
 - Add active-route indicators, safe-area spacing and content clearance.
 - Keep admin pages and routes unchanged.
 
@@ -76,11 +75,8 @@ Brand direction: **Discover. Connect. Explore.**
 
 ## Phase 2 — Local discovery
 
-- Add MapLibre or Leaflet only after coordinate coverage and tile-provider policy are verified.
-- Build a dedicated map route, split desktop view and mobile map cards.
 - Modernize all nine municipality pages with unique verified content.
 - Expand favorites into a dedicated page and collection-ready data model.
-- Design and implement the Jobs schema, RLS, moderation and JobPosting SEO as a separate approved project increment.
 
 ## Phase 3 — Content and intelligent features
 
@@ -102,8 +98,6 @@ The following require separate review and explicit approval before execution:
 
 - Database migrations, extensions, indexes or functions.
 - New public or private Storage buckets.
-- Map-coordinate writes or geocoding imports.
-- Jobs tables, employer permissions or CV storage.
 - Changes to RLS, admin allowlists, auth or service-role usage.
 - New paid services or production monetization changes.
 

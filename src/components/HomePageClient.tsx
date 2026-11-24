@@ -467,7 +467,7 @@ return (
     Discover the Best <span className="hero-title-accent">of Siargao.</span>
   </h1>
   <p className="hero-description max-w-3xl">
-    Find local businesses, places to stay, restaurants, jobs, services, and unforgettable island experiences.
+    Find local businesses, places to stay, restaurants, services, and unforgettable island experiences.
   </p>
 </div>
 
@@ -891,6 +891,9 @@ return (
 <h2 className="section-title">Stories, Places &amp; Island Life</h2>
 <p className="section-description">Practical travel guides, local discoveries, and useful context for life around Siargao.</p>
 </div>
+<Link href="/blog" className="ui-btn ui-btn--soft journal-all-guides-link">
+  Explore all guides <ArrowRight size={16} aria-hidden="true" />
+</Link>
 {blogTotalPages > 1 && (
 <div className="flex items-center gap-2">
 <button

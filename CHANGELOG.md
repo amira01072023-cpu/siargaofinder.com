@@ -63,3 +63,10 @@ All notable 2027 modernization work is recorded here.
 - Added a dedicated noindexed `/saved` page; header, mobile bottom navigation and footer now link to it.
 - Updated the hero trust line to "Free directory" per the 2027 strategy.
 - Listings API now returns `email` and `last_verified_at` so search-result cards show email actions and check dates.
+
+### Scope refinement and editorial discovery
+
+- Removed the misleading public Map label and replaced it with municipality-focused discovery links; no map-search experience is advertised.
+- Confirmed Jobs is excluded from the public homepage and navigation scope.
+- Removed Jobs language from the homepage hero so the promise matches the live directory.
+- Added a direct “Explore all guides” action to The Siargao Journal entry point.

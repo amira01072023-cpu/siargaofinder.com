@@ -47,8 +47,7 @@ Last updated: 2026-11-24
 - [ ] Add recently verified section only when verification data is reliable.
 - [x] Add Recently added businesses section from real created_at data.
 - [x] Add a dedicated noindexed Saved listings page.
-- [ ] Add jobs preview only after genuine approved jobs exist.
-- [ ] Add map preview only after a real map route and verified coordinates exist.
+- [x] Exclude map search and jobs previews from the public homepage scope.
 - [x] Rename blog presentation to The Siargao Journal without URL changes.
 - [ ] Add reserved ad space below categories.
 
@@ -77,10 +76,8 @@ Last updated: 2026-11-24
 
 ## Later phases
 
-- [ ] Dedicated map route and coordinate coverage audit.
 - [ ] Modernize nine municipality destination pages.
 - [ ] Dedicated saved-listings page and collections.
-- [ ] Jobs schema, RLS, moderation and public pages.
 - [ ] The Siargao Journal editorial enhancement.
 - [ ] PWA/low-data evaluation.
 - [ ] Ask Siargao evaluation after structured search improvements.

@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Bookmark, Compass, Home, Map, Menu } from "lucide-react";
+import { Bookmark, Compass, Home, MapPin, Menu } from "lucide-react";
 
 const primaryItems = [
   { label: "Home", href: "/", icon: Home },
   { label: "Explore", href: "/#categories", icon: Compass },
-  { label: "Map", href: "/#municipalities", icon: Map },
+  { label: "Island", href: "/#municipalities", icon: MapPin },
   { label: "Saved", href: "/saved", icon: Bookmark },
 ] as const;
 

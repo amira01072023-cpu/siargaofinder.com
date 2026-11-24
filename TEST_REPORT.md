@@ -193,3 +193,12 @@ LCP improved in this sample, but total transfer, load completion and long-task c
 - Listings API returned `last_verified_at` and `email`.
 - No horizontal overflow at 360, 390, 768, 1024 and 1440px; Recently Added grid uses 1/2/3 columns responsively.
 - No database writes or migrations were performed.
+
+## Scope refinement and Journal discovery verification
+
+- TypeScript passed; Vitest 23/23 passed; ESLint reported 0 errors and 14 existing warnings outside the modified public UI; production build passed with 116 generated pages.
+- Public desktop and mobile navigation no longer label municipality discovery as Map.
+- No public Map search or Jobs section is rendered or advertised.
+- Homepage hero copy contains no Jobs promise.
+- The Siargao Journal includes a direct link to `/blog`; existing guide URLs remain unchanged.
+- No database writes, migrations, routing changes or admin changes were performed.

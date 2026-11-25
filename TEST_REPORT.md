@@ -24,6 +24,12 @@ Branch: `feat/directory-audit-hardening`
 - No database writes, migrations, route removals, production deployment, jobs feature or map feature were introduced.
 - Manual browser keyboard and multi-viewport verification remain required before review approval; this increment is not marked Done.
 
+### Admin configuration increment
+
+- Added unit coverage for the default admin fallback, the single-email server setting and normalized comma-separated allowlists.
+- The feature does not read client-side environment values and does not alter a Vercel environment setting.
+- Production administrator behavior is unchanged until a server-side allowlist is deliberately configured.
+
 ## Public discovery refinement verification
 
 - General Luna filter returned 1,723 matching listings through the existing public API and homepage result state.

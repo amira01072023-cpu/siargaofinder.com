@@ -1,11 +1,11 @@
 # SiargaoFinder 2027 Deployment Guide
 
-Last updated: 2026-11-24
+Last updated: 2026-11-25
 
 ## Environments
 
 - Production branch: `main`
-- Development branch: `feat/2027-ui-modernization`
+- Current review branch: `feat/directory-audit-hardening`
 - Hosting: linked Vercel project `siargaofinder-com`
 - Production domains: `siargaofinder.com` and `www.siargaofinder.com`
 - Canonical domain: `https://www.siargaofinder.com`
@@ -20,6 +20,13 @@ Before enabling Cloudflare Turnstile in Vercel, add these variables for the prod
 The submission form keeps its existing honeypot, timing, rate-limit, duplicate and email-verification safeguards. Once both variables are set, Turnstile renders on the Review step and the server rejects submissions without a valid token.
 
 Do not deploy this redesign branch to production without explicit approval.
+
+### Admin access configuration
+
+- `ADMIN_EMAIL_ALLOWLIST` — optional comma-separated, server-only allowlist for admin accounts.
+- `ADMIN_EMAIL` — optional single-email server-only fallback.
+
+If neither variable is configured, the established administrator remains the compatibility fallback. Configure the allowlist in Vercel before a production release when changing administrator access; never place an allowlist in client-side `NEXT_PUBLIC_*` variables.
 
 ## Pre-merge checklist
 

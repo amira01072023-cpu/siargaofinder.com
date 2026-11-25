@@ -11,6 +11,12 @@ All notable 2027 modernization work is recorded here.
 - Added focused regression coverage for suggestion navigation and wrap-around behavior.
 - Preserved the existing search API, URL state, municipality/category discovery, listing data and public URLs. No database, RLS, map, jobs or production changes were made.
 
+### Admin configuration hardening
+
+- Added a server-side `ADMIN_EMAIL_ALLOWLIST` option with support for a single `ADMIN_EMAIL` fallback.
+- Kept the established administrator as a compatibility fallback when neither environment value is configured.
+- Added regression coverage for normalization, duplicate removal and fallback behavior.
+
 ## Unreleased — `feat/2027-ui-modernization`
 
 ### Public discovery refinement

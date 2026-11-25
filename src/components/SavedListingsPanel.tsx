@@ -25,9 +25,11 @@ export default function SavedListingsPanel() {
 
     refresh();
     window.addEventListener("focus", refresh);
+    window.addEventListener("storage", refresh);
     window.addEventListener(SAVED_LISTINGS_UPDATED_EVENT, onUpdated as EventListener);
     return () => {
       window.removeEventListener("focus", refresh);
+      window.removeEventListener("storage", refresh);
       window.removeEventListener(SAVED_LISTINGS_UPDATED_EVENT, onUpdated as EventListener);
     };
   }, []);

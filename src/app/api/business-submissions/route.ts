@@ -4,25 +4,14 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getMailerFrom, getResendClient } from "@/lib/mailer";
 import { rateLimitRequest, tooManyRequestsResponse } from "@/lib/rate-limit";
 import { getSiteUrl } from "@/lib/site-url";
-import { LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
-
-const VALID_SUBMISSION_CATEGORIES = new Set(LISTING_CATEGORY_GROUPS.map((group) => group.label));
+import {
+  areBusinessNamesEqual,
+  getBusinessSubmissionValidationError,
+} from "@/lib/business-submission-validation";
 const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 function clean(v: unknown) {
   return String(v ?? "").trim();
-}
-
-function normalizeName(value: string) {
-  return value.toLowerCase().replace(/\s+/g, " ").trim();
-}
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function isTooLong(value: string, maxLength: number) {
-  return value.length > maxLength;
 }
 
 function hashToken(token: string) {
@@ -116,33 +105,18 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!business_name || !category || !city || !phone || !email || !address || !services) {
-      return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
-    }
-
-    if (!VALID_SUBMISSION_CATEGORIES.has(category)) {
-      return NextResponse.json({ error: "Select a valid directory category group." }, { status: 400 });
-    }
-
-    if (!isValidEmail(email)) {
-      return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
-    }
-
-    if (
-      isTooLong(business_name, 160) ||
-      isTooLong(category, 120) ||
-      isTooLong(city, 80) ||
-      isTooLong(phone, 80) ||
-      isTooLong(email, 254) ||
-      isTooLong(address, 300) ||
-      isTooLong(services, 1200) ||
-      (website_url && isTooLong(website_url, 300)) ||
-      Object.values(socials).some((value) => isTooLong(value, 300))
-    ) {
-      return NextResponse.json({ error: "One or more fields are too long." }, { status: 400 });
-    }
-
-    const normalizedBusinessName = normalizeName(business_name);
+    const validationError = getBusinessSubmissionValidationError({
+      business_name,
+      category,
+      city,
+      phone,
+      email,
+      website_url,
+      address,
+      services,
+      socials,
+    });
+    if (validationError) return NextResponse.json({ error: validationError }, { status: 400 });
 
     const existingListing = await supabaseAdmin
       .from("business_listings")
@@ -156,7 +130,7 @@ export async function POST(req: Request) {
 
     if (
       existingListing.data?.some(
-        (listing) => normalizeName(String(listing.business_name ?? "")) === normalizedBusinessName
+        (listing) => areBusinessNamesEqual(String(listing.business_name ?? ""), business_name)
       )
     ) {
       return NextResponse.json(
@@ -179,7 +153,7 @@ export async function POST(req: Request) {
     if (
       pendingSubmission.data?.some(
         (submission) =>
-          normalizeName(String(submission.business_name ?? "")) === normalizedBusinessName
+          areBusinessNamesEqual(String(submission.business_name ?? ""), business_name)
       )
     ) {
       return NextResponse.json(

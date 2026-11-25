@@ -17,6 +17,15 @@ All notable 2027 modernization work is recorded here.
 - Kept the established administrator as a compatibility fallback when neither environment value is configured.
 - Added regression coverage for normalization, duplicate removal and fallback behavior.
 
+### Directory workflow validation
+
+- Validated and normalized saved-list browser storage, removed corrupt/duplicate entries safely and synchronized the saved-list panel across browser tabs.
+- Hardened submission validation on the server: only existing directory category groups and Siargao municipalities are accepted, and website/social fields must be HTTP(S) URLs.
+- Consolidated business-name normalization so client-side and server-side duplicate checks use the same rule.
+- Added representative Journal metadata coverage and completed canonical, social and Article schema metadata for the Surf Schools guide without inventing publication dates or author facts.
+- Updated `/blog` presentation to **The Siargao Journal** while preserving all existing article URLs and canonical `/blog` URL.
+- Moved the mobile directory-assistant entry into the mobile More menu so its floating button no longer obscures homepage content.
+
 ## Unreleased — `feat/2027-ui-modernization`
 
 ### Public discovery refinement

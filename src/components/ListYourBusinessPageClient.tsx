@@ -7,6 +7,7 @@ import PublicSiteHeader from "@/components/PublicSiteHeader";
 import TurnstileWidget from "@/components/TurnstileWidget";
 import { LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
 import { SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
+import { isValidSubmissionEmail, normalizeBusinessName } from "@/lib/business-submission-validation";
 
 const STEPS = ["Business", "Category & area", "Contact", "Address", "Details", "Review"] as const;
 
@@ -48,9 +49,6 @@ export default function ListYourBusinessPageClient() {
     setForm((previous) => ({ ...previous, [key]: value }));
   };
 
-  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-  const normalizeName = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
-
   const checkDuplicateListing = async () => {
     const name = form.business_name.trim();
     if (name.length < 3) {
@@ -63,7 +61,7 @@ export default function ListYourBusinessPageClient() {
       if (!response.ok) return false;
       const data = await response.json();
       const hasExactMatch = Array.isArray(data.items)
-        ? data.items.some((item: { business_name?: string }) => normalizeName(item.business_name || "") === normalizeName(name))
+        ? data.items.some((item: { business_name?: string }) => normalizeBusinessName(item.business_name || "") === normalizeBusinessName(name))
         : false;
       setDuplicateHint(hasExactMatch
         ? "This business is already listed. Use Claim / Update on its profile instead of creating a duplicate."
@@ -94,7 +92,7 @@ export default function ListYourBusinessPageClient() {
         setMsg("Add a phone number and email address to continue.");
         return false;
       }
-      if (!isValidEmail(form.email)) {
+      if (!isValidSubmissionEmail(form.email)) {
         setMsg("Enter a valid email address to continue.");
         return false;
       }

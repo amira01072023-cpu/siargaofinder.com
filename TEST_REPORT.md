@@ -30,6 +30,29 @@ Branch: `feat/directory-audit-hardening`
 - The feature does not read client-side environment values and does not alter a Vercel environment setting.
 - Production administrator behavior is unchanged until a server-side allowlist is deliberately configured.
 
+## Directory workflow validation — pending review
+
+### Saved-business workflow
+
+- Regression tests cover stored-value normalization, malformed record removal, duplicate ID removal and save/remove toggling.
+- Saved businesses remain browser-local and do not require an account; the panel now refreshes on browser storage events from other tabs.
+- Mobile screenshot reviewed at 390px: empty-state hierarchy and directory/category actions remain visible above the fixed navigation.
+
+### Submission and moderation safeguards
+
+- Regression tests cover valid submission input, invalid category/municipality values, invalid public URLs and normalized duplicate business-name detection.
+- The API continues to keep a submission in `email_unverified` until the email verification endpoint changes it to `pending`; only the admin approval action inserts a public listing.
+- No submission, verification, moderation action or database record was created during validation.
+
+### Journal, SEO, accessibility and mobile evidence
+
+- Representative Journal tests cover `/blog`, the Siargao Itinerary post and the Surf Schools guide for canonical metadata, social metadata, Article schema and public navigation.
+- Local route checks returned HTTP 200 for `/`, `/saved` and `/guide/siargao-surf-schools-guide`; the guide HTML included its canonical URL, social image and JSON-LD scripts.
+- At 320, 375, 390, 768, 1024 and 1440px, homepage, saved-listings and Surf Schools guide scroll width matched client width (no horizontal overflow) and each had one H1.
+- Browser keyboard check at 390px: entering `general` yielded seven autocomplete options; Arrow Down set both `aria-activedescendant` and `aria-selected` on the first option.
+- Visual evidence captured locally: homepage mobile after chat control repair, Saved Listings at 390px, and Surf Schools guide at 1440px. These screenshots are local review artifacts and are not committed.
+- This work is pending stakeholder review; no production deployment occurred.
+
 ## Public discovery refinement verification
 
 - General Luna filter returned 1,723 matching listings through the existing public API and homepage result state.

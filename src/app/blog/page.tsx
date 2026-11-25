@@ -225,19 +225,26 @@ const blogPosts = [
 ];
 
 export const metadata: Metadata = {
-  title: "Siargao Blog | Guides, Travel Tips & Local Planning",
+  title: "The Siargao Journal | Guides, Travel Tips & Local Planning",
   description:
     "Browse Siargao Finder blog posts and guides covering local businesses, transport, island hopping, cafes, surf, and practical island planning.",
   alternates: {
     canonical: "/blog",
   },
   openGraph: {
-    title: "Siargao Blog | Guides, Travel Tips & Local Planning",
+    title: "The Siargao Journal | Guides, Travel Tips & Local Planning",
     description:
       "Browse Siargao Finder blog posts and guides covering local businesses, transport, island hopping, cafes, surf, and practical island planning.",
     url: "https://www.siargaofinder.com/blog",
     type: "website",
     images: [DEFAULT_SOCIAL_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Siargao Journal | Guides, Travel Tips & Local Planning",
+    description:
+      "Browse Siargao Finder blog posts and guides covering local businesses, transport, island hopping, cafes, surf, and practical island planning.",
+    images: [DEFAULT_SOCIAL_IMAGE.url],
   },
 };
 
@@ -246,7 +253,7 @@ export default function BlogPage() {
   const collectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Siargao Blog",
+    name: "The Siargao Journal",
     url: `${siteUrl}/blog`,
     description:
       "Browse Siargao Finder blog posts and guides covering local businesses, transport, island hopping, cafes, surf, and practical island planning.",
@@ -259,8 +266,8 @@ export default function BlogPage() {
       <PublicSiteHeader showBlogLink={false} showListYourBusinessLink homeLabel="Home" />
 
       <section className="page-section page-hero max-w-6xl">
-        <p className="page-kicker">Blog</p>
-        <h1 className="page-title">Siargao blog posts and local guides</h1>
+        <p className="page-kicker">The Siargao Journal</p>
+        <h1 className="page-title">Stories, places, and island life</h1>
         <p className="page-subtitle max-w-3xl">
           A clean place to browse SiargaoFinder articles on local businesses, island planning, transport, surf, cafes, and practical travel context.
         </p>

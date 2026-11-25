@@ -61,6 +61,15 @@ export default function MobileBottomNav() {
             <Link href="/about">About Siargao Finder</Link>
             <Link href="/contact">Contact</Link>
             <Link href="/list-your-business">List your business</Link>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.currentTarget.closest("details")?.removeAttribute("open");
+                window.dispatchEvent(new CustomEvent("siargaofinder:open-chat"));
+              }}
+            >
+              Ask the directory assistant
+            </button>
           </nav>
         </details>
       </div>

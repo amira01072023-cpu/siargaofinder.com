@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PublicSiteHeader from "@/components/PublicSiteHeader";
+import { getSiteUrl } from "@/lib/site-url";
+import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 export const metadata: Metadata = {
   title: "Siargao Surf Schools Guide (Beginner to Advanced)",
@@ -8,11 +11,38 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/guide/siargao-surf-schools-guide",
   },
+  openGraph: {
+    title: "Siargao Surf Schools Guide (Beginner to Advanced)",
+    description: "Compare Siargao surf schools and lesson options by experience level, location, and learning goals.",
+    url: "https://www.siargaofinder.com/guide/siargao-surf-schools-guide",
+    type: "article",
+    images: [DEFAULT_SOCIAL_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Siargao Surf Schools Guide (Beginner to Advanced)",
+    description: "Compare Siargao surf schools and lesson options by experience level, location, and learning goals.",
+    images: [DEFAULT_SOCIAL_IMAGE.url],
+  },
 };
 
 export default function SiargaoSurfSchoolsGuidePage() {
+  const siteUrl = getSiteUrl();
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: "Siargao Surf Schools Guide (Beginner to Advanced)",
+    description: "Compare Siargao surf schools and lesson options by experience level, location, and learning goals.",
+    mainEntityOfPage: `${siteUrl}/guide/siargao-surf-schools-guide`,
+    image: [`${siteUrl}${DEFAULT_SOCIAL_IMAGE.url}`],
+    author: { "@type": "Organization", name: "Siargao Finder" },
+    publisher: { "@type": "Organization", name: "Siargao Finder" },
+  };
+
   return (
     <main className="page-shell">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <PublicSiteHeader showBlogLink={false} showListYourBusinessLink homeLabel="Home" />
       <section className="page-section page-hero max-w-4xl">
         <p className="page-kicker">Guide</p>
         <h1 className="page-title">Siargao Surf Schools Guide</h1>

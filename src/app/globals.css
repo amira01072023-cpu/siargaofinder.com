@@ -4380,19 +4380,26 @@ button.municipality-discovery-card {
     box-shadow: 0 18px 48px rgba(19, 78, 74, 0.18);
   }
 
-  .mobile-bottom-nav__more nav a {
+  .mobile-bottom-nav__more nav a,
+  .mobile-bottom-nav__more nav button {
     min-height: 2.75rem;
     padding: 0.7rem 0.8rem;
     border-radius: 0.7rem;
     display: flex;
     align-items: center;
+    width: 100%;
+    border: 0;
+    background: transparent;
     color: #1e293b;
     font-size: 0.85rem;
     font-weight: 700;
+    text-align: left;
   }
 
   .mobile-bottom-nav__more nav a:hover,
-  .mobile-bottom-nav__more nav a:focus-visible {
+  .mobile-bottom-nav__more nav a:focus-visible,
+  .mobile-bottom-nav__more nav button:hover,
+  .mobile-bottom-nav__more nav button:focus-visible {
     background: rgba(8, 127, 140, 0.08);
     color: #087f8c;
   }
@@ -4402,7 +4409,7 @@ button.municipality-discovery-card {
   }
 
   .site-chat-trigger {
-    bottom: calc(5.25rem + env(safe-area-inset-bottom));
+    display: none;
   }
 
   .site-chat-panel {

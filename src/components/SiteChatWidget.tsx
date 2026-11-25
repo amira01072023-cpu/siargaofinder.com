@@ -73,6 +73,12 @@ export default function SiteChatWidget() {
     loadPopularCategories();
   }, [pathname]);
 
+  useEffect(() => {
+    const openChat = () => setOpen(true);
+    window.addEventListener("siargaofinder:open-chat", openChat);
+    return () => window.removeEventListener("siargaofinder:open-chat", openChat);
+  }, []);
+
   if (pathname.startsWith("/admin")) return null;
 
   const send = () => ask(input);

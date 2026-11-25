@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
+import TurnstileWidget from "@/components/TurnstileWidget";
+import { LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
 import { SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
 
 const STEPS = ["Business", "Category & area", "Contact", "Address", "Details", "Review"] as const;
@@ -33,6 +35,8 @@ export default function ListYourBusinessPageClient() {
   const [msg, setMsg] = useState("");
   const [duplicateHint, setDuplicateHint] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const turnstileEnabled = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
   useEffect(() => {
     stepHeadingRef.current?.focus();
@@ -82,7 +86,7 @@ export default function ListYourBusinessPageClient() {
       }
     }
     if (step === 1 && (!form.category.trim() || !form.city.trim())) {
-      setMsg("Add a category and municipality to continue.");
+      setMsg("Select a category group and municipality to continue.");
       return false;
     }
     if (step === 2) {
@@ -121,10 +125,15 @@ export default function ListYourBusinessPageClient() {
 
     setSubmitting(true);
     try {
+      if (turnstileEnabled && !turnstileToken) {
+        setMsg("Complete the anti-spam verification before submitting.");
+        return;
+      }
+
       const response = await fetch("/api/business-submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, turnstile_token: turnstileToken }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -134,6 +143,7 @@ export default function ListYourBusinessPageClient() {
 
       setMsg(data.message || "Submitted successfully. Check your email to verify the submission before admin review.");
       setForm(emptyForm());
+      setTurnstileToken("");
       window.setTimeout(() => router.push("/"), 1500);
     } catch {
       setMsg("Something went wrong. Please try again.");
@@ -161,9 +171,15 @@ export default function ListYourBusinessPageClient() {
           </ol>
 
           <form onSubmit={submit} className="submission-step-form" noValidate>
-            <label className="hidden" aria-hidden="true">
-              <span>Nickname</span>
-              <input tabIndex={-1} autoComplete="off" value={form.nickname} onChange={(event) => setField("nickname", event.target.value)} />
+            <label className="submission-honeypot" aria-hidden="true">
+              <span>Website</span>
+              <input
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={form.nickname}
+                onChange={(event) => setField("nickname", event.target.value)}
+              />
             </label>
 
             <div className="submission-step-heading">
@@ -185,8 +201,12 @@ export default function ListYourBusinessPageClient() {
             {step === 1 && (
               <div className="submission-step-fields submission-step-fields--two">
                 <label className="form-field">
-                  <span className="form-label">Category</span>
-                  <input autoFocus className="form-input" placeholder="Example: Restaurant, Resort, Motorbike Rental" value={form.category} onChange={(event) => setField("category", event.target.value)} maxLength={120} required />
+                  <span className="form-label">Category group</span>
+                  <select autoFocus className="form-select" value={form.category} onChange={(event) => setField("category", event.target.value)} required>
+                    <option value="">Select category group</option>
+                    {LISTING_CATEGORY_GROUPS.map((group) => <option key={group.id} value={group.label}>{group.label}</option>)}
+                  </select>
+                  <small>Select the group that best describes the business.</small>
                 </label>
                 <label className="form-field">
                   <span className="form-label">Municipality</span>
@@ -254,6 +274,7 @@ export default function ListYourBusinessPageClient() {
                   <div><dt>Address</dt><dd>{form.address}</dd></div>
                   <div className="submission-field-full"><dt>Services</dt><dd>{form.services}</dd></div>
                 </dl>
+                <TurnstileWidget onTokenChange={setTurnstileToken} />
               </div>
             )}
 

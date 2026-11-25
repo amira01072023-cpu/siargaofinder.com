@@ -32,13 +32,13 @@ const contentSecurityPolicyReportOnly = [
   "object-src 'none'",
   "frame-ancestors 'self'",
   "form-action 'self'",
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://abscloud.org https://bauval.org https://araplhn.org https://static.nresystems.com https://cdn.cloudpiko.com",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://challenges.cloudflare.com https://abscloud.org https://bauval.org https://araplhn.org https://static.nresystems.com https://cdn.cloudpiko.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
-  `connect-src ${connectSources.join(" ")}`,
+  `connect-src ${[...connectSources, "https://challenges.cloudflare.com"].join(" ")}`,
   "worker-src 'self' blob:",
-  "frame-src https://abscloud.org https://bauval.org https://araplhn.org https://static.nresystems.com https://cdn.cloudpiko.com https://mamshirt.com https://portalfluently.com",
+  "frame-src https://challenges.cloudflare.com https://abscloud.org https://bauval.org https://araplhn.org https://static.nresystems.com https://cdn.cloudpiko.com https://mamshirt.com https://portalfluently.com",
 ].join("; ");
 
 const securityHeaders = [

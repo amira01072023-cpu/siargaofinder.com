@@ -10,6 +10,15 @@ Last updated: 2026-11-24
 - Production domains: `siargaofinder.com` and `www.siargaofinder.com`
 - Canonical domain: `https://www.siargaofinder.com`
 
+### Turnstile anti-spam configuration
+
+Before enabling Cloudflare Turnstile in Vercel, add these variables for the production domain and preview environment:
+
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — Cloudflare Turnstile site key; safe for the browser.
+- `TURNSTILE_SECRET_KEY` — Cloudflare Turnstile secret key; server-only and never committed.
+
+The submission form keeps its existing honeypot, timing, rate-limit, duplicate and email-verification safeguards. Once both variables are set, Turnstile renders on the Review step and the server rejects submissions without a valid token.
+
 Do not deploy this redesign branch to production without explicit approval.
 
 ## Pre-merge checklist

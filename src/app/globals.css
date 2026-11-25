@@ -4689,6 +4689,14 @@ button.municipality-discovery-card {
   margin-top: 2rem;
 }
 
+.submission-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .submission-step-heading {
   margin-bottom: 1.4rem;
 }

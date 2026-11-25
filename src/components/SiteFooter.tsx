@@ -6,16 +6,19 @@ import { usePathname } from "next/navigation";
 import { ArrowRight, Compass, MapPinned, Plus, ShieldCheck } from "lucide-react";
 
 const municipalities = [
-  ["General Luna", "/municipality/general-luna"],
-  ["Dapa", "/municipality/dapa"],
-  ["Del Carmen", "/municipality/del-carmen"],
-  ["San Isidro", "/municipality/san-isidro"],
-  ["Burgos", "/municipality/burgos"],
-  ["Santa Monica", "/municipality/santa-monica"],
-  ["Pilar", "/municipality/pilar"],
-  ["San Benito", "/municipality/san-benito"],
-  ["Socorro", "/municipality/socorro"],
-] as const;
+  "General Luna",
+  "Dapa",
+  "Del Carmen",
+  "San Isidro",
+  "Burgos",
+  "Santa Monica",
+  "Pilar",
+  "San Benito",
+  "Socorro",
+].map((municipality) => [
+  municipality,
+  `/?municipality=${encodeURIComponent(municipality)}#results`,
+] as const);
 
 export default function SiteFooter() {
   const pathname = usePathname();

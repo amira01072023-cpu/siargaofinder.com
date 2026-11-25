@@ -4,6 +4,10 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import { getMailerFrom, getResendClient } from "@/lib/mailer";
 import { rateLimitRequest, tooManyRequestsResponse } from "@/lib/rate-limit";
 import { getSiteUrl } from "@/lib/site-url";
+import { LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
+
+const VALID_SUBMISSION_CATEGORIES = new Set(LISTING_CATEGORY_GROUPS.map((group) => group.label));
+const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 function clean(v: unknown) {
   return String(v ?? "").trim();
@@ -34,6 +38,28 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
+async function verifyTurnstile(token: string, remoteIp: string | null) {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return true;
+  if (!token) return false;
+
+  const form = new URLSearchParams({ secret, response: token });
+  if (remoteIp) form.set("remoteip", remoteIp);
+
+  try {
+    const response = await fetch(TURNSTILE_VERIFY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: form.toString(),
+      cache: "no-store",
+    });
+    const result = await response.json() as { success?: boolean };
+    return response.ok && result.success === true;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const rateLimit = rateLimitRequest(req, {
@@ -46,6 +72,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const nickname = clean(body?.nickname);
+    const turnstileToken = clean(body?.turnstile_token);
     const startedAt = Number(body?.started_at);
     const business_name = clean(body?.business_name);
     const category = clean(body?.category);
@@ -67,6 +94,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, status: "pending" });
     }
 
+    const remoteIp = req.headers.get("x-vercel-forwarded-for")?.split(",")[0]?.trim()
+      || req.headers.get("x-real-ip")?.trim()
+      || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || null;
+    if (!(await verifyTurnstile(turnstileToken, remoteIp))) {
+      return NextResponse.json({ error: "Anti-spam verification failed. Please try again." }, { status: 400 });
+    }
+
     const submissionElapsedMs = Date.now() - startedAt;
 
     if (
@@ -83,6 +118,10 @@ export async function POST(req: Request) {
 
     if (!business_name || !category || !city || !phone || !email || !address || !services) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    if (!VALID_SUBMISSION_CATEGORIES.has(category)) {
+      return NextResponse.json({ error: "Select a valid directory category group." }, { status: 400 });
     }
 
     if (!isValidEmail(email)) {

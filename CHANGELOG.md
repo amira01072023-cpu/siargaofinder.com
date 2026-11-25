@@ -11,6 +11,9 @@ All notable 2027 modernization work is recorded here.
 - Updated municipality cards to fetch and show matching homepage listings directly.
 - Refined reusable listing cards with compact contact, address, last-checked and equal-action layouts.
 - Added the supplied SiargaoFinder logo to the header and footer, with circular presentation and a corrected footer wordmark.
+- Updated footer municipality links to load relevant homepage listing results.
+- Limited business submissions to the established directory category groups.
+- Added an off-screen honeypot and Cloudflare Turnstile verification support to business submissions.
 
 ### Planning
 

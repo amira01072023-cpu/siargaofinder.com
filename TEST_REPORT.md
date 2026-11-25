@@ -10,6 +10,15 @@ Branch: `feat/2027-ui-modernization`
 - TypeScript passed; Vitest 23/23 passed; ESLint reported 0 errors and 14 existing warnings outside the modified public UI.
 - No database writes, migrations, URL removals or admin changes were performed.
 
+## Business submission abuse-prevention verification
+
+- Exact duplicate `Bombom Motorbike Rentals` submission returned HTTP 409 without creating a record.
+- Honeypot-filled request returned the generic pending response without creating a record.
+- A too-fast submission returned HTTP 400.
+- An arbitrary category value returned HTTP 400.
+- All nine footer municipality filters returned HTTP 200 and only matching municipality listings.
+- Cloudflare Turnstile widget support, CSP permissions and server verification were added; live activation requires configured Vercel keys.
+
 ## Baseline tests
 
 ### Live route health

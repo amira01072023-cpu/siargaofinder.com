@@ -11,6 +11,7 @@ import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { categoryMatchesGroup, getListingCategoryGroup, LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
 import { listingHref } from "@/lib/listing-slugs";
 import { SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
+import { getNextSuggestionIndex } from "@/lib/search-suggestion-navigation";
 
 type Listing = {
 id: number;
@@ -220,6 +221,7 @@ const [hasPhone, setHasPhone] = useState(initialSearch.hasPhone);
 const [moreFiltersOpen, setMoreFiltersOpen] = useState(Boolean(initialSearch.categoryGroup || initialSearch.hasPhone));
 const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
 const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
 
 const municipalityOptions = uniqueOptions(initialData.municipalities ?? []);
 const popularCategories = initialData.popularCategories ?? [];
@@ -251,10 +253,12 @@ useEffect(() => {
       if (!response.ok) return;
       const data = await response.json();
       setSuggestions(Array.isArray(data.suggestions) ? data.suggestions : []);
-      setSuggestionsOpen(true);
+      setSuggestionsOpen(Array.isArray(data.suggestions) && data.suggestions.length > 0);
+      setActiveSuggestionIndex(-1);
     } catch (suggestionError) {
       if (!(suggestionError instanceof DOMException && suggestionError.name === "AbortError")) {
         setSuggestions([]);
+        setActiveSuggestionIndex(-1);
       }
     }
   }, 250);
@@ -420,6 +424,7 @@ const applyMunicipality = async (value: string) => {
 
 const applySuggestion = async (suggestion: SearchSuggestion) => {
   setSuggestionsOpen(false);
+  setActiveSuggestionIndex(-1);
   if (suggestion.type === "municipality") {
     setQ("");
     setMunicipality(suggestion.value);
@@ -435,6 +440,35 @@ const applySuggestion = async (suggestion: SearchSuggestion) => {
   }
   setQ(suggestion.value);
   await performSearch({ q: suggestion.value, categoryGroup, municipality, hasPhone, page: 1 });
+};
+
+const onSuggestionKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  if (!suggestions.length) return;
+
+  if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+    event.preventDefault();
+    setSuggestionsOpen(true);
+    setActiveSuggestionIndex((current) =>
+      getNextSuggestionIndex(
+        current,
+        suggestions.length,
+        event.key as "ArrowDown" | "ArrowUp" | "Home" | "End",
+      ),
+    );
+    return;
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    setSuggestionsOpen(false);
+    setActiveSuggestionIndex(-1);
+    return;
+  }
+
+  if (event.key === "Enter" && suggestionsOpen && activeSuggestionIndex >= 0) {
+    event.preventDefault();
+    void applySuggestion(suggestions[activeSuggestionIndex]);
+  }
 };
 
 const selectedListing = listings.find((l) => l.id === selectedListingId) || listings[0] || null;
@@ -493,13 +527,18 @@ return (
           onChange={(e) => {
             const nextQuery = e.target.value;
             setQ(nextQuery);
+            setActiveSuggestionIndex(-1);
             if (nextQuery.trim().length < 2) {
               setSuggestions([]);
               setSuggestionsOpen(false);
             }
           }}
           onFocus={() => suggestions.length > 0 && setSuggestionsOpen(true)}
-          onBlur={() => window.setTimeout(() => setSuggestionsOpen(false), 120)}
+          onBlur={() => window.setTimeout(() => {
+            setSuggestionsOpen(false);
+            setActiveSuggestionIndex(-1);
+          }, 120)}
+          onKeyDown={onSuggestionKeyDown}
           placeholder="Try “motorbike rental”, “clinic”, or “restaurant”"
           autoComplete="off"
           className="hero-search-input"
@@ -507,16 +546,23 @@ return (
           aria-autocomplete="list"
           aria-expanded={suggestionsOpen && suggestions.length > 0}
           aria-controls="hero-search-suggestions"
+          aria-activedescendant={
+            suggestionsOpen && activeSuggestionIndex >= 0
+              ? `hero-search-suggestion-${activeSuggestionIndex}`
+              : undefined
+          }
         />
         {suggestionsOpen && suggestions.length > 0 && (
           <div id="hero-search-suggestions" className="hero-search-suggestions" role="listbox" aria-label="Search suggestions">
-            {suggestions.map((suggestion) => (
+            {suggestions.map((suggestion, index) => (
               <button
                 key={`${suggestion.type}-${suggestion.value}`}
+                id={`hero-search-suggestion-${index}`}
                 type="button"
                 role="option"
-                aria-selected="false"
+                aria-selected={activeSuggestionIndex === index}
                 onMouseDown={(event) => event.preventDefault()}
+                onMouseEnter={() => setActiveSuggestionIndex(index)}
                 onClick={() => void applySuggestion(suggestion)}
                 className="hero-search-suggestion"
               >

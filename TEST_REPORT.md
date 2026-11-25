@@ -1,7 +1,28 @@
 # SiargaoFinder 2027 Test Report
 
-Last updated: 2026-11-24
-Branch: `feat/2027-ui-modernization`
+Last updated: 2026-11-25
+Baseline branch: `feat/2027-ui-modernization`
+
+## Directory audit hardening — pending review
+
+Branch: `feat/directory-audit-hardening`
+
+### Read-only audit evidence
+
+- Repository was clean at `main` commit `e56759d` before the feature branch was created.
+- Live checks returned HTTP 200 for the homepage, sitemap, robots, saved-listings page, General Luna directory API and suggestions API.
+- `/admin` redirected to `/admin/login`; public navigation contains no Jobs or map-discovery feature.
+- Current production General Luna filter returned 1,723 matching listings.
+- Local migration history does not contain a complete export of current Supabase schema or RLS policies; no database read requiring credentials, migration or policy change was attempted.
+
+### Accessible autocomplete increment
+
+- TypeScript: passed.
+- Vitest: 6 files, 26 tests passed, including the new keyboard suggestion navigation cases.
+- ESLint: 0 errors; 14 existing warnings remain in admin/auth/claim files outside this increment.
+- Next.js production build: passed; 116 routes generated.
+- No database writes, migrations, route removals, production deployment, jobs feature or map feature were introduced.
+- Manual browser keyboard and multi-viewport verification remain required before review approval; this increment is not marked Done.
 
 ## Public discovery refinement verification
 

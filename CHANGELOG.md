@@ -2,6 +2,15 @@
 
 All notable 2027 modernization work is recorded here.
 
+## Unreleased — `feat/directory-audit-hardening`
+
+### Accessible directory search
+
+- Made homepage autocomplete keyboard-operable: Arrow Up/Down, Home, End, Enter and Escape now control the real suggestion list.
+- Added combobox active-option semantics through `aria-activedescendant` and `aria-selected` so assistive technology receives the same suggestion state as mouse users.
+- Added focused regression coverage for suggestion navigation and wrap-around behavior.
+- Preserved the existing search API, URL state, municipality/category discovery, listing data and public URLs. No database, RLS, map, jobs or production changes were made.
+
 ## Unreleased — `feat/2027-ui-modernization`
 
 ### Public discovery refinement

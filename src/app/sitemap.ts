@@ -4,12 +4,13 @@ import { createClient } from "@supabase/supabase-js";
 import { getSiteUrl } from "@/lib/site-url";
 import { getIndexableUniqueBusinessListings } from "@/lib/listing-completeness";
 import { listingHref } from "@/lib/listing-slugs";
-import { CATEGORY_SLUG_ALIASES, getCategorySearchTerms } from "@/lib/listing-taxonomy";
+import { CATEGORY_SLUG_ALIASES, categoryMatchesCanonicalSlug } from "@/lib/listing-taxonomy";
 import { municipalityToSlug, SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
 
 const baseUrl = getSiteUrl();
 const listingSelect = "id,business_name,last_verified_at,category,municipality,phone,email,website_url,address,services";
 const LISTING_BATCH_SIZE = 1000;
+const MIN_COMBINED_LANDING_LISTINGS = 20;
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
@@ -129,20 +130,18 @@ const { listings: data } = await getSitemapRows();
 if (!data.length) return staticRoutes;
 
 const indexableListings = getIndexableUniqueBusinessListings(data);
+const directoryListings = data.filter((listing) => SIARGAO_MUNICIPALITIES.includes(listing.municipality ?? ""));
 const filteredStaticRoutes = staticRoutes.filter((route) => {
   const path = new URL(route.url).pathname;
   const categoryMatch = path.match(/^\/category\/([^/]+)$/);
   if (categoryMatch) {
-    const terms = getCategorySearchTerms(categoryMatch[1]).map((term) => term.toLowerCase());
-    const count = indexableListings.filter((listing) =>
-      terms.some((term) => listing.category?.toLowerCase().includes(term)),
-    ).length;
+    const count = directoryListings.filter((listing) => categoryMatchesCanonicalSlug(listing.category, categoryMatch[1])).length;
     return count >= 5;
   }
 
   const municipalityMatch = path.match(/^\/municipality\/([^/]+)$/);
   if (municipalityMatch) {
-    return indexableListings.some(
+    return directoryListings.some(
       (listing) => municipalityToSlug(listing.municipality ?? "") === municipalityMatch[1],
     );
   }
@@ -163,15 +162,14 @@ for (const municipality of SIARGAO_MUNICIPALITIES) {
   const municipalitySlug = municipalityToSlug(municipality);
 
   for (const categorySlug of Object.keys(CATEGORY_SLUG_ALIASES)) {
-    const terms = getCategorySearchTerms(categorySlug).map((term) => term.toLowerCase());
-    const matchingRows = data.filter(
+    const matchingRows = directoryListings.filter(
       (listing) =>
         municipalityToSlug(listing.municipality ?? "") === municipalitySlug &&
-        terms.some((term) => listing.category?.toLowerCase().includes(term)),
+        categoryMatchesCanonicalSlug(listing.category, categorySlug),
     );
-    const count = getIndexableUniqueBusinessListings(matchingRows).length;
+    const count = matchingRows.length;
 
-    if (count >= 5) {
+    if (count >= MIN_COMBINED_LANDING_LISTINGS) {
       municipalityCategoryRoutes.push({
         url: `${baseUrl}/municipality/${municipalitySlug}/category/${categorySlug}`,
         changeFrequency: "weekly",

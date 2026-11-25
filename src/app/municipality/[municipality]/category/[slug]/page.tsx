@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { permanentRedirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { ArrowRight, Building2, MapPin } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
 import BusinessListingCard from "@/components/BusinessListingCard";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
 import {
   categorySeoLabel,
+  categoryMatchesCanonicalSlug,
   categorySlugToCanonicalSlug,
-  getCategorySearchTerms,
   slugToLabel,
 } from "@/lib/listing-taxonomy";
 import { getSiteUrl } from "@/lib/site-url";
-import { slugToMunicipality } from "@/lib/siargao-municipalities";
-import { getIndexableUniqueBusinessListings } from "@/lib/listing-completeness";
+import { isKnownMunicipalitySlug, municipalityToSlug, slugToMunicipality } from "@/lib/siargao-municipalities";
+import { getPublicDirectoryListings } from "@/lib/public-listing-data";
 import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
 type Listing = {
@@ -32,35 +31,13 @@ type Listing = {
 const MIN_INDEXABLE_MUNICIPALITY_CATEGORY_LISTINGS = 5;
 
 const getMunicipalityCategoryListings = cache(async function getMunicipalityCategoryListings(municipalitySlug: string, categorySlug: string): Promise<Listing[]> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseAnon) return [];
-
-  const municipality = slugToMunicipality(municipalitySlug);
-  const terms = getCategorySearchTerms(categorySlug);
-  const supabase = createClient(supabaseUrl, supabaseAnon);
-
-  const results = await Promise.all(
-    terms.map((term) =>
-      supabase
-        .from("business_listings")
-        .select("id,business_name,category,municipality,phone,email,website_url,address,services")
-        .ilike("municipality", `%${municipality}%`)
-        .ilike("category", `%${term}%`)
-        .order("id", { ascending: false })
-        .limit(100),
-    ),
-  );
-
-  const listings = new Map<number, Listing>();
-  for (const result of results) {
-    if (result.error || !result.data) continue;
-    for (const item of result.data as Listing[]) listings.set(item.id, item);
-  }
-
-  return getIndexableUniqueBusinessListings([...listings.values()])
+  const listings = await getPublicDirectoryListings();
+  return listings
+    .filter((listing) =>
+      municipalityToSlug(listing.municipality ?? "") === municipalitySlug &&
+      categoryMatchesCanonicalSlug(listing.category, categorySlug),
+    )
     .sort((a, b) => b.id - a.id)
-    .slice(0, 100);
 });
 
 export async function generateMetadata({
@@ -69,6 +46,9 @@ export async function generateMetadata({
   params: Promise<{ municipality: string; slug: string }>;
 }): Promise<Metadata> {
   const { municipality, slug } = await params;
+  if (!isKnownMunicipalitySlug(municipality)) {
+    return { title: "Municipality not found", robots: { index: false, follow: false } };
+  }
   const canonicalSlug = categorySlugToCanonicalSlug(slug);
   const municipalityName = slugToMunicipality(municipality);
   const categoryName = categorySeoLabel(canonicalSlug);
@@ -109,6 +89,7 @@ export default async function MunicipalityCategoryPage({
   params: Promise<{ municipality: string; slug: string }>;
 }) {
   const { municipality, slug } = await params;
+  if (!isKnownMunicipalitySlug(municipality)) notFound();
   const canonicalSlug = categorySlugToCanonicalSlug(slug);
   if (canonicalSlug !== slug) {
     permanentRedirect(`/municipality/${municipality}/category/${canonicalSlug}`);
@@ -117,6 +98,7 @@ export default async function MunicipalityCategoryPage({
   const categoryName = slugToLabel(canonicalSlug);
   const seoCategoryName = categorySeoLabel(canonicalSlug);
   const listings = await getMunicipalityCategoryListings(municipality, canonicalSlug);
+  const visibleListings = listings.slice(0, 100);
   const siteUrl = getSiteUrl();
   const pageUrl = `${siteUrl}/municipality/${municipality}/category/${canonicalSlug}`;
   const jsonLd = {
@@ -180,10 +162,16 @@ export default async function MunicipalityCategoryPage({
           <p className="status-message">No listings found for {categoryName} in {municipalityName} yet.</p>
         ) : (
           <div className="mt-5 grid md:grid-cols-2 gap-3">
-            {listings.map((item) => (
+            {visibleListings.map((item) => (
               <BusinessListingCard key={item.id} listing={item} headingLevel="h2" />
             ))}
           </div>
+        )}
+
+        {listings.length > visibleListings.length && (
+          <p className="mt-4 text-sm text-slate-600">
+            Showing the latest {visibleListings.length} listings. Use the directory search to refine this shortlist.
+          </p>
         )}
 
         <div className="guide-surface p-4 mt-6">

@@ -6,11 +6,11 @@ import { MapPin, Building2, ArrowRight } from "lucide-react";
 import { getSiteUrl } from "@/lib/site-url";
 import BusinessListingCard from "@/components/BusinessListingCard";
 import PublicSiteHeader from "@/components/PublicSiteHeader";
-import { getIndexablePublicListings } from "@/lib/public-listing-data";
+import { getPublicDirectoryListings } from "@/lib/public-listing-data";
 import {
   categorySeoLabel,
+  categoryMatchesCanonicalSlug,
   categorySlugToCanonicalSlug,
-  getCategorySearchTerms,
   slugToLabel,
 } from "@/lib/listing-taxonomy";
 import { municipalityToSlug } from "@/lib/siargao-municipalities";
@@ -32,15 +32,11 @@ const DELETED_CATEGORY_SLUGS = new Set(["suppliers"]);
 const MIN_INDEXABLE_CATEGORY_LISTINGS = 5;
 
 const getCategoryListings = cache(async function getCategoryListings(slug: string): Promise<Listing[]> {
-  const terms = getCategorySearchTerms(slug).map((term) => term.toLowerCase());
-  const listings = await getIndexablePublicListings();
+  const listings = await getPublicDirectoryListings();
 
   return listings
-    .filter((listing) =>
-      terms.some((term) => listing.category?.toLowerCase().includes(term)),
-    )
-    .sort((a, b) => b.id - a.id)
-    .slice(0, 100);
+    .filter((listing) => categoryMatchesCanonicalSlug(listing.category, slug))
+    .sort((a, b) => b.id - a.id);
 });
 
 export async function generateMetadata({
@@ -102,6 +98,7 @@ export default async function CategoryPage({
   const categoryName = slugToLabel(canonicalSlug);
   const seoCategoryName = categorySeoLabel(canonicalSlug);
   const listings = await getCategoryListings(canonicalSlug);
+  const visibleListings = listings.slice(0, 100);
   const siteUrl = getSiteUrl();
   const itemListJsonLd = {
     "@context": "https://schema.org",
@@ -179,10 +176,16 @@ export default async function CategoryPage({
           <p className="status-message">No listings found for {categoryName} yet.</p>
         ) : (
           <div className="mt-5 grid md:grid-cols-2 gap-3">
-            {listings.map((item) => (
+            {visibleListings.map((item) => (
               <BusinessListingCard key={item.id} listing={item} headingLevel="h2" />
             ))}
           </div>
+        )}
+
+        {listings.length > visibleListings.length && (
+          <p className="mt-4 text-sm text-slate-600">
+            Showing the latest {visibleListings.length} listings. Use the directory search to narrow by municipality or business name.
+          </p>
         )}
 
         <div className="guide-surface p-4 mt-6">

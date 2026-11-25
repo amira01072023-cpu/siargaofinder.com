@@ -1,3 +1,5 @@
+import { getListingCategoryGroup } from "./listing-category-groups";
+
 export const CATEGORY_SLUG_ALIASES: Record<string, string[]> = {
   "food-chains-and-restaurants": [
     "Food",
@@ -117,6 +119,17 @@ export const CATEGORY_SLUG_ALIASES: Record<string, string[]> = {
   "schools-and-education": ["Education", "Schools & Education"],
 };
 
+const CATEGORY_SLUG_GROUPS: Record<string, string[]> = {
+  "food-chains-and-restaurants": ["food-drinks"],
+  "hotels-and-stays": ["hotels-stays"],
+  "surf-schools-and-rentals": ["surf-beach"],
+  "tours-and-island-hopping": ["tours-activities"],
+  "transport-rentals": ["transport-rentals"],
+  "essentials-and-services": ["shopping-supplies", "health-wellness", "home-construction", "professional-services"],
+  "government-offices": ["government-public"],
+  "schools-and-education": ["schools-education"],
+};
+
 export function categoryToSlug(name: string) {
   return name
     .toLowerCase()
@@ -180,7 +193,26 @@ export function slugToLabel(slug: string) {
 }
 
 export function getCategorySearchTerms(slug: string) {
-  return [...new Set([...(CATEGORY_SLUG_ALIASES[slug] || []), slugToLabel(slug)])];
+  const groupTerms = (CATEGORY_SLUG_GROUPS[slug] || []).flatMap((groupId) => getListingCategoryGroup(groupId)?.terms || []);
+  return [...new Set([...(CATEGORY_SLUG_ALIASES[slug] || []), ...groupTerms, slugToLabel(slug)])];
+}
+
+export function categoryMatchesCanonicalSlug(category: string | null | undefined, slug: string) {
+  const normalizedCategory = category?.toLowerCase() || "";
+  return getCategorySearchTerms(slug).some((term) => normalizedCategory.includes(term.toLowerCase()));
+}
+
+/**
+ * Maps a raw directory category to a curated landing hub only for navigation
+ * and counts. It deliberately does not change legacy category route slugs.
+ */
+export function categoryToLandingSlug(category: string) {
+  const exactCanonicalSlug = categoryToCanonicalSlug(category);
+  if (exactCanonicalSlug !== categoryToSlug(category)) return exactCanonicalSlug;
+
+  return Object.keys(CATEGORY_SLUG_ALIASES).find((slug) =>
+    categoryMatchesCanonicalSlug(category, slug),
+  ) || exactCanonicalSlug;
 }
 
 export function categorySeoLabel(slug: string) {

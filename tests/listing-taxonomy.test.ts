@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  categoryMatchesCanonicalSlug,
   categorySlugToCanonicalSlug,
+  categoryToLandingSlug,
   categoryToCanonicalSlug,
   categoryToSlug,
 } from "../src/lib/listing-taxonomy";
@@ -27,6 +29,15 @@ describe("listing taxonomy canonical slugs", () => {
   it("canonicalizes alias route slugs", () => {
     expect(categorySlugToCanonicalSlug("government")).toBe("government-offices");
     expect(categorySlugToCanonicalSlug("government-offices")).toBe("government-offices");
+  });
+
+  it("matches varied live-directory category names to their canonical landing hubs", () => {
+    expect(categoryToCanonicalSlug("General Merchandise & Grocery Supplier")).toBe("general-merchandise-and-grocery-supplier");
+    expect(categoryToCanonicalSlug("Motorbike Rental")).toBe("transport-rentals");
+    expect(categoryMatchesCanonicalSlug("Coffee, Snacks & Beverage Supplier", "food-chains-and-restaurants")).toBe(true);
+    expect(categoryMatchesCanonicalSlug("Hardware & Construction Materials Supplier", "essentials-and-services")).toBe(true);
+    expect(categoryToLandingSlug("General Merchandise & Grocery Supplier")).toBe("essentials-and-services");
+    expect(categoryToLandingSlug("Cargo Logistics")).toBe("transport-rentals");
   });
 });
 

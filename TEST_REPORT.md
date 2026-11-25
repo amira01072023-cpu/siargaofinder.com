@@ -268,3 +268,40 @@ LCP improved in this sample, but total transfer, load completion and long-task c
 - Homepage hero copy contains no Jobs promise.
 - The Siargao Journal includes a direct link to `/blog`; existing guide URLs remain unchanged.
 - No database writes, migrations, routing changes or admin changes were performed.
+
+## Directory taxonomy and landing-route audit
+
+### Ticket: category taxonomy, slugs, and counts
+
+- **Status:** implemented; review pending.
+- **Evidence:** the public filters endpoint reports 3,323 valid-municipality listings. Curated category hubs now use the same public dataset: Food & Drinks 658, Hotels & Stays 809, Tours & Activities 112, Transport & Rentals 118, Surf & Beach 71, Shopping & Supplies 544, Health & Wellness 221, Home/Construction 107, Government/Public 458, Schools/Education 212 and Professional Services 169.
+- **Repair:** legacy raw category slugs remain deterministic; only landing navigation maps broad source labels into curated hubs. This prevents a new hub rule from silently changing existing category URLs.
+
+### Ticket: municipality values and filtered results
+
+- **Status:** implemented; review pending.
+- **Evidence:** all nine supported municipality values are present in public data: General Luna 1,723; Dapa 583; Del Carmen 206; Pilar 141; San Benito 60; San Isidro 211; Santa Monica 125; Socorro 95; Burgos 179.
+- **Combined-filter fixtures:** General Luna/Food 429, Dapa/Transport 20, Pilar/Shopping 14 and Socorro/Schools 27. Each API sample returned only the selected municipality.
+- **Repair:** unknown municipality slugs now resolve to the app 404 instead of rendering a thin empty location page.
+
+### Ticket: listing cards, details, incomplete records, and contacts
+
+- **Status:** audited; no unnecessary component redesign required.
+- **Evidence:** a 200-record public API sample found no malformed phone, email, or website values. Cards already hide unavailable phone/email/site actions and retain the directions action using the business name when no address exists.
+- **Detail coverage:** 10 varied real listing pages returned 200 with one H1, a canonical URL and LocalBusiness JSON-LD.
+
+### Ticket: landing content, internal links, duplicate prevention, and sitemap
+
+- **Status:** implemented; review pending.
+- **Evidence:** category pages link to relevant municipality/category pages; municipality pages show curated category chips with factual local counts; combined pages link back to both parent hubs.
+- **Thin-duplicate protection:** category/location combinations enter the sitemap only with at least 20 matching public listings; unknown municipality routes now 404; `/saved` remains noindexed.
+- **Route crawl:** 8 active category routes, 9 municipality routes and 34 sitemap-selected municipality/category routes all returned 200 with exactly one H1 and a self-canonical URL.
+
+### Verification
+
+- TypeScript passed.
+- Vitest: 11 files, 42 tests passed, including new taxonomy and 10-record combined-filter fixtures.
+- ESLint: 0 errors; 14 existing warnings in admin/auth/claim files outside this change.
+- Next.js production build passed with 116 generated routes.
+- Responsive CDP checks at 320, 375, 390, 768, 1024 and 1440px found no horizontal overflow on an active municipality/category page. One H1 and a main landmark were present at every width.
+- No listing data, RLS policy, authentication flow, migration, or production deployment was changed.

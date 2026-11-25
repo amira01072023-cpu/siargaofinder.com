@@ -87,6 +87,7 @@ async function fetchPublicListingRows(): Promise<PublicListingRow[]> {
     const { data, error } = await supabase
       .from("business_listings")
       .select("id,business_name,category,municipality,phone,email,website_url,address,services,last_verified_at")
+      .in("municipality", SIARGAO_MUNICIPALITIES)
       .order("id", { ascending: false })
       .range(from, from + SUPABASE_PAGE_SIZE - 1);
 
@@ -99,8 +100,14 @@ async function fetchPublicListingRows(): Promise<PublicListingRow[]> {
   return rows;
 }
 
+export const getPublicDirectoryListings = unstable_cache(
+  async () => fetchPublicListingRows(),
+  ["public-directory-listings-v1"],
+  { revalidate: CACHE_REVALIDATE_SECONDS },
+);
+
 export const getIndexablePublicListings = unstable_cache(
-  async () => getIndexableUniqueBusinessListings(await fetchPublicListingRows()),
+  async () => getIndexableUniqueBusinessListings(await getPublicDirectoryListings()),
   ["indexable-public-listings-v1"],
   { revalidate: 1800 },
 );

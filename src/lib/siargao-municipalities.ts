@@ -23,3 +23,7 @@ export function slugToMunicipality(slug: string) {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
+
+export function isKnownMunicipalitySlug(slug: string) {
+  return SIARGAO_MUNICIPALITIES.some((municipality) => municipalityToSlug(municipality) === slug);
+}

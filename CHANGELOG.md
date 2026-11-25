@@ -105,3 +105,13 @@ All notable 2027 modernization work is recorded here.
 - Confirmed Jobs is excluded from the public homepage and navigation scope.
 - Removed Jobs language from the homepage hero so the promise matches the live directory.
 - Added a direct “Explore all guides” action to The Siargao Journal entry point.
+
+### Directory taxonomy and landing-route audit
+
+- Switched category, municipality, and municipality/category landing pages from the SEO-only listing subset to the full public directory dataset, so visible result totals match the public filters.
+- Kept listing-detail sitemap gating unchanged; only factual, non-thin discovery hubs gained broader coverage.
+- Added category-group matching for landing pages without changing legacy raw category slugs or existing listing URLs.
+- Added guards for unknown municipality slugs to prevent empty, indexable location pages.
+- Capped landing-page card rendering at 100 while retaining the actual database total and an explicit refinement message.
+- Updated municipality category links to aggregate raw source categories into the curated landing hubs and show their accurate local totals.
+- Expanded sitemap inclusion to all supported category and municipality hubs with public listings, and municipality/category pages with at least 20 matching records.

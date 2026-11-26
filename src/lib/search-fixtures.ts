@@ -18,7 +18,7 @@ export const DIRECTORY_SEARCH_FIXTURES: SearchFixture[] = [
   { id: "exact-sur", query: "Sur Transport Solutions", expectedNameFragment: "sur transport" },
   { id: "exact-inson", query: "Inson Cycles and Accessories", expectedNameFragment: "inson cycles" },
   { id: "exact-tofu", query: "Tofu and Tempeh Siargao", expectedNameFragment: "tofu and tempeh" },
-  { id: "exact-saliargaw", query: "Saliargaw Hostel", expectedNameFragment: "saliargaw hostel" },
+  { id: "exact-nham-nham", query: "Nham Nham Siargao", expectedNameFragment: "nham nham" },
   { id: "exact-may-ann", query: "May Ann Homestay", expectedNameFragment: "may ann" },
   { id: "exact-rural-health", query: "Del Carmen Rural Health Unit", expectedNameFragment: "rural health" },
   { id: "exact-optical", query: "RN Optical Clinic Siargao", expectedNameFragment: "rn optical" },

@@ -10,7 +10,7 @@ const TYPO_CORRECTIONS: Record<string, string> = {
   restarant: "restaurant",
 };
 
-const SEARCH_FILLER_WORDS = new Set(["a", "an", "and", "best", "cheap", "find", "for", "in", "near", "siargao", "the", "with"]);
+const SEARCH_FILLER_WORDS = new Set(["a", "an", "and", "best", "cheap", "find", "for", "in", "near", "office", "offices", "school", "schools", "siargao", "supplier", "suppliers", "the", "with"]);
 
 export function normalizeListingSearchQuery(rawQuery: string) {
   return rawQuery

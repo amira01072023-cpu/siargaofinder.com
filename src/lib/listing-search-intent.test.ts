@@ -37,4 +37,25 @@ describe("inferListingSearchIntent", () => {
     });
     expect(getListingBusinessSearchTerms("Bombom motobike rental in General Luna").terms).toContain("bombom");
   });
+
+  it("does not turn generic supplier wording into an over-restrictive business filter", () => {
+    expect(getListingBusinessSearchTerms("hardware suppliers in Dapa")).toMatchObject({
+      categoryGroup: "home-construction",
+      municipality: "Dapa",
+      terms: [],
+    });
+  });
+
+  it("keeps category/location phrases broad when their remaining words are generic", () => {
+    expect(getListingBusinessSearchTerms("surf schools in San Isidro")).toMatchObject({
+      categoryGroup: "surf-beach",
+      municipality: "San Isidro",
+      terms: [],
+    });
+    expect(getListingBusinessSearchTerms("government offices in Socorro")).toMatchObject({
+      categoryGroup: "government-public",
+      municipality: "Socorro",
+      terms: [],
+    });
+  });
 });

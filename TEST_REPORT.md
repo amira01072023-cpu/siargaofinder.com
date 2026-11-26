@@ -329,19 +329,19 @@ LCP improved in this sample, but total transfer, load completion and long-task c
 
 - The 19 fixture cases expected to return a known relevant result/intent had a **16/19 (84.2%) semantic baseline**: exact names, existing synonyms, and location/category phrases worked; the three documented typo cases did not.
 - The updated fixture plan resolves all 19 relevant cases (**19/19, 100% plan coverage**) in unit tests, including the three typo cases.
-- A live top-five result measurement is **not yet verified** because both local and production public search requests exceeded the documented latency threshold during the audit. This is intentionally not reported as a production relevance pass.
+- The ready Vercel Preview was checked against every fixture: **19/19 known-relevant queries returned the expected listing or category/location-filtered top-five result (100%)**. The two empty/clear cases returned the full 3,323-listing set, and the no-result query returned zero results.
 
 ### Latency evidence and remaining blocker
 
-- Local `/api/listings/filters` completed in approximately 150ms.
-- Local `/api/listings?limit=10` took about 10 seconds; a 20-record request exceeded 35 seconds; a random 50-record request returned 500 after 113 seconds. Production public search also exceeded a 20-second timeout.
-- The prior route ordered by `listing_score` before falling back. The code now uses deterministic `id` ordering, but an after p95 cannot be claimed while Supabase-backed search requests remain unavailable/slow in this environment.
-- No migration was created. If latency remains once the data path is healthy, the next safe step is a separately approved, reversible `pg_trgm`/FTS index and ranked RPC evaluation.
+- Local `/api/listings/filters` completed in approximately 150ms. Before the change, local `/api/listings?limit=10` took about 10 seconds; a 20-record request exceeded 35 seconds; a random 50-record request returned 500 after 113 seconds. Production public search also exceeded a 20-second timeout during that initial local audit.
+- The prior route ordered by `listing_score` before falling back. The code now uses deterministic `id` ordering.
+- On the ready Vercel Preview, all 22 fixture API requests were measured with `curl` timing. **p95 was 1.489s**, so the suggested ≤1s target is **not met**. The slowest observed request was 2.100s; the suggestions endpoint returned Bombom Motorbike Rentals in 0.912s.
+- No migration was created. If the 1s p95 target is required, the next safe step is a separately approved, reversible `pg_trgm`/FTS index and ranked RPC evaluation.
 
 ### Automated verification
 
 - TypeScript passed.
 - Vitest: 14 files, 67 tests passed, including recent-search persistence, stale-response protection, common typo handling, and all fixture plans.
 - ESLint: 0 errors; 14 existing warnings outside the changed search files.
-- Production build was started but intentionally stopped after static generation remained blocked on remote data access; do not treat a production build as passed for this increment.
+- The local production build could not complete while its static data collection waited on remote data access. The Vercel Preview build for the exact pushed commit completed successfully; treat the local build as blocked, not passed.
 - No database writes, migrations, RLS changes, authentication changes, or production deployment were performed.

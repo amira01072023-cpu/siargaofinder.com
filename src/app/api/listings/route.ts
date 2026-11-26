@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getListingCategoryGroup } from "@/lib/listing-category-groups";
-import { inferListingSearchIntent } from "@/lib/listing-search-intent";
+import { getListingBusinessSearchTerms } from "@/lib/listing-search-intent";
 import { SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
 import { supabase } from "@/lib/supabase";
 
@@ -32,10 +32,9 @@ const page = Math.max(Number(searchParams.get("page") || 1), 1);
 const limit = Math.min(Math.max(Number(searchParams.get("limit") || 10), 1), 50);
 const from = (page - 1) * limit;
 const to = from + limit - 1;
-const inferredIntent = inferListingSearchIntent(q);
-const effectiveCategoryGroup = categoryGroup || inferredIntent.categoryGroup;
-const effectiveMunicipality = municipality || inferredIntent.municipality;
-const useBusinessNameSearch = Boolean(q && !inferredIntent.categoryGroup && !inferredIntent.municipality);
+const searchPlan = getListingBusinessSearchTerms(q);
+const effectiveCategoryGroup = categoryGroup || searchPlan.categoryGroup;
+const effectiveMunicipality = municipality || searchPlan.municipality;
 
 const buildQuery = (head = false) => {
 let query = supabase
@@ -47,7 +46,8 @@ let query = supabase
   .in("municipality", SIARGAO_MUNICIPALITIES);
 
 if (businessName) query = query.ilike("business_name", businessName);
-else if (useBusinessNameSearch) query = query.ilike("business_name", `%${q}%`);
+else if (searchPlan.terms.length === 1) query = query.ilike("business_name", `%${searchPlan.terms[0]}%`);
+else if (searchPlan.terms.length > 1) query = query.or(searchPlan.terms.map((term) => `business_name.ilike.%${term.replace(/[,%()]/g, " ")}%`).join(","));
 if (category) query = query.ilike("category", `%${category}%`);
 if (effectiveCategoryGroup) {
   const group = getListingCategoryGroup(effectiveCategoryGroup);
@@ -89,18 +89,9 @@ headers: {
 });
 }
 
-const query = buildQuery();
-
-let result = await query
-  .order("listing_score", { ascending: false })
+const result = await buildQuery()
   .order("id", { ascending: false })
   .range(from, to);
-
-if (result.error && /listing_score/i.test(result.error.message || "")) {
-  result = await buildQuery()
-    .order("id", { ascending: false })
-    .range(from, to);
-}
 
 if (result.error) return NextResponse.json({ error: result.error.message }, { status: 500 });
 

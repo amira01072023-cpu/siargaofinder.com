@@ -115,3 +115,13 @@ All notable 2027 modernization work is recorded here.
 - Capped landing-page card rendering at 100 while retaining the actual database total and an explicit refinement message.
 - Updated municipality category links to aggregate raw source categories into the curated landing hubs and show their accurate local totals.
 - Expanded sitemap inclusion to all supported category and municipality hubs with public listings, and municipality/category pages with at least 20 matching records.
+
+### Search audit and resilience
+
+- Added a 22-case fixture based on real public directory records, covering exact names, typo correction, synonyms, natural-language location/category intent, empty/clear-filter cases, and a no-result query.
+- Added lightweight corrections for demonstrated common directory terms (for example, `motobike` to `motorbike`) without a database migration.
+- Preserved distinctive business-name fragments alongside location/category intent so a mixed query can still prioritize the named business.
+- Replaced `listing_score` ordering in public search and suggestions with deterministic `id` ordering after latency testing exposed that ordering path as a search bottleneck.
+- Added local-only recent search history, capped at five entries and safely parsed from browser storage.
+- Added request sequence protection so a stale listing response cannot overwrite newer search results.
+- Preserved root canonicalization for query URLs; no query route or indexable URL variant was introduced.

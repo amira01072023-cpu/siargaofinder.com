@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { inferListingSearchIntent } from "./listing-search-intent";
+import { getListingBusinessSearchTerms, inferListingSearchIntent } from "./listing-search-intent";
 
 describe("inferListingSearchIntent", () => {
   it("detects transport and municipality intent", () => {
@@ -21,5 +21,20 @@ describe("inferListingSearchIntent", () => {
       categoryGroup: "",
       municipality: "",
     });
+  });
+
+  it("normalizes common search typos without a database migration", () => {
+    expect(inferListingSearchIntent("motobike rental in General Luna")).toEqual({
+      categoryGroup: "transport-rentals",
+      municipality: "General Luna",
+    });
+  });
+
+  it("keeps a distinctive business fragment alongside category/location intent", () => {
+    expect(getListingBusinessSearchTerms("Bombom motobike rental in General Luna")).toMatchObject({
+      categoryGroup: "transport-rentals",
+      municipality: "General Luna",
+    });
+    expect(getListingBusinessSearchTerms("Bombom motobike rental in General Luna").terms).toContain("bombom");
   });
 });

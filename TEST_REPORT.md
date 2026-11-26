@@ -305,3 +305,43 @@ LCP improved in this sample, but total transfer, load completion and long-task c
 - Next.js production build passed with 116 generated routes.
 - Responsive CDP checks at 320, 375, 390, 768, 1024 and 1440px found no horizontal overflow on an active municipality/category page. One H1 and a main landmark were present at every width.
 - No listing data, RLS policy, authentication flow, migration, or production deployment was changed.
+
+## UX-01 — Directory search audit and resilience
+
+### Baseline audit
+
+| Acceptance item | Baseline | Result after scoped change |
+|---|---|---|
+| 20+ real-listing fixture | No fixture | 22-case fixture added in `src/lib/search-fixtures.ts` |
+| Exact and substring search | Supabase `ilike` by business name | Preserved |
+| Natural-language category/location | Existing term matcher | Preserved and covered by fixtures |
+| Typo handling | Not supported | Common demonstrated corrections added without migration |
+| Synonym/category handling | Static group terms only | Preserved and covered by fixtures |
+| Suggestions | Municipality/category/business suggestions, cap 8 | Preserved; deterministic ordering avoids the slow score field |
+| Debounce | 250ms suggestion debounce | Preserved |
+| Stale listing responses | No guard | Latest-request sequence guard added |
+| Recent searches | Missing | Local browser history, max 5, added |
+| Clear filters | Resets to `/` | Preserved |
+| Mobile keyboard/accessibility | Combobox/listbox and Arrow/Home/End/Enter/Escape | Preserved; navigation unit tests remain passing |
+| Canonical query behavior | Homepage canonical is root | Preserved; no query variants added to sitemap |
+
+### Fixture relevance measurement
+
+- The 19 fixture cases expected to return a known relevant result/intent had a **16/19 (84.2%) semantic baseline**: exact names, existing synonyms, and location/category phrases worked; the three documented typo cases did not.
+- The updated fixture plan resolves all 19 relevant cases (**19/19, 100% plan coverage**) in unit tests, including the three typo cases.
+- A live top-five result measurement is **not yet verified** because both local and production public search requests exceeded the documented latency threshold during the audit. This is intentionally not reported as a production relevance pass.
+
+### Latency evidence and remaining blocker
+
+- Local `/api/listings/filters` completed in approximately 150ms.
+- Local `/api/listings?limit=10` took about 10 seconds; a 20-record request exceeded 35 seconds; a random 50-record request returned 500 after 113 seconds. Production public search also exceeded a 20-second timeout.
+- The prior route ordered by `listing_score` before falling back. The code now uses deterministic `id` ordering, but an after p95 cannot be claimed while Supabase-backed search requests remain unavailable/slow in this environment.
+- No migration was created. If latency remains once the data path is healthy, the next safe step is a separately approved, reversible `pg_trgm`/FTS index and ranked RPC evaluation.
+
+### Automated verification
+
+- TypeScript passed.
+- Vitest: 14 files, 67 tests passed, including recent-search persistence, stale-response protection, common typo handling, and all fixture plans.
+- ESLint: 0 errors; 14 existing warnings outside the changed search files.
+- Production build was started but intentionally stopped after static generation remained blocked on remote data access; do not treat a production build as passed for this increment.
+- No database writes, migrations, RLS changes, authentication changes, or production deployment were performed.

@@ -11,6 +11,8 @@ import PublicSiteHeader from "@/components/PublicSiteHeader";
 import { categoryMatchesGroup, getListingCategoryGroup, LISTING_CATEGORY_GROUPS } from "@/lib/listing-category-groups";
 import { listingHref } from "@/lib/listing-slugs";
 import { SIARGAO_MUNICIPALITIES } from "@/lib/siargao-municipalities";
+import { addRecentSearch, parseRecentSearches, recentSearchLabel, RECENT_SEARCHES_STORAGE_KEY, type RecentSearch } from "@/lib/recent-searches";
+import { isCurrentSearchRequest } from "@/lib/search-request-state";
 import { getNextSuggestionIndex } from "@/lib/search-suggestion-navigation";
 
 type Listing = {
@@ -222,6 +224,7 @@ const [moreFiltersOpen, setMoreFiltersOpen] = useState(Boolean(initialSearch.cat
 const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
 const [suggestionsOpen, setSuggestionsOpen] = useState(false);
 const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
 
 const municipalityOptions = uniqueOptions(initialData.municipalities ?? []);
 const popularCategories = initialData.popularCategories ?? [];
@@ -237,6 +240,14 @@ const [blogPage, setBlogPage] = useState(1);
 
 const liveSectionRef = useRef<HTMLElement | null>(null);
 const locallyLoadedUrlRef = useRef<string | null>(null);
+const listingRequestIdRef = useRef(0);
+
+useEffect(() => {
+  const timer = window.setTimeout(() => {
+    setRecentSearches(parseRecentSearches(window.localStorage.getItem(RECENT_SEARCHES_STORAGE_KEY)));
+  }, 0);
+  return () => window.clearTimeout(timer);
+}, []);
 
 useEffect(() => {
   const query = q.trim();
@@ -270,6 +281,7 @@ useEffect(() => {
 }, [q]);
 
 const loadListings = useCallback(async (params?: { q?: string; category?: string; categoryGroup?: string; municipality?: string; hasPhone?: boolean; page?: number }) => {
+const requestId = ++listingRequestIdRef.current;
 try {
 setLoading(true);
 setError("");
@@ -293,13 +305,17 @@ if (!res.ok || "error" in data) {
 throw new Error("error" in data ? data.error : "Failed to load listings");
 }
 
+if (!isCurrentSearchRequest(listingRequestIdRef.current, requestId)) return;
+
 setListings(data.items ?? []);
 setPage(data.page ?? 1);
 setTotalPages(data.totalPages ?? 1);
 setTotal(data.total ?? 0);
 } catch (e: unknown) {
+if (!isCurrentSearchRequest(listingRequestIdRef.current, requestId)) return;
 setError(e instanceof Error ? e.message : "Something went wrong");
 } finally {
+if (!isCurrentSearchRequest(listingRequestIdRef.current, requestId)) return;
 setLoading(false);
 }
 }, []);
@@ -378,9 +394,23 @@ const performSearch = async (
   shouldScroll = true,
 ) => {
   setHasSearched(true);
+  const recentSearch = addRecentSearch(recentSearches, params);
+  if (recentSearch.length !== recentSearches.length || recentSearch.some((item, index) => item !== recentSearches[index])) {
+    setRecentSearches(recentSearch);
+    window.localStorage.setItem(RECENT_SEARCHES_STORAGE_KEY, JSON.stringify(recentSearch));
+  }
   updateSearchUrl(params);
   await loadListings(params);
   if (shouldScroll) liveSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+const applyRecentSearch = async (search: RecentSearch) => {
+  setQ(search.q || "");
+  setCategory("");
+  setCategoryGroup(search.categoryGroup || "");
+  setMunicipality(search.municipality || "");
+  setHasPhone(Boolean(search.hasPhone));
+  await performSearch({ ...search, page: 1 });
 };
 
 const onSearch = async (event?: React.FormEvent<HTMLFormElement>) => {
@@ -621,6 +651,22 @@ return (
       </button>
     ))}
   </div>
+
+  {recentSearches.length > 0 && (
+    <div className="hero-quick-searches" aria-label="Recent searches">
+      <span className="hero-quick-searches-label">Recent</span>
+      {recentSearches.map((search) => (
+        <button
+          key={`${search.q || ""}-${search.categoryGroup || ""}-${search.municipality || ""}-${search.hasPhone ? "phone" : ""}`}
+          type="button"
+          onClick={() => void applyRecentSearch(search)}
+          className="hero-quick-search-link"
+        >
+          {recentSearchLabel(search)}
+        </button>
+      ))}
+    </div>
+  )}
 
   <details
     className="hero-more-filters"

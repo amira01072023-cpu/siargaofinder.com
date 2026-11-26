@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       .select("business_name, category, municipality")
       .ilike("business_name", `%${safeQuery}%`)
       .in("municipality", SIARGAO_MUNICIPALITIES)
-      .order("listing_score", { ascending: false })
+      .order("id", { ascending: false })
       .limit(5);
 
     if (!result.error) {

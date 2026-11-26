@@ -492,6 +492,7 @@ flex-shrink: 0;
 .hero-search-input,
 .hero-search-select {
 width: 100%;
+min-height: 2.75rem;
 border: 0;
 outline: none;
 background: transparent;
@@ -4872,7 +4873,7 @@ button.municipality-discovery-card {
 }
 
 .footer-2027-kicker {
-  color: #087f8c;
+  color: #076b75;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.13em;

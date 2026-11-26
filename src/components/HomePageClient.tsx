@@ -529,7 +529,7 @@ return (
   fill
   preload
   fetchPriority="high"
-  quality={75}
+  quality={60}
   sizes="100vw"
   className="hero-background-image"
   aria-hidden="true"

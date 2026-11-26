@@ -1,17 +1,16 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import SiteChatWidget from "@/components/SiteChatWidget";
 import SiteFooter from "@/components/SiteFooter";
 import SiteVisitTracker from "@/components/SiteVisitTracker";
 import ConsentAdNetworkScript from "@/components/ConsentAdNetworkScript";
+import ConsentAnalyticsScript from "@/components/ConsentAnalyticsScript";
 import FormValidationA11y from "@/components/FormValidationA11y";
 import PublicMotion from "@/components/PublicMotion";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import { COOKIE_CONSENT_STORAGE_KEY } from "@/lib/consent";
 import { getSiteUrl } from "@/lib/site-url";
 import { DEFAULT_SOCIAL_IMAGE } from "@/lib/seo-metadata";
 
@@ -124,28 +123,6 @@ return (
 <html lang="en">
 <body className={`${inter.variable} ${plusJakartaSans.variable}`}>
 <a className="skip-link" href="#main-content">Skip to main content</a>
-<Script
-  async
-  src="https://www.googletagmanager.com/gtag/js?id=G-9HB4R9D2HX"
-  strategy="afterInteractive"
-  referrerPolicy="no-referrer"
-/>
-<Script
-  id="ga4-google-tag"
-  strategy="afterInteractive"
-  dangerouslySetInnerHTML={{
-    __html: [
-      "window.dataLayer = window.dataLayer || [];",
-      "function gtag(){dataLayer.push(arguments);}",
-      "window.gtag = gtag;",
-      "gtag('js', new Date());",
-      `const savedConsent = window.localStorage.getItem(${JSON.stringify(COOKIE_CONSENT_STORAGE_KEY)});`,
-      "const analyticsGranted = savedConsent === 'accepted';",
-      "gtag('consent', 'default', { analytics_storage: analyticsGranted ? 'granted' : 'denied', ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied' });",
-      "gtag('config', 'G-9HB4R9D2HX', { anonymize_ip: true });",
-    ].join(""),
-  }}
-/>
 <script
   type="application/ld+json"
   dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -166,6 +143,7 @@ return (
 </div>
 <MobileBottomNav />
 <SiteChatWidget />
+<ConsentAnalyticsScript />
 <ConsentAdNetworkScript />
 <FormValidationA11y />
 <CookieConsentBanner />

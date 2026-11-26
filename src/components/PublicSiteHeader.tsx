@@ -41,7 +41,7 @@ export default function PublicSiteHeader({
   return (
     <header className="site-header">
       <div className={`site-header-inner ${className}`.trim()}>
-        <Link href="/" className="site-header-brand" aria-label={homeLabel}>
+        <Link href="/" className="site-header-brand" aria-label={`${homeLabel}: Siargao Finder`}>
           <Image
             src="/siargaofinder-logo.png"
             alt=""

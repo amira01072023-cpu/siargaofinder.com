@@ -22,6 +22,7 @@ import {
 } from "@/lib/seo-metadata";
 import { categoryToCanonicalSlug } from "@/lib/listing-taxonomy";
 import { businessNameToListingSlug, listingHref } from "@/lib/listing-slugs";
+import { isKnownMunicipalitySlug, municipalityToSlug } from "@/lib/siargao-municipalities";
 
 export const revalidate = 1800;
 
@@ -37,11 +38,6 @@ address: string | null;
 services: string | null;
 last_verified_at?: string | null;
 };
-
-function municipalityToSlug(municipality?: string | null) {
-if (!municipality) return "";
-return municipality.toLowerCase().replace(/\s+/g, "-");
-}
 
 function buildDirectionsUrl(businessName: string, address?: string | null, municipality?: string | null) {
 const query = encodeURIComponent([businessName, address, municipality].filter(Boolean).join(", "));
@@ -332,7 +328,7 @@ item: `${baseUrl}${canonicalPath}`,
 ],
 };
 
-const municipalitySlug = municipalityToSlug(listing.municipality);
+const municipalitySlug = municipalityToSlug(listing.municipality ?? "");
 const categorySlug = listing.category ? categoryToCanonicalSlug(listing.category) : "";
 const directionsUrl = listing.address || listing.municipality
   ? buildDirectionsUrl(listing.business_name, listing.address, listing.municipality)
@@ -438,7 +434,7 @@ return (
 />
 
 <div className="mt-6 flex flex-wrap gap-4 text-sm">
-{municipalitySlug && (
+{municipalitySlug && isKnownMunicipalitySlug(municipalitySlug) && (
 <Link href={`/municipality/${municipalitySlug}`} className="link-inline">
 View more in {listing.municipality}
 </Link>

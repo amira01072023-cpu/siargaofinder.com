@@ -45,7 +45,7 @@ export default function SiteFooter() {
       <div className="footer-2027-main">
         <div className="footer-2027-container footer-2027-grid">
           <div className="footer-2027-brand">
-            <Link href="/" className="footer-2027-brand__mark" aria-label="Siargao Finder home">
+            <Link href="/" className="footer-2027-brand__mark" aria-label="SiargaoFinder home">
               <Image
                 src="/siargaofinder-logo.png"
                 alt=""
